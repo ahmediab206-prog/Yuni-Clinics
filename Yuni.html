@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>عيادات Yuni - تسجيل بيانات العميل</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #E8E2CE;
+      --card-bg: #FFFFFF;
+      --primary-green: #184232;
+      --accent-green: #255C47;
+      --light-green: #EBF2EE;
+      --text-color: #2D312E;
+      --border-color: #D3CAB2;
+      --gold-accent: #C5A059;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Tajawal', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 30px 15px;
+    }
+
+    .main-wrapper {
+      width: 100%;
+      max-width: 950px;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 35px;
+      border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(24, 66, 50, 0.08);
+      border: 1px solid var(--border-color);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .brand-name {
+      color: var(--primary-green);
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    .brand-korean {
+      color: var(--primary-green);
+      font-size: 24px;
+      font-weight: 500;
+      opacity: 0.85;
+    }
+
+    .header-title {
+      color: var(--gold-accent);
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 650px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label.section-title {
+      color: var(--primary-green);
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 15px;
+      background-color: #FAF8F5;
+      color: var(--text-color);
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    input:focus {
+      border-color: var(--primary-green);
+      background-color: #FFFFFF;
+      box-shadow: 0 0 0 4px rgba(24, 66, 50, 0.1);
+    }
+
+    /* Category Tabs Styling */
+    .tabs-header {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .tab-btn {
+      padding: 8px 18px;
+      background: #FAF8F5;
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      font-weight: 700;
+      color: var(--primary-green);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--primary-green);
+      color: #FFFFFF;
+      border-color: var(--primary-green);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: grid;
+    }
+
+    .custom-grid {
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      background-color: #FAF8F5;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border-color);
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 6px 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .checkbox-item:hover {
+      background-color: #E8E2CE;
+    }
+
+    .checkbox-item div {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary-green);
+      cursor: pointer;
+    }
+
+    .price-tag {
+      font-size: 12px;
+      color: var(--primary-green);
+      font-weight: 700;
+      background: var(--light-green);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .extras-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 2fr;
+      gap: 12px;
+      background-color: #FAF8F5;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border-color);
+    }
+
+    @media (max-width: 700px) {
+      .extras-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .payment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      background-color: #FAF8F5;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border-color);
+    }
+
+    .payment-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .payment-field label {
+      font-size: 13px;
+      color: var(--primary-green);
+      font-weight: 600;
+    }
+
+    .sub-note {
+      font-size: 11px;
+      color: #777;
+    }
+
+    .summary-box {
+      background-color: var(--light-green);
+      padding: 16px 20px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      color: var(--primary-green);
+      border: 1px solid rgba(24, 66, 50, 0.2);
+    }
+
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .summary-item span.title {
+      font-size: 12px;
+      color: #555;
+    }
+
+    .summary-item span.val {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .val-debt {
+      color: #C5221F !important;
+    }
+
+    .val-credit {
+      color: #184232 !important;
+    }
+
+    .submit-btn {
+      grid-column: 1 / -1;
+      padding: 16px;
+      background-color: var(--primary-green);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      margin-top: 10px;
+    }
+
+    .submit-btn:hover {
+      background-color: var(--accent-green);
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .table-header h3 {
+      color: var(--primary-green);
+      font-size: 18px;
+    }
+
+    .badge {
+      background-color: var(--light-green);
+      color: var(--primary-green);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: #FAF8F5;
+      color: var(--primary-green);
+      font-weight: 700;
+    }
+
+    .tag {
+      display: inline-block;
+      background-color: var(--light-green);
+      color: var(--primary-green);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin: 2px;
+    }
+
+    .note-text {
+      display: block;
+      font-size: 11px;
+      color: #666;
+      margin-top: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-wrapper">
+    
+    <div class="card">
+      <div class="header">
+        <div class="header-logo">
+          <span class="brand-name">YUNI</span>
+          <span class="brand-korean">- 유니</span>
+        </div>
+        <div class="header-title">نظام تسجيل الاستقبال والخدمات</div>
+      </div>
+
+      <form id="clinicForm" class="form-grid">
+        <div class="form-group full-width">
+          <label class="section-title" for="clientName">اسم العميلة</label>
+          <input type="text" id="clientName" required placeholder="مثال: سارة محمود أحمد">
+        </div>
+
+        <!-- Categorized Services Tabs -->
+        <div class="form-group full-width">
+          <label class="section-title">اختر الخدمات المطلوبة حسب التصنيف</label>
+          
+          <div class="tabs-header">
+            <button type="button" class="tab-btn active" onclick="switchTab('spa')">خدمات SPA</button>
+            <button type="button" class="tab-btn" onclick="switchTab('laser')">خدمات Laser</button>
+          </div>
+
+          <!-- SPA Category -->
+          <div id="spa" class="tab-content custom-grid active">
+            <label class="checkbox-item">
+              <div>
+                <input type="checkbox" class="service-cb" value="SPA - تنظيف بشرة عميق" data-price="400">
+                <span>تنظيف بشرة عميق</span>
+              </div>
+              <span class="price-tag">400 ج.م</span>
+            </label>
+            <label class="checkbox-item">
+              <div>
+                <input type="checkbox" class="service-cb" value="SPA - جلسة هيدرافيل نضارة" data-price="500">
+                <span>جلسة هيدرافيل نضارة</span>
+              </div>
+              <span class="price-tag">500 ج.م</span>
+            </label>
+            <label class="checkbox-item">
+              <div>
+                <input type="checkbox" class="service-cb" value="SPA - جلسة درما بن" data-price="600">
+                <span>جلسة درما بن</span>
+              </div>
+              <span class="price-tag">600 ج.م</span>
+            </label>
+            <label class="checkbox-item">
+              <div>
+                <input type="checkbox" class="service-cb" value="SPA - مساج استرخائي" data-price="450">
+                <span>مساج استرخائي</span>
+              </div>
+              <span class="price-tag">450 ج.م</span>
+            </label>
+          </div>
+
+          <!-- Laser Category -->
+          <div id="laser" class="tab-content custom-grid">
+            <label class="checkbox-item">
+              <div>
+                <input type="checkbox" class="service-cb" value="Laser - ليزر جسم كامل" data-price="1200">
+                <span>ليزر جسم كامل</span>
+              </div>
+              <span class="price-tag">1200 ج.م</span>
+            </label>
+            <label class="checkbox-item">
+              <div>
+                <input type="checkbox" class="service-cb" value="Laser - ليزر منطقة الوجه" data-price="250">
+                <span>ليزر منطقة الوجه</span>
+              </div>
+              <span class="price-tag">250 ج.م</span>
+            </label>
+
+            <label class="checkbox-item">
+              <div>
+                <input type="checkbox" class="service-cb" value="Laser - ليزر نصف الجسم" data-price="700">
+                <span>ليزر نصف الجسم</span>
+              </div>
+              <span class="price-tag">700 ج.م</span>
+            </label>
+            <label class="checkbox-item">
+              <div>
+                <input type="checkbox" class="service-cb" value="Laser - رتوش ليزر" data-price="300">
+                <span>رتوش ليزر</span>
+              </div>
+              <span class="price-tag">300 ج.م</span>
+            </label>
+          </div>
+
+        </div>
+
+        <!-- Extras & Discounts -->
+        <div class="form-group full-width">
+          <label class="section-title">إضافات وتخفيضات الحساب</label>
+          <div class="extras-grid">
+            <div class="payment-field">
+              <label>خدمة أخرى / إضافية <span class="sub-note">(تُضاف)</span></label>
+              <input type="number" id="extraFee" class="calc-input" min="0" placeholder="0" value="0">
+            </div>
+            <div class="payment-field">
+              <label>قيمة الخصم <span class="sub-note">(تُخصم)</span></label>
+              <input type="number" id="discount" class="calc-input" min="0" placeholder="0" value="0">
+            </div>
+            <div class="payment-field">
+              <label>سبب الخصم / ملاحظات</label>
+              <input type="text" id="discountNote" placeholder="مثال: عرض افتتاح / عميلة VIP">
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="form-group full-width">
+          <label class="section-title">طرق الدفع والمسدد</label>
+          <div class="payment-grid">
+            <div class="payment-field">
+              <label>نقدي (كاش)</label>
+              <input type="number" id="payCash" class="calc-input pay-part" min="0" placeholder="0" value="0">
+            </div>
+            <div class="payment-field">
+              <label>محفظة إلكترونية</label>
+              <input type="number" id="payWallet" class="calc-input pay-part" min="0" placeholder="0" value="0">
+            </div>
+            <div class="payment-field">
+              <label>انستاباي (InstaPay)</label>
+              <input type="number" id="payInsta" class="calc-input pay-part" min="0" placeholder="0" value="0">
+            </div>
+            <div class="payment-field">
+              <label>POS (فيزا / ماكينة)</label>
+              <input type="number" id="payPOS" class="calc-input pay-part" min="0" placeholder="0" value="0">
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="form-group full-width">
+          <div class="summary-box">
+            <div class="summary-item">
+              <span class="title">مجموع الخدمات والإضافات</span>
+              <span class="val" id="sumServicesDisplay">0 ج.م</span>
+            </div>
+            <div class="summary-item">
+              <span class="title">صافي المطلوب (بعد الخصم)</span>
+              <span class="val" id="netAmountDisplay">0 ج.م</span>
+            </div>
+            <div class="summary-item">
+              <span class="title">إجمالي المدفوع</span>
+              <span class="val" id="totalPaidDisplay">0 ج.م</span>
+            </div>
+            <div class="summary-item">
+              <span class="title">المتبقي (آجل / باقي)</span>
+              <span class="val" id="debtDisplay">0 ج.م</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">تسجيل وحفظ العملية</button>
+      </form>
+    </div>
+
+    <!-- Live Preview Table -->
+    <div class="card">
+      <div class="table-header">
+        <h3>سجلات اليوم (تجريبي)</h3>
+        <span class="badge" id="recordCount">0 عمليات</span>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>الوقت</th>
+              <th>اسم العميلة</th>
+              <th>الخدمات المختارة</th>
+              <th>الخصم والسبب</th>
+              <th>الصافي المطلوب</th>
+              <th>طرق الدفع</th>
+              <th>المتبقي (آجل / باقي)</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const form = document.getElementById('clinicForm');
+    const tableBody = document.getElementById('tableBody');
+    const recordCount = document.getElementById('recordCount');
+
+    const serviceCheckboxes = document.querySelectorAll('.service-cb');
+    const calcInputs = document.querySelectorAll('.calc-input');
+
+    serviceCheckboxes.forEach(cb => cb.addEventListener('change', calculateAll));
+    calcInputs.forEach(input => input.addEventListener('input', calculateAll));
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function calculateAll() {
+      let baseServicesTotal = 0;
+      serviceCheckboxes.forEach(cb => {
+        if (cb.checked) {
+          baseServicesTotal += parseFloat(cb.getAttribute('data-price')) || 0;
+        }
+      });
+
+      const extraFee = parseFloat(document.getElementById('extraFee').value) || 0;
+      const discount = parseFloat(document.getElementById('discount').value) || 0;
+
+      const totalWithExtra = baseServicesTotal + extraFee;
+      const netAmount = Math.max(0, totalWithExtra - discount);
+
+      const cash = parseFloat(document.getElementById('payCash').value) || 0;
+      const wallet = parseFloat(document.getElementById('payWallet').value) || 0;
+      const insta = parseFloat(document.getElementById('payInsta').value) || 0;
+      const pos = parseFloat(document.getElementById('payPOS').value) || 0;
+
+      const totalPaid = cash + wallet + insta + pos;
+      const debt = netAmount - totalPaid;
+
+      document.getElementById('sumServicesDisplay').innerText = totalWithExtra.toFixed(2) + ' ج.م';
+      document.getElementById('netAmountDisplay').innerText = netAmount.toFixed(2) + ' ج.م';
+      document.getElementById('totalPaidDisplay').innerText = totalPaid.toFixed(2) + ' ج.م';
+      
+      const debtDisplay = document.getElementById('debtDisplay');
+      debtDisplay.innerText = debt.toFixed(2) + ' ج.م';
+
+      if (debt > 0) {
+        debtDisplay.className = 'val val-debt';
+      } else if (debt < 0) {
+        debtDisplay.className = 'val val-credit';
+      } else {
+        debtDisplay.className = 'val';
+      }
+
+      return { baseServicesTotal, extraFee, discount, netAmount, cash, wallet, insta, pos, totalPaid, debt };
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('clientName').value;
+      const note = document.getElementById('discountNote').value;
+      const calcs = calculateAll();
+      
+      const checkedBoxes = document.querySelectorAll('.service-cb:checked');
+      const selectedServices = Array.from(checkedBoxes).map(cb => cb.value);
+      
+      if (selectedServices.length === 0) {
+        selectedServices.push('بدون خدمة');
+      }
+
+      const currentTime = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+      addRowToTable(currentTime, name, selectedServices, note, calcs);
+      updateCount();
+
+      form.reset();
+      calculateAll();
+    });
+
+    function addRowToTable(time, name, servicesArray, note, calcs) {
+      const tr = document.createElement('tr');
+      const servicesHTML = servicesArray.map(s => `<span class="tag">${s}</span>`).join('');
+      
+      let payDetails = [];
+      if(calcs.cash > 0) payDetails.push(`نقدي: ${calcs.cash}`);
+      if(calcs.wallet > 0) payDetails.push(`محفظة: ${calcs.wallet}`);
+      if(calcs.insta > 0) payDetails.push(`انستاباي: ${calcs.insta}`);
+      if(calcs.pos > 0) payDetails.push(`POS: ${calcs.pos}`);
+      if(payDetails.length === 0) payDetails.push('لم يدفع شيء');
+
+      let discountCell = calcs.discount > 0 
+        ? `<strong>${calcs.discount} ج.م</strong>${note ? `<span class="note-text">(${note})</span>` : ''}` 
+        : '-';
+
+      let debtClass = calcs.debt > 0 ? 'val-debt' : (calcs.debt < 0 ? 'val-credit' : '');
+
+      tr.innerHTML = `
+        <td>${time}</td>
+        <td><strong>${name}</strong></td>
+        <td>${servicesHTML}</td>
+        <td>${discountCell}</td>
+        <td><strong>${calcs.netAmount.toFixed(2)} ج.م</strong></td>
+        <td>${payDetails.join(' | ')}</td>
+        <td><strong class="${debtClass}">${calcs.debt.toFixed(2)} ج.م</strong></td>
+      `;
+      tableBody.insertBefore(tr, tableBody.firstChild);
+    }
+
+    function updateCount() {
+      const totalRows = tableBody.getElementsByTagName('tr').length;
+      recordCount.innerText = `${totalRows} عمليات`;
+    }
+  </script>
+</body>
+</html>
