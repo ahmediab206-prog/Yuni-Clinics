@@ -1,10 +1,10 @@
-<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>عيادات Yuni - تسجيل بيانات العميل</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --bg-color: #E8E2CE;
@@ -15,6 +15,7 @@
       --text-color: #2D312E;
       --border-color: #D3CAB2;
       --gold-accent: #C5A059;
+      --whatsapp-green: #25D366;
     }
 
     * {
@@ -28,7 +29,7 @@
       background-color: var(--bg-color);
       color: var(--text-color);
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       min-height: 100vh;
       padding: 30px 15px;
@@ -36,7 +37,7 @@
 
     .main-wrapper {
       width: 100%;
-      max-width: 950px;
+      max-width: 1000px;
       display: flex;
       flex-direction: column;
       gap: 25px;
@@ -111,7 +112,37 @@
       font-size: 15px;
     }
 
-    input[type="text"], input[type="number"] {
+    .section-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .action-btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-small {
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: #FAF8F5;
+      color: var(--primary-green);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-small:hover {
+      background-color: var(--light-green);
+      border-color: var(--primary-green);
+    }
+
+    input[type="text"], input[type="number"], select {
       width: 100%;
       padding: 12px 14px;
       border: 1.5px solid var(--border-color);
@@ -123,19 +154,38 @@
       transition: all 0.25s ease;
     }
 
-    input:focus {
+    input:focus, select:focus {
       border-color: var(--primary-green);
       background-color: #FFFFFF;
       box-shadow: 0 0 0 4px rgba(24, 66, 50, 0.1);
     }
 
-    /* Category Tabs Styling */
+    .staff-container {
+      background-color: #FAF8F5;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px;
+      max-height: 150px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: opacity 0.3s;
+    }
+
+    .staff-container.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+      background-color: #EFEFEF;
+    }
+
     .tabs-header {
       display: flex;
       gap: 10px;
       margin-bottom: 12px;
       border-bottom: 2px solid var(--border-color);
       padding-bottom: 8px;
+      overflow-x: auto;
     }
 
     .tab-btn {
@@ -146,6 +196,7 @@
       font-weight: 700;
       color: var(--primary-green);
       cursor: pointer;
+      white-space: nowrap;
       transition: all 0.2s;
     }
 
@@ -164,12 +215,14 @@
     }
 
     .custom-grid {
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 12px;
       background-color: #FAF8F5;
       padding: 16px;
       border-radius: 12px;
       border: 1.5px solid var(--border-color);
+      max-height: 380px;
+      overflow-y: auto;
     }
 
     .checkbox-item {
@@ -180,8 +233,10 @@
       cursor: pointer;
       font-size: 14px;
       font-weight: 500;
-      padding: 6px 8px;
+      padding: 8px 10px;
       border-radius: 6px;
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
       transition: background 0.2s;
     }
 
@@ -209,6 +264,7 @@
       background: var(--light-green);
       padding: 2px 6px;
       border-radius: 4px;
+      white-space: nowrap;
     }
 
     .extras-grid {
@@ -291,8 +347,15 @@
       color: #184232 !important;
     }
 
-    .submit-btn {
+    .buttons-wrapper {
       grid-column: 1 / -1;
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .submit-btn {
+      flex: 2;
       padding: 16px;
       background-color: var(--primary-green);
       color: #FFFFFF;
@@ -302,11 +365,33 @@
       font-weight: 700;
       cursor: pointer;
       transition: all 0.25s ease;
-      margin-top: 10px;
     }
 
     .submit-btn:hover {
       background-color: var(--accent-green);
+    }
+
+    .submit-btn:disabled {
+      background-color: #999;
+      cursor: not-allowed;
+    }
+
+    .reset-btn {
+      flex: 1;
+      padding: 16px;
+      background-color: #FAF8F5;
+      color: #777;
+      border: 1.5px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .reset-btn:hover {
+      background-color: #E8E2CE;
+      color: var(--text-color);
     }
 
     .table-header {
@@ -363,11 +448,69 @@
       margin: 2px;
     }
 
+    .staff-tag {
+      display: inline-block;
+      background-color: #E8E2CE;
+      color: var(--primary-green);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
     .note-text {
       display: block;
       font-size: 11px;
       color: #666;
       margin-top: 3px;
+    }
+
+    .empty-msg {
+      padding: 20px;
+      text-align: center;
+      color: #777;
+      font-size: 14px;
+      background-color: #FAF8F5;
+      border-radius: 12px;
+      border: 1.5px dashed var(--border-color);
+    }
+
+    footer {
+      margin-top: 35px;
+      padding: 15px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--primary-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-top: 1px solid var(--border-color);
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    .whatsapp-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background-color: var(--whatsapp-green);
+      color: #FFFFFF;
+      padding: 4px 10px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 11px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .whatsapp-btn i {
+      font-size: 12px;
+    }
+
+    .whatsapp-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
     }
   </style>
 </head>
@@ -390,83 +533,38 @@
           <input type="text" id="clientName" required placeholder="مثال: سارة محمود أحمد">
         </div>
 
-        <!-- Categorized Services Tabs -->
-        <div class="form-group full-width">
-          <label class="section-title">اختر الخدمات المطلوبة حسب التصنيف</label>
-          
-          <div class="tabs-header">
-            <button type="button" class="tab-btn active" onclick="switchTab('spa')">خدمات SPA</button>
-            <button type="button" class="tab-btn" onclick="switchTab('laser')">خدمات Laser</button>
+        <!-- اختيار الطبيب -->
+        <div class="form-group">
+          <label class="section-title">الأطباء المعالجين (اختيار متعدد)</label>
+          <div id="doctorContainer" class="staff-container">
+            <span style="font-size: 12px; color: #888;">جاري تحميل الأطباء...</span>
           </div>
-
-          <!-- SPA Category -->
-          <div id="spa" class="tab-content custom-grid active">
-            <label class="checkbox-item">
-              <div>
-                <input type="checkbox" class="service-cb" value="SPA - تنظيف بشرة عميق" data-price="400">
-                <span>تنظيف بشرة عميق</span>
-              </div>
-              <span class="price-tag">400 ج.م</span>
-            </label>
-            <label class="checkbox-item">
-              <div>
-                <input type="checkbox" class="service-cb" value="SPA - جلسة هيدرافيل نضارة" data-price="500">
-                <span>جلسة هيدرافيل نضارة</span>
-              </div>
-              <span class="price-tag">500 ج.م</span>
-            </label>
-            <label class="checkbox-item">
-              <div>
-                <input type="checkbox" class="service-cb" value="SPA - جلسة درما بن" data-price="600">
-                <span>جلسة درما بن</span>
-              </div>
-              <span class="price-tag">600 ج.م</span>
-            </label>
-            <label class="checkbox-item">
-              <div>
-                <input type="checkbox" class="service-cb" value="SPA - مساج استرخائي" data-price="450">
-                <span>مساج استرخائي</span>
-              </div>
-              <span class="price-tag">450 ج.م</span>
-            </label>
-          </div>
-
-          <!-- Laser Category -->
-          <div id="laser" class="tab-content custom-grid">
-            <label class="checkbox-item">
-              <div>
-                <input type="checkbox" class="service-cb" value="Laser - ليزر جسم كامل" data-price="1200">
-                <span>ليزر جسم كامل</span>
-              </div>
-              <span class="price-tag">1200 ج.م</span>
-            </label>
-            <label class="checkbox-item">
-              <div>
-                <input type="checkbox" class="service-cb" value="Laser - ليزر منطقة الوجه" data-price="250">
-                <span>ليزر منطقة الوجه</span>
-              </div>
-              <span class="price-tag">250 ج.م</span>
-            </label>
-
-            <label class="checkbox-item">
-              <div>
-                <input type="checkbox" class="service-cb" value="Laser - ليزر نصف الجسم" data-price="700">
-                <span>ليزر نصف الجسم</span>
-              </div>
-              <span class="price-tag">700 ج.م</span>
-            </label>
-            <label class="checkbox-item">
-              <div>
-                <input type="checkbox" class="service-cb" value="Laser - رتوش ليزر" data-price="300">
-                <span>رتوش ليزر</span>
-              </div>
-              <span class="price-tag">300 ج.م</span>
-            </label>
-          </div>
-
         </div>
 
-        <!-- Extras & Discounts -->
+        <!-- اختيار الأخصائي -->
+        <div class="form-group">
+          <label class="section-title">المتخصصون / الأخصائيات (اختيار متعدد)</label>
+          <div id="specialistContainer" class="staff-container">
+            <span style="font-size: 12px; color: #888;">جاري تحميل الأخصائيات...</span>
+          </div>
+        </div>
+
+        <!-- الأقسام والخدمات -->
+        <div class="form-group full-width">
+          <div class="section-header-bar">
+            <label class="section-title">اختر الخدمات المطلوبة حسب التصنيف</label>
+            <div class="action-btn-group">
+              <button type="button" class="btn-small" onclick="toggleAllServices(true)">✓ تحديد الكل في القسم</button>
+              <button type="button" class="btn-small" onclick="toggleAllServices(false)">✕ إلغاء تحديد الكل</button>
+            </div>
+          </div>
+          
+          <div class="tabs-header" id="tabsHeader" style="margin-top: 10px;"></div>
+          <div id="tabsContainer">
+            <div class="empty-msg">يرجى اختيار طبيب أو أخصائي أولاً لعرض الخدمات المتاحة</div>
+          </div>
+        </div>
+
         <div class="form-group full-width">
           <label class="section-title">إضافات وتخفيضات الحساب</label>
           <div class="extras-grid">
@@ -479,13 +577,12 @@
               <input type="number" id="discount" class="calc-input" min="0" placeholder="0" value="0">
             </div>
             <div class="payment-field">
-              <label>سبب الخصم / ملاحظات</label>
+              <label>الملاحظات</label>
               <input type="text" id="discountNote" placeholder="مثال: عرض افتتاح / عميلة VIP">
             </div>
           </div>
         </div>
 
-        <!-- Payment Methods -->
         <div class="form-group full-width">
           <label class="section-title">طرق الدفع والمسدد</label>
           <div class="payment-grid">
@@ -508,7 +605,6 @@
           </div>
         </div>
 
-        <!-- Summary -->
         <div class="form-group full-width">
           <div class="summary-box">
             <div class="summary-item">
@@ -530,14 +626,19 @@
           </div>
         </div>
 
-        <button type="submit" class="submit-btn">تسجيل وحفظ العملية</button>
+        <div class="buttons-wrapper">
+          <button type="submit" id="submitBtn" class="submit-btn">تسجيل وحفظ العملية</button>
+          <button type="button" class="reset-btn" onclick="clearAllForm()">تفريغ كافة البيانات</button>
+        </div>
       </form>
     </div>
 
-    <!-- Live Preview Table -->
     <div class="card">
       <div class="table-header">
-        <h3>سجلات اليوم (تجريبي)</h3>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <h3>سجلات اليوم</h3>
+          <button type="button" class="btn-small" onclick="fetchLogsFromSheet()">🔄 تحديث السجلات</button>
+        </div>
         <span class="badge" id="recordCount">0 عمليات</span>
       </div>
 
@@ -547,6 +648,8 @@
             <tr>
               <th>الوقت</th>
               <th>اسم العميلة</th>
+              <th>الطبيب</th>
+              <th>المتخصص</th>
               <th>الخدمات المختارة</th>
               <th>الخصم والسبب</th>
               <th>الصافي المطلوب</th>
@@ -554,39 +657,247 @@
               <th>المتبقي (آجل / باقي)</th>
             </tr>
           </thead>
-          <tbody id="tableBody">
-          </tbody>
+          <tbody id="tableBody"></tbody>
         </table>
       </div>
     </div>
 
   </div>
 
+  <footer>
+    <span>تطوير وبرمجة: <strong>أحمد ياسر دياب</strong></span>
+    <a href="https://wa.me/201091936251" target="_blank" class="whatsapp-btn">
+      <i class="fab fa-whatsapp"></i> تواصل عبر واتساب
+    </a>
+  </footer>
+
   <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzq68qBRFdHTKheKnrmXEJs6SbmlKuoKx1u65TRVHY1wNPrHfnBzf76JVzo3Lvpx1is/exec";
+
     const form = document.getElementById('clinicForm');
     const tableBody = document.getElementById('tableBody');
     const recordCount = document.getElementById('recordCount');
+    const submitBtn = document.getElementById('submitBtn');
 
-    const serviceCheckboxes = document.querySelectorAll('.service-cb');
-    const calcInputs = document.querySelectorAll('.calc-input');
+    let globalData = []; // تخزين كل بيانات شيت Data للاستخدام الديناميكي السريع
 
-    serviceCheckboxes.forEach(cb => cb.addEventListener('change', calculateAll));
-    calcInputs.forEach(input => input.addEventListener('input', calculateAll));
+    window.addEventListener('DOMContentLoaded', () => {
+      loadAllDataFromDataSheet();
+      fetchLogsFromSheet();
+    });
 
-    function switchTab(tabId) {
+    function loadAllDataFromDataSheet() {
+      if(!SCRIPT_URL || SCRIPT_URL.includes("ضع_رابط")) return;
+
+      fetch(`${SCRIPT_URL}?sheet=Data`)
+        .then(res => res.json())
+        .then(response => {
+          if (response.status === "success" && response.data) {
+            globalData = response.data;
+            populateStaffUI(globalData);
+          }
+        })
+        .catch(err => console.error("Error loading Data sheet:", err));
+    }
+
+    // 1. تعبئة الأطباء والأخصائيات
+    function populateStaffUI(data) {
+      const doctorContainer = document.getElementById('doctorContainer');
+      const specialistContainer = document.getElementById('specialistContainer');
+
+      doctorContainer.innerHTML = '';
+      specialistContainer.innerHTML = '';
+
+      let doctors = [];
+      let specialists = [];
+
+      data.forEach(item => {
+        const name = item['Employee Name'] || item['اسم الموظف'];
+        const jobRaw = item['Employee Job'] || item['الوظيفة'] || '';
+        const job = jobRaw.toString().trim().toLowerCase();
+
+        if (name) {
+          if (job === 'doctor' || job === 'طبيب' || job === 'دكتور') {
+            doctors.push(name);
+          } else if (job === 'specialist' || job === 'أخصائية' || job === 'اخصائية' || job === 'أخصائي' || job === 'اخصائي') {
+            specialists.push(name);
+          }
+        }
+      });
+
+      doctors = Array.from(new Set(doctors));
+      if (doctors.length > 0) {
+        doctors.forEach(doc => {
+          doctorContainer.innerHTML += `
+            <label class="checkbox-item">
+              <div>
+                <input type="checkbox" class="doc-cb" value="${doc}" onchange="handleStaffMutualExclusion('doc')">
+                <span>${doc}</span>
+              </div>
+            </label>
+          `;
+        });
+      } else {
+        doctorContainer.innerHTML = '<span style="font-size:12px; color:#888;">لا يوجد أطباء</span>';
+      }
+
+      specialists = Array.from(new Set(specialists));
+      if (specialists.length > 0) {
+        specialists.forEach(spec => {
+          specialistContainer.innerHTML += `
+            <label class="checkbox-item">
+              <div>
+                <input type="checkbox" class="spec-cb" value="${spec}" onchange="handleStaffMutualExclusion('spec')">
+                <span>${spec}</span>
+              </div>
+            </label>
+          `;
+        });
+      } else {
+        specialistContainer.innerHTML = '<span style="font-size:12px; color:#888;">لا يوجد أخصائيات</span>';
+      }
+    }
+
+    // 2. التحكم في الاختيار المزدوج وفلترة الخدمات تلقائياً
+    function handleStaffMutualExclusion(type) {
+      const docCBs = document.querySelectorAll('.doc-cb');
+      const specCBs = document.querySelectorAll('.spec-cb');
+      const docContainer = document.getElementById('doctorContainer');
+      const specContainer = document.getElementById('specialistContainer');
+
+      const anyDocChecked = Array.from(docCBs).some(cb => cb.checked);
+      const anySpecChecked = Array.from(specCBs).some(cb => cb.checked);
+
+      if (type === 'doc' && anyDocChecked) {
+        specCBs.forEach(cb => { cb.checked = false; cb.disabled = true; });
+        specContainer.classList.add('disabled');
+        renderFilteredServices('Laser & Dermatology');
+      } else if (type === 'spec' && anySpecChecked) {
+        docCBs.forEach(cb => { cb.checked = false; cb.disabled = true; });
+        docContainer.classList.add('disabled');
+        renderFilteredServices('Spa & Personal Care');
+      } else if (!anyDocChecked && !anySpecChecked) {
+        docCBs.forEach(cb => cb.disabled = false);
+        specCBs.forEach(cb => cb.disabled = false);
+        docContainer.classList.remove('disabled');
+        specContainer.classList.remove('disabled');
+        clearServicesUI();
+      }
+
+      calculateAll();
+    }
+
+    function clearServicesUI() {
+      document.getElementById('tabsHeader').innerHTML = '';
+      document.getElementById('tabsContainer').innerHTML = '<div class="empty-msg">يرجى اختيار طبيب أو أخصائي أولاً لعرض الخدمات المتاحة</div>';
+    }
+
+    // 3. عرض الخدمات المفلترة بناءً على نوع التخصص (Speciality)
+    function renderFilteredServices(targetSpeciality) {
+      const tabsHeader = document.getElementById('tabsHeader');
+      const tabsContainer = document.getElementById('tabsContainer');
+      tabsHeader.innerHTML = '';
+      tabsContainer.innerHTML = '';
+
+      let categories = {};
+
+      globalData.forEach(item => {
+        const itemSpeciality = (item['Item/Service Speciality'] || '').toString().trim().toLowerCase();
+        const target = targetSpeciality.toLowerCase();
+
+        // مطابقة التخصص مع مرونة القراءة
+        if (itemSpeciality === target || itemSpeciality.includes(target) || (target.includes('laser') && itemSpeciality.includes('laser'))) {
+          const cat = item['Item/Service Category'] || item['التصنيف'] || 'خدمات عامة';
+          const name = item['Item/Service'] || item['اسم الخدمة'];
+          const price = parseFloat(item['Item/Service Price'] || item['السعر']) || 0;
+
+          if (name) {
+            if (!categories[cat]) categories[cat] = [];
+            categories[cat].push({ name, price });
+          }
+        }
+      });
+
+      const catKeys = Object.keys(categories);
+      if (catKeys.length === 0) {
+        tabsContainer.innerHTML = '<div class="empty-msg">لا توجد خدمات مسجلة لهذا التخصص حالياً</div>';
+        return;
+      }
+
+      let isFirst = true;
+      let index = 0;
+
+      catKeys.forEach(catName => {
+        const tabId = `tab_${index}`;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `tab-btn ${isFirst ? 'active' : ''}`;
+        btn.innerText = `${catName} (${categories[catName].length})`;
+        btn.onclick = (e) => switchTab(tabId, e);
+        tabsHeader.appendChild(btn);
+
+        const contentDiv = document.createElement('div');
+        contentDiv.id = tabId;
+        contentDiv.className = `tab-content custom-grid ${isFirst ? 'active' : ''}`;
+
+        categories[catName].forEach(srv => {
+          contentDiv.innerHTML += `
+            <label class="checkbox-item">
+              <div>
+                <input type="checkbox" class="service-cb" value="${catName} - ${srv.name}" data-price="${srv.price}">
+                <span>${srv.name}</span>
+              </div>
+              <span class="price-tag">${srv.price} ج.م</span>
+            </label>
+          `;
+        });
+
+        tabsContainer.appendChild(contentDiv);
+        isFirst = false;
+        index++;
+      });
+
+      attachCalcListeners();
+    }
+
+    function attachCalcListeners() {
+      document.querySelectorAll('.service-cb').forEach(cb => cb.addEventListener('change', calculateAll));
+      document.querySelectorAll('.calc-input').forEach(input => input.addEventListener('input', calculateAll));
+    }
+
+    function switchTab(tabId, e) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-      event.target.classList.add('active');
+      e.target.classList.add('active');
       document.getElementById(tabId).classList.add('active');
+    }
+
+    function toggleAllServices(shouldSelect) {
+      const activeTab = document.querySelector('.tab-content.active');
+      if (activeTab) {
+        activeTab.querySelectorAll('.service-cb').forEach(cb => {
+          cb.checked = shouldSelect;
+        });
+      } else {
+        document.querySelectorAll('.service-cb').forEach(cb => {
+          cb.checked = shouldSelect;
+        });
+      }
+      calculateAll();
+    }
+
+    function clearAllForm() {
+      form.reset();
+      handleStaffMutualExclusion('reset');
+      calculateAll();
     }
 
     function calculateAll() {
       let baseServicesTotal = 0;
-      serviceCheckboxes.forEach(cb => {
-        if (cb.checked) {
-          baseServicesTotal += parseFloat(cb.getAttribute('data-price')) || 0;
-        }
+      document.querySelectorAll('.service-cb:checked').forEach(cb => {
+        baseServicesTotal += parseFloat(cb.getAttribute('data-price')) || 0;
       });
 
       const extraFee = parseFloat(document.getElementById('extraFee').value) || 0;
@@ -624,7 +935,18 @@
     form.addEventListener('submit', function(e) {
       e.preventDefault();
 
+      const selectedDocs = Array.from(document.querySelectorAll('.doc-cb:checked')).map(cb => cb.value);
+      const selectedSpecs = Array.from(document.querySelectorAll('.spec-cb:checked')).map(cb => cb.value);
+
+      if (selectedDocs.length === 0 && selectedSpecs.length === 0) {
+        alert("يرجى اختيار طبيب أو أخصائي واحد على الأقل!");
+        return;
+      }
+
       const name = document.getElementById('clientName').value;
+      const doctorStr = selectedDocs.length > 0 ? selectedDocs.join(', ') : '-';
+      const specialistStr = selectedSpecs.length > 0 ? selectedSpecs.join(', ') : '-';
+      
       const note = document.getElementById('discountNote').value;
       const calcs = calculateAll();
       
@@ -635,47 +957,108 @@
         selectedServices.push('بدون خدمة');
       }
 
-      const currentTime = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+      const postPayload = {
+        sheet: "Log",
+        data: {
+          "اسم العميلة": name,
+          "الطبيب": doctorStr,
+          "المتخصص": specialistStr,
+          "الخدمات المختارة": selectedServices,
+          "إضافات": calcs.extraFee,
+          "الخصم": calcs.discount,
+          "سبب الخصم": note,
+          "الصافي المطلوب": calcs.netAmount,
+          "كاش": calcs.cash,
+          "محفظة": calcs.wallet,
+          "انستاباي": calcs.insta,
+          "POS": calcs.pos,
+          "إجمالي المدفوع": calcs.totalPaid,
+          "المتبقي": calcs.debt
+        }
+      };
 
-      addRowToTable(currentTime, name, selectedServices, note, calcs);
-      updateCount();
+      submitBtn.disabled = true;
+      submitBtn.innerText = "جاري الحفظ والشحن...";
 
-      form.reset();
-      calculateAll();
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(postPayload)
+      })
+      .then(res => res.json())
+      .then(res => {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "تسجيل وحفظ العملية";
+        clearAllForm();
+        fetchLogsFromSheet();
+      })
+      .catch(err => {
+        alert("حدث خطأ أثناء الحفظ في الشيت!");
+        console.error(err);
+        submitBtn.disabled = false;
+        submitBtn.innerText = "تسجيل وحفظ العملية";
+      });
     });
 
-    function addRowToTable(time, name, servicesArray, note, calcs) {
-      const tr = document.createElement('tr');
-      const servicesHTML = servicesArray.map(s => `<span class="tag">${s}</span>`).join('');
-      
-      let payDetails = [];
-      if(calcs.cash > 0) payDetails.push(`نقدي: ${calcs.cash}`);
-      if(calcs.wallet > 0) payDetails.push(`محفظة: ${calcs.wallet}`);
-      if(calcs.insta > 0) payDetails.push(`انستاباي: ${calcs.insta}`);
-      if(calcs.pos > 0) payDetails.push(`POS: ${calcs.pos}`);
-      if(payDetails.length === 0) payDetails.push('لم يدفع شيء');
+    function fetchLogsFromSheet() {
+      if(!SCRIPT_URL || SCRIPT_URL.includes("ضع_رابط")) return;
 
-      let discountCell = calcs.discount > 0 
-        ? `<strong>${calcs.discount} ج.م</strong>${note ? `<span class="note-text">(${note})</span>` : ''}` 
-        : '-';
-
-      let debtClass = calcs.debt > 0 ? 'val-debt' : (calcs.debt < 0 ? 'val-credit' : '');
-
-      tr.innerHTML = `
-        <td>${time}</td>
-        <td><strong>${name}</strong></td>
-        <td>${servicesHTML}</td>
-        <td>${discountCell}</td>
-        <td><strong>${calcs.netAmount.toFixed(2)} ج.م</strong></td>
-        <td>${payDetails.join(' | ')}</td>
-        <td><strong class="${debtClass}">${calcs.debt.toFixed(2)} ج.م</strong></td>
-      `;
-      tableBody.insertBefore(tr, tableBody.firstChild);
+      fetch(`${SCRIPT_URL}?sheet=Log`)
+        .then(res => res.json())
+        .then(response => {
+          if (response.status === "success" && response.data) {
+            renderLogsTable(response.data);
+          }
+        })
+        .catch(err => console.error("Error fetching logs:", err));
     }
 
-    function updateCount() {
-      const totalRows = tableBody.getElementsByTagName('tr').length;
-      recordCount.innerText = `${totalRows} عمليات`;
+    function renderLogsTable(logs) {
+      tableBody.innerHTML = '';
+      const reversedLogs = [...logs].reverse();
+
+      reversedLogs.forEach(row => {
+        const time = row['التاريخ والوقت'] ? new Date(row['التاريخ والوقت']).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '-';
+        const name = row['اسم العميلة'] || '-';
+        const doctor = row['الطبيب'] || '-';
+        const specialist = row['المتخصص'] || '-';
+        const servicesStr = row['الخدمات المختارة'] || '';
+        const servicesArray = servicesStr ? servicesStr.split(', ') : ['بدون خدمة'];
+        const servicesHTML = servicesArray.map(s => `<span class="tag">${s}</span>`).join('');
+        
+        const discount = parseFloat(row['الخصم']) || 0;
+        const note = row['سبب الخصم'] || '';
+        const netAmount = parseFloat(row['الصافي المطلوب']) || 0;
+        const debt = parseFloat(row['المتبقي']) || 0;
+
+        let payDetails = [];
+        if(parseFloat(row['كاش']) > 0) payDetails.push(`نقدي: ${row['كاش']}`);
+        if(parseFloat(row['محفظة']) > 0) payDetails.push(`محفظة: ${row['محفظة']}`);
+        if(parseFloat(row['انستاباي']) > 0) payDetails.push(`انستاباي: ${row['انستاباي']}`);
+        if(parseFloat(row['POS']) > 0) payDetails.push(`POS: ${row['POS']}`);
+        if(payDetails.length === 0) payDetails.push('لم يدفع شيء');
+
+        let discountCell = discount > 0 
+          ? `<strong>${discount} ج.م</strong>${note ? `<span class="note-text">(${note})</span>` : ''}` 
+          : '-';
+
+        let debtClass = debt > 0 ? 'val-debt' : (debt < 0 ? 'val-credit' : '');
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${time}</td>
+          <td><strong>${name}</strong></td>
+          <td><span class="staff-tag">${doctor}</span></td>
+          <td><span class="staff-tag">${specialist}</span></td>
+          <td>${servicesHTML}</td>
+          <td>${discountCell}</td>
+          <td><strong>${netAmount.toFixed(2)} ج.م</strong></td>
+          <td>${payDetails.join(' | ')}</td>
+          <td><strong class="${debtClass}">${debt.toFixed(2)} ج.م</strong></td>
+        `;
+        tableBody.appendChild(tr);
+      });
+
+      recordCount.innerText = `${logs.length} عمليات`;
     }
   </script>
 </body>
