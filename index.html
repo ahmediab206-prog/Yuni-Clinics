@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>عيادات Yuni - تسجيل بيانات العميل</title>
+  <title>عيادات Yuni - نظام إدارة الاستقبال</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -18,650 +19,457 @@
       --whatsapp-green: #25D366;
     }
 
-    * {
-      box-sizing: border-box;
-      font-family: 'Tajawal', sans-serif;
-      margin: 0;
-      padding: 0;
+    * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px 15px; }
+    
+    .login-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(24, 66, 50, 0.85); backdrop-filter: blur(8px);
+      display: flex; justify-content: center; align-items: center; z-index: 9999;
     }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 30px 15px;
+    .login-card {
+      background: var(--card-bg); padding: 40px; border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid var(--border-color);
+      width: 100%; max-width: 400px; text-align: center;
     }
-
-    .main-wrapper {
-      width: 100%;
-      max-width: 1000px;
-      display: flex;
-      flex-direction: column;
-      gap: 25px;
+    .login-card h2 { color: var(--primary-green); margin-bottom: 8px; font-size: 24px; }
+    .login-card p { color: #666; font-size: 13px; margin-bottom: 25px; }
+    .login-form { display: flex; flex-direction: column; gap: 15px; }
+    .login-btn {
+      padding: 14px; background-color: var(--primary-green); color: #FFF;
+      border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.25s;
     }
+    .login-btn:hover { background-color: var(--accent-green); }
+    .login-error { color: #C5221F; font-size: 13px; margin-top: 5px; display: none; }
 
-    .card {
-      background: var(--card-bg);
-      padding: 35px;
-      border-radius: 20px;
-      box-shadow: 0 12px 30px rgba(24, 66, 50, 0.08);
-      border: 1px solid var(--border-color);
+    .top-header {
+      width: 100%; max-width: 1300px; background: var(--card-bg);
+      border-radius: 16px; padding: 15px 25px; margin-bottom: 20px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
+      box-shadow: 0 8px 20px rgba(24, 66, 50, 0.05); border: 1px solid var(--border-color);
     }
+    .header-logo { display: flex; align-items: center; gap: 10px; }
+    .brand-name { color: var(--primary-green); font-size: 26px; font-weight: 700; }
+    .brand-korean { color: var(--primary-green); font-size: 20px; font-weight: 500; opacity: 0.85; }
 
-    .header {
-      text-align: center;
-      margin-bottom: 30px;
+    .nav-tabs { display: flex; gap: 10px; background: var(--light-green); padding: 5px; border-radius: 12px; }
+    .nav-btn {
+      padding: 10px 20px; border: none; background: transparent; border-radius: 8px;
+      font-size: 14px; font-weight: 700; color: var(--primary-green); cursor: pointer;
+      display: flex; align-items: center; gap: 8px; transition: all 0.25s;
     }
+    .nav-btn.active { background: var(--primary-green); color: #FFFFFF; box-shadow: 0 4px 10px rgba(24, 66, 50, 0.2); }
 
-    .header-logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 6px;
-    }
+    .user-profile-bar { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; color: var(--primary-green); }
+    .logout-btn { background: #FCE8E6; color: #C5221F; border: 1px solid #F5C6CB; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700; }
 
-    .brand-name {
-      color: var(--primary-green);
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: 2px;
-    }
+    .main-wrapper { width: 100%; max-width: 1300px; }
+    .view-page { display: none; }
+    .view-page.active { display: block; }
 
-    .brand-korean {
-      color: var(--primary-green);
-      font-size: 24px;
-      font-weight: 500;
-      opacity: 0.85;
-    }
+    .card { background: var(--card-bg); padding: 35px; border-radius: 20px; box-shadow: 0 12px 30px rgba(24, 66, 50, 0.08); border: 1px solid var(--border-color); position: relative; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 650px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group.full-width { grid-column: 1 / -1; }
+    label.section-title { color: var(--primary-green); font-weight: 700; font-size: 15px; }
+    .section-header-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .action-btn-group { display: flex; gap: 8px; }
+    .btn-small { padding: 6px 12px; font-size: 12px; font-weight: 700; border-radius: 6px; border: 1px solid var(--border-color); background-color: #FAF8F5; color: var(--primary-green); cursor: pointer; transition: all 0.2s; }
+    .btn-small:hover { background-color: var(--light-green); border-color: var(--primary-green); }
+    input[type="text"], input[type="password"], input[type="number"], input[type="date"], select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 15px; background-color: #FAF8F5; color: var(--text-color); outline: none; transition: all 0.25s ease; }
+    input:focus, select:focus { border-color: var(--primary-green); background-color: #FFFFFF; box-shadow: 0 0 0 4px rgba(24, 66, 50, 0.1); }
+    .staff-container { background-color: #FAF8F5; border: 1.5px solid var(--border-color); border-radius: 12px; padding: 12px; max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; transition: opacity 0.3s; }
+    .staff-container.disabled { opacity: 0.4; pointer-events: none; background-color: #EFEFEF; }
+    
+    .tabs-header { display: flex; gap: 10px; margin-bottom: 12px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; overflow-x: auto; }
+    .tab-btn { padding: 8px 18px; background: #FAF8F5; border: 1.5px solid var(--border-color); border-radius: 8px; font-weight: 700; color: var(--primary-green); cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+    .tab-btn.active { background: var(--primary-green); color: #FFFFFF; border-color: var(--primary-green); }
+    .tab-content { display: none; }
+    .tab-content.active { display: grid; }
+    .custom-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; background-color: #FAF8F5; padding: 16px; border-radius: 12px; border: 1.5px solid var(--border-color); max-height: 380px; overflow-y: auto; }
+    .checkbox-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; font-size: 14px; font-weight: 500; padding: 8px 10px; border-radius: 6px; background: #FFFFFF; border: 1px solid var(--border-color); transition: background 0.2s; }
+    .checkbox-item:hover { background-color: #E8E2CE; }
+    .checkbox-item div { display: flex; align-items: center; gap: 8px; }
+    .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary-green); cursor: pointer; }
+    .price-tag { font-size: 12px; color: var(--primary-green); font-weight: 700; background: var(--light-green); padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+    
+    .extras-grid { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 12px; background-color: #FAF8F5; padding: 16px; border-radius: 12px; border: 1.5px solid var(--border-color); }
+    @media (max-width: 700px) { .extras-grid { grid-template-columns: 1fr; } }
+    .payment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; background-color: #FAF8F5; padding: 16px; border-radius: 12px; border: 1.5px solid var(--border-color); }
+    .payment-field { display: flex; flex-direction: column; gap: 5px; }
+    .payment-field label { font-size: 13px; color: var(--primary-green); font-weight: 600; }
+    .sub-note { font-size: 11px; color: #777; }
+    
+    .summary-box { background-color: var(--light-green); padding: 16px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; color: var(--primary-green); border: 1px solid rgba(24, 66, 50, 0.2); }
+    .summary-item { display: flex; flex-direction: column; gap: 4px; }
+    .summary-item span.title { font-size: 12px; color: #555; }
+    .summary-item span.val { font-size: 18px; font-weight: 700; }
+    .val-debt { color: #C5221F !important; }
+    .val-credit { color: #184232 !important; }
+    
+    .buttons-wrapper { grid-column: 1 / -1; display: flex; gap: 12px; margin-top: 10px; }
+    .submit-btn { flex: 2; padding: 16px; background-color: var(--primary-green); color: #FFFFFF; border: none; border-radius: 10px; font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.25s ease; }
+    .submit-btn:hover { background-color: var(--accent-green); }
+    .submit-btn:disabled { background-color: #999; cursor: not-allowed; }
+    .reset-btn { flex: 1; padding: 16px; background-color: #FAF8F5; color: #777; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.25s ease; }
+    .reset-btn:hover { background-color: #E8E2CE; color: var(--text-color); }
 
-    .header-title {
-      color: var(--gold-accent);
-      font-size: 15px;
-      font-weight: 500;
-    }
+    .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .table-header h3 { color: var(--primary-green); font-size: 20px; }
+    .badge { background-color: var(--light-green); color: var(--primary-green); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+    
+    .global-search-bar { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+    .global-search-bar input { flex: 1; padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--border-color); background: #FAF8F5; font-size: 14px; outline: none; }
+    .global-search-bar input:focus { border-color: var(--primary-green); background: #FFF; }
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    @media (max-width: 650px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .form-group.full-width {
-      grid-column: 1 / -1;
-    }
-
-    label.section-title {
-      color: var(--primary-green);
-      font-weight: 700;
-      font-size: 15px;
-    }
-
-    .section-header-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .action-btn-group {
-      display: flex;
-      gap: 8px;
-    }
-
-    .btn-small {
-      padding: 5px 12px;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      background-color: #FAF8F5;
-      color: var(--primary-green);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-small:hover {
-      background-color: var(--light-green);
-      border-color: var(--primary-green);
-    }
-
-    input[type="text"], input[type="number"], select {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid var(--border-color);
-      border-radius: 10px;
-      font-size: 15px;
-      background-color: #FAF8F5;
-      color: var(--text-color);
-      outline: none;
-      transition: all 0.25s ease;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--primary-green);
-      background-color: #FFFFFF;
-      box-shadow: 0 0 0 4px rgba(24, 66, 50, 0.1);
-    }
-
-    .staff-container {
-      background-color: #FAF8F5;
-      border: 1.5px solid var(--border-color);
-      border-radius: 12px;
-      padding: 12px;
-      max-height: 150px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      transition: opacity 0.3s;
-    }
-
-    .staff-container.disabled {
-      opacity: 0.4;
-      pointer-events: none;
-      background-color: #EFEFEF;
-    }
-
-    .tabs-header {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
+    .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); max-height: 600px; position: relative; }
+    table { width: 100%; border-collapse: collapse; text-align: right; background: #FFF; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); font-size: 13px; vertical-align: top; white-space: nowrap; }
+    
+    th { 
+      background-color: #F1EFEA; 
+      color: var(--primary-green); 
+      font-weight: 700; 
+      position: sticky; 
+      top: 0; 
+      z-index: 10; 
       border-bottom: 2px solid var(--border-color);
-      padding-bottom: 8px;
-      overflow-x: auto;
+      text-align: right;
+      user-select: none;
     }
-
-    .tab-btn {
-      padding: 8px 18px;
-      background: #FAF8F5;
-      border: 1.5px solid var(--border-color);
-      border-radius: 8px;
-      font-weight: 700;
-      color: var(--primary-green);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-
-    .tab-btn.active {
-      background: var(--primary-green);
-      color: #FFFFFF;
-      border-color: var(--primary-green);
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: grid;
-    }
-
-    .custom-grid {
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 12px;
-      background-color: #FAF8F5;
-      padding: 16px;
-      border-radius: 12px;
-      border: 1.5px solid var(--border-color);
-      max-height: 380px;
-      overflow-y: auto;
-    }
-
-    .checkbox-item {
+    
+    .th-content {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      align-items: center;
+      gap: 8px;
       cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 8px 10px;
+      padding: 4px 6px;
       border-radius: 6px;
-      background: #FFFFFF;
-      border: 1px solid var(--border-color);
       transition: background 0.2s;
     }
+    .th-content:hover { background-color: #E2DDD5; }
+    .filter-icon { font-size: 11px; opacity: 0.7; }
 
-    .checkbox-item:hover {
-      background-color: #E8E2CE;
+    /* Modal الفلتر المركزي */
+    .filter-modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(2px);
+      display: none; justify-content: center; align-items: center; z-index: 10000;
     }
+    .filter-modal-overlay.active { display: flex; }
 
-    .checkbox-item div {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .checkbox-item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--primary-green);
-      cursor: pointer;
-    }
-
-    .price-tag {
-      font-size: 12px;
-      color: var(--primary-green);
-      font-weight: 700;
-      background: var(--light-green);
-      padding: 2px 6px;
-      border-radius: 4px;
-      white-space: nowrap;
-    }
-
-    .extras-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 2fr;
-      gap: 12px;
-      background-color: #FAF8F5;
-      padding: 16px;
-      border-radius: 12px;
-      border: 1.5px solid var(--border-color);
-    }
-
-    @media (max-width: 700px) {
-      .extras-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .payment-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 12px;
-      background-color: #FAF8F5;
-      padding: 16px;
-      border-radius: 12px;
-      border: 1.5px solid var(--border-color);
-    }
-
-    .payment-field {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .payment-field label {
-      font-size: 13px;
-      color: var(--primary-green);
-      font-weight: 600;
-    }
-
-    .sub-note {
-      font-size: 11px;
-      color: #777;
-    }
-
-    .summary-box {
-      background-color: var(--light-green);
-      padding: 16px 20px;
-      border-radius: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-      color: var(--primary-green);
-      border: 1px solid rgba(24, 66, 50, 0.2);
-    }
-
-    .summary-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .summary-item span.title {
-      font-size: 12px;
-      color: #555;
-    }
-
-    .summary-item span.val {
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .val-debt {
-      color: #C5221F !important;
-    }
-
-    .val-credit {
-      color: #184232 !important;
-    }
-
-    .buttons-wrapper {
-      grid-column: 1 / -1;
-      display: flex;
-      gap: 12px;
-      margin-top: 10px;
-    }
-
-    .submit-btn {
-      flex: 2;
-      padding: 16px;
-      background-color: var(--primary-green);
-      color: #FFFFFF;
-      border: none;
-      border-radius: 10px;
-      font-size: 17px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-
-    .submit-btn:hover {
-      background-color: var(--accent-green);
-    }
-
-    .submit-btn:disabled {
-      background-color: #999;
-      cursor: not-allowed;
-    }
-
-    .reset-btn {
-      flex: 1;
-      padding: 16px;
-      background-color: #FAF8F5;
-      color: #777;
-      border: 1.5px solid var(--border-color);
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-
-    .reset-btn:hover {
-      background-color: #E8E2CE;
-      color: var(--text-color);
-    }
-
-    .table-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .table-header h3 {
-      color: var(--primary-green);
-      font-size: 18px;
-    }
-
-    .badge {
-      background-color: var(--light-green);
-      color: var(--primary-green);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .table-container {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: right;
-    }
-
-    th, td {
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border-color);
-      font-size: 13px;
-      vertical-align: middle;
-    }
-
-    th {
-      background-color: #FAF8F5;
-      color: var(--primary-green);
-      font-weight: 700;
-    }
-
-    .tag {
-      display: inline-block;
-      background-color: var(--light-green);
-      color: var(--primary-green);
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      margin: 2px;
-    }
-
-    .staff-tag {
-      display: inline-block;
-      background-color: #E8E2CE;
-      color: var(--primary-green);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    .note-text {
-      display: block;
-      font-size: 11px;
-      color: #666;
-      margin-top: 3px;
-    }
-
-    .empty-msg {
-      padding: 20px;
-      text-align: center;
-      color: #777;
-      font-size: 14px;
-      background-color: #FAF8F5;
-      border-radius: 12px;
-      border: 1.5px dashed var(--border-color);
-    }
-
-    footer {
-      margin-top: 35px;
-      padding: 15px;
-      text-align: center;
-      font-size: 13px;
-      color: var(--primary-green);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      border-top: 1px solid var(--border-color);
-      width: 100%;
-      max-width: 1000px;
-    }
-
-    .whatsapp-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background-color: var(--whatsapp-green);
-      color: #FFFFFF;
-      padding: 4px 10px;
+    .sheets-filter-popup {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.25);
       border-radius: 14px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 11px;
-      transition: transform 0.2s, box-shadow 0.2s;
+      width: 350px;
+      max-width: 92vw;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      font-size: 13px;
+      text-align: right;
+      animation: popupScale 0.2s ease;
+    }
+    @keyframes popupScale {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .popup-title { font-weight: 700; color: var(--primary-green); margin-bottom: 12px; font-size: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .popup-menu-item {
+      padding: 8px 10px; display: flex; align-items: center; gap: 10px; cursor: pointer; border-radius: 6px; color: var(--text-color); font-weight: 500;
+    }
+    .popup-menu-item:hover { background-color: var(--light-green); color: var(--primary-green); }
+    .popup-divider { height: 1px; background-color: var(--border-color); margin: 8px 0; }
+    
+    /* قسم الشروط المتقدمة الذكية (نص / رقم / تاريخ) */
+    .condition-section { background: #FAF8F5; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 10px; }
+    .condition-section select, .condition-section input { margin-top: 6px; margin-bottom: 6px; font-size: 12px; padding: 8px; }
+
+    .popup-search-box input {
+      width: 100%; padding: 8px 10px; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: #FAF8F5; outline: none;
+    }
+    .popup-search-box input:focus { border-color: var(--primary-green); background: #FFF; }
+    .popup-checkbox-list {
+      max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding: 4px; margin: 6px 0; border: 1px solid #EFEFEF; border-radius: 6px;
+    }
+    .popup-cb-item {
+      display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; padding: 4px; border-radius: 4px;
+    }
+    .popup-cb-item:hover { background-color: #FAF8F5; }
+    .popup-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+    .popup-btn { padding: 8px 16px; font-size: 13px; font-weight: 700; border-radius: 8px; cursor: pointer; border: none; }
+    .popup-btn-cancel { background: #FAF8F5; color: #666; border: 1px solid var(--border-color); }
+    .popup-btn-ok { background: var(--primary-green); color: #FFF; }
+    .select-all-row {
+      font-size: 12px; font-weight: bold; color: var(--primary-green); display: flex; align-items: center; gap: 8px; padding: 4px; cursor: pointer; border-bottom: 1px solid var(--border-color); margin-bottom: 4px;
     }
 
-    .whatsapp-btn i {
-      font-size: 12px;
-    }
+    .tag { display: inline-block; background-color: var(--light-green); color: var(--primary-green); padding: 3px 8px; border-radius: 6px; font-size: 12px; }
+    .staff-tag { display: inline-block; background-color: #E8E2CE; color: var(--primary-green); padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+    .empty-msg { padding: 30px; text-align: center; color: #777; font-size: 14px; background-color: #FAF8F5; border-radius: 12px; border: 1.5px dashed var(--border-color); }
 
-    .whatsapp-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
-    }
+    footer { margin-top: 35px; padding: 15px; text-align: center; font-size: 13px; color: var(--primary-green); display: flex; align-items: center; justify-content: center; gap: 10px; border-top: 1px solid var(--border-color); width: 100%; max-width: 1300px; }
+    .whatsapp-btn { display: inline-flex; align-items: center; gap: 4px; background-color: var(--whatsapp-green); color: #FFFFFF; padding: 4px 10px; border-radius: 14px; text-decoration: none; font-weight: 600; font-size: 11px; }
   </style>
 </head>
 <body>
 
-  <div class="main-wrapper">
-    
-    <div class="card">
-      <div class="header">
-        <div class="header-logo">
-          <span class="brand-name">YUNI</span>
-          <span class="brand-korean">- 유니</span>
-        </div>
-        <div class="header-title">نظام تسجيل الاستقبال والخدمات</div>
+  <!-- Modal تسجيل الدخول -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+      <div class="header-logo" style="justify-content: center; margin-bottom: 15px;">
+        <span class="brand-name">YUNI</span>
+        <span class="brand-korean">- 유니</span>
       </div>
-
-      <form id="clinicForm" class="form-grid">
-        <div class="form-group full-width">
-          <label class="section-title" for="clientName">اسم العميلة</label>
-          <input type="text" id="clientName" required placeholder="مثال: سارة محمود أحمد">
-        </div>
-
-        <!-- اختيار الطبيب -->
-        <div class="form-group">
-          <label class="section-title">الأطباء المعالجين (اختيار متعدد)</label>
-          <div id="doctorContainer" class="staff-container">
-            <span style="font-size: 12px; color: #888;">جاري تحميل الأطباء...</span>
-          </div>
-        </div>
-
-        <!-- اختيار الأخصائي -->
-        <div class="form-group">
-          <label class="section-title">المتخصصون / الأخصائيات (اختيار متعدد)</label>
-          <div id="specialistContainer" class="staff-container">
-            <span style="font-size: 12px; color: #888;">جاري تحميل الأخصائيات...</span>
-          </div>
-        </div>
-
-        <!-- الأقسام والخدمات -->
-        <div class="form-group full-width">
-          <div class="section-header-bar">
-            <label class="section-title">اختر الخدمات المطلوبة حسب التصنيف</label>
-            <div class="action-btn-group">
-              <button type="button" class="btn-small" onclick="toggleAllServices(true)">✓ تحديد الكل في القسم</button>
-              <button type="button" class="btn-small" onclick="toggleAllServices(false)">✕ إلغاء تحديد الكل</button>
-            </div>
-          </div>
-          
-          <div class="tabs-header" id="tabsHeader" style="margin-top: 10px;"></div>
-          <div id="tabsContainer">
-            <div class="empty-msg">يرجى اختيار طبيب أو أخصائي أولاً لعرض الخدمات المتاحة</div>
-          </div>
-        </div>
-
-        <div class="form-group full-width">
-          <label class="section-title">إضافات وتخفيضات الحساب</label>
-          <div class="extras-grid">
-            <div class="payment-field">
-              <label>خدمة أخرى / إضافية <span class="sub-note">(تُضاف)</span></label>
-              <input type="number" id="extraFee" class="calc-input" min="0" placeholder="0" value="0">
-            </div>
-            <div class="payment-field">
-              <label>قيمة الخصم <span class="sub-note">(تُخصم)</span></label>
-              <input type="number" id="discount" class="calc-input" min="0" placeholder="0" value="0">
-            </div>
-            <div class="payment-field">
-              <label>الملاحظات</label>
-              <input type="text" id="discountNote" placeholder="مثال: عرض افتتاح / عميلة VIP">
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group full-width">
-          <label class="section-title">طرق الدفع والمسدد</label>
-          <div class="payment-grid">
-            <div class="payment-field">
-              <label>نقدي (كاش)</label>
-              <input type="number" id="payCash" class="calc-input pay-part" min="0" placeholder="0" value="0">
-            </div>
-            <div class="payment-field">
-              <label>محفظة إلكترونية</label>
-              <input type="number" id="payWallet" class="calc-input pay-part" min="0" placeholder="0" value="0">
-            </div>
-            <div class="payment-field">
-              <label>انستاباي (InstaPay)</label>
-              <input type="number" id="payInsta" class="calc-input pay-part" min="0" placeholder="0" value="0">
-            </div>
-            <div class="payment-field">
-              <label>POS (فيزا / ماكينة)</label>
-              <input type="number" id="payPOS" class="calc-input pay-part" min="0" placeholder="0" value="0">
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group full-width">
-          <div class="summary-box">
-            <div class="summary-item">
-              <span class="title">مجموع الخدمات والإضافات</span>
-              <span class="val" id="sumServicesDisplay">0 ج.م</span>
-            </div>
-            <div class="summary-item">
-              <span class="title">صافي المطلوب (بعد الخصم)</span>
-              <span class="val" id="netAmountDisplay">0 ج.م</span>
-            </div>
-            <div class="summary-item">
-              <span class="title">إجمالي المدفوع</span>
-              <span class="val" id="totalPaidDisplay">0 ج.م</span>
-            </div>
-            <div class="summary-item">
-              <span class="title">المتبقي (آجل / باقي)</span>
-              <span class="val" id="debtDisplay">0 ج.م</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="buttons-wrapper">
-          <button type="submit" id="submitBtn" class="submit-btn">تسجيل وحفظ العملية</button>
-          <button type="button" class="reset-btn" onclick="clearAllForm()">تفريغ كافة البيانات</button>
-        </div>
+      <h2>تسجيل الدخول</h2>
+      <p>أدخل بيانات الحساب للوصول إلى نظام الاستقبال</p>
+      
+      <form id="loginForm" class="login-form">
+        <input type="text" id="loginUser" placeholder="اسم الموظف / المستخدِم" required>
+        <input type="password" id="loginPass" placeholder="كلمة المرور" required>
+        <div id="loginError" class="login-error">اسم المستخدم أو كلمة المرور غير صحيحة!</div>
+        <button type="submit" id="loginSubmitBtn" class="login-btn">دخول</button>
       </form>
     </div>
+  </div>
 
-    <div class="card">
-      <div class="table-header">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <h3>سجلات اليوم</h3>
-          <button type="button" class="btn-small" onclick="fetchLogsFromSheet()">🔄 تحديث السجلات</button>
+  <!-- الهيدر العلوي -->
+  <div class="top-header" id="mainHeader" style="display: none;">
+    <div class="header-logo">
+      <span class="brand-name">YUNI</span>
+      <span class="brand-korean">- 유니</span>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-btn active" id="btnPageAdd" onclick="switchPage('pageAdd')">
+        <i class="fas fa-plus-circle"></i> إضافة حركة جديدة
+      </button>
+      <button class="nav-btn" id="btnPageData" onclick="switchPage('pageData')">
+        <i class="fas fa-database"></i> استعراض البيانات
+      </button>
+    </div>
+
+    <div class="user-profile-bar">
+      <span><i class="fas fa-user-circle"></i> <span id="currentUserDisplay">-</span></span>
+      <button class="logout-btn" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+    </div>
+  </div>
+
+  <div class="main-wrapper">
+    
+    <!-- الصفحة الأولى: إضافة حركة جديدة -->
+    <div id="pageAdd" class="view-page active">
+      <div class="card">
+        <div style="text-align: center; margin-bottom: 25px;">
+          <h2 style="color: var(--primary-green);">تسجيل فاتورة جديدة</h2>
+          <div id="currentDateBadge" style="font-size: 13px; color: var(--gold-accent); margin-top: 5px;"></div>
         </div>
-        <span class="badge" id="recordCount">0 عمليات</span>
-      </div>
 
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>الوقت</th>
-              <th>اسم العميلة</th>
-              <th>الطبيب</th>
-              <th>المتخصص</th>
-              <th>الخدمات المختارة</th>
-              <th>الخصم والسبب</th>
-              <th>الصافي المطلوب</th>
-              <th>طرق الدفع</th>
-              <th>المتبقي (آجل / باقي)</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
+        <form id="clinicForm" class="form-grid">
+          <div class="form-group">
+            <label class="section-title" for="clientName">اسم العميلة</label>
+            <input type="text" id="clientName" required placeholder="مثال: سارة محمود أحمد">
+          </div>
+
+          <div class="form-group">
+            <label class="section-title" for="entryDate">تاريخ الفاتورة (Trx Date)</label>
+            <input type="date" id="entryDate" required>
+          </div>
+
+          <div class="form-group">
+            <label class="section-title">الأطباء المعالجين (اختيار متعدد)</label>
+            <div id="doctorContainer" class="staff-container">
+              <span style="font-size: 12px; color: #888;">جاري تحميل الأطباء...</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="section-title">المتخصصون / الأخصائيات (اختيار متعدد)</label>
+            <div id="specialistContainer" class="staff-container">
+              <span style="font-size: 12px; color: #888;">جاري تحميل الأخصائيات...</span>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <div class="section-header-bar">
+              <label class="section-title">اختر الخدمات المطلوبة حسب التصنيف</label>
+              <div class="action-btn-group">
+                <button type="button" class="btn-small" onclick="toggleAllServices(true)">✓ تحديد الكل في القسم</button>
+                <button type="button" class="btn-small" onclick="toggleAllServices(false)">✕ إلغاء تحديد الكل</button>
+              </div>
+            </div>
+            
+            <div class="tabs-header" id="tabsHeader" style="margin-top: 10px;"></div>
+            <div id="tabsContainer">
+              <div class="empty-msg">يرجى اختيار طبيب أو أخصائي أولاً لعرض الخدمات المتاحة</div>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="section-title">إضافات وتخفيضات الحساب</label>
+            <div class="extras-grid">
+              <div class="payment-field">
+                <label>خدمة أخرى / إضافية <span class="sub-note">(Extra)</span></label>
+                <input type="number" id="extraFee" class="calc-input" min="0" placeholder="0" value="0">
+              </div>
+              <div class="payment-field">
+                <label>قيمة الخصم <span class="sub-note">(Discount)</span></label>
+                <input type="number" id="discount" class="calc-input" min="0" placeholder="0" value="0">
+              </div>
+              <div class="payment-field">
+                <label>الملاحظات (Notes)</label>
+                <input type="text" id="discountNote" placeholder="مثال: عرض افتتاح / عميلة VIP">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="section-title">طرق الدفع والمسدد</label>
+            <div class="payment-grid">
+              <div class="payment-field">
+                <label>نقدي (Cash)</label>
+                <input type="number" id="payCash" class="calc-input pay-part" min="0" placeholder="0" value="0">
+              </div>
+              <div class="payment-field">
+                <label>محفظة إلكترونية (Wallet)</label>
+                <input type="number" id="payWallet" class="calc-input pay-part" min="0" placeholder="0" value="0">
+              </div>
+              <div class="payment-field">
+                <label>انستاباي (InstaPay)</label>
+                <input type="number" id="payInsta" class="calc-input pay-part" min="0" placeholder="0" value="0">
+              </div>
+              <div class="payment-field">
+                <label>POS (فيزا / ماكينة)</label>
+                <input type="number" id="payPOS" class="calc-input pay-part" min="0" placeholder="0" value="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <div class="summary-box">
+              <div class="summary-item">
+                <span class="title">مجموع الخدمات والإضافات</span>
+                <span class="val" id="sumServicesDisplay">0.00 ج.م</span>
+              </div>
+              <div class="summary-item">
+                <span class="title">صافي الفاتورة (Net Total)</span>
+                <span class="val" id="netAmountDisplay">0.00 ج.م</span>
+              </div>
+              <div class="summary-item">
+                <span class="title">إجمالي المدفوع (Paid)</span>
+                <span class="val" id="totalPaidDisplay">0.00 ج.م</span>
+              </div>
+              <div class="summary-item">
+                <span class="title">المتبقي الآجل (Credit)</span>
+                <span class="val" id="debtDisplay">0.00 ج.م</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="buttons-wrapper">
+            <button type="submit" id="submitBtn" class="submit-btn">تسجيل وحفظ العملية</button>
+            <button type="button" class="reset-btn" onclick="clearAllForm()">تفريغ كافة البيانات</button>
+          </div>
+        </form>
       </div>
     </div>
 
+    <!-- الصفحة الثانية: استعراض البيانات -->
+    <div id="pageData" class="view-page">
+      <div class="card">
+        <div class="table-header">
+          <div>
+            <h3>سجلات المبيعات المكتملة</h3>
+            <p style="font-size: 12px; color: #666; margin-top: 4px;">انقر على رأس أي عمود لفتح التصفية والشروط الخاصة بنوع بياناته (نص، رقم، أو تاريخ)</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="button" class="btn-small" onclick="resetAllFilters()"><i class="fas fa-eraser"></i> مسح كافة الفلاتر</button>
+            <button type="button" class="btn-small" onclick="fetchLogsFromSheet()"><i class="fas fa-sync-alt"></i> تحديث</button>
+            <span class="badge" id="recordCount">0 عمليات</span>
+          </div>
+        </div>
+
+        <div class="global-search-bar">
+          <i class="fas fa-search" style="color: var(--primary-green);"></i>
+          <input type="text" id="globalSearchInput" placeholder="بحث عام سريع في كافة السجلات..." oninput="applyTableFilters()">
+        </div>
+
+        <div class="table-container" id="tableContainerBox">
+          <table>
+            <thead>
+              <tr>
+                <th><div class="th-content" onclick="openColumnFilter('num', event)"><span>#</span><i class="fas fa-filter filter-icon" id="icon_num"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('actionDate', event)"><span>Action Date</span><i class="fas fa-filter filter-icon" id="icon_actionDate"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('trxDate', event)"><span>Trx Date</span><i class="fas fa-filter filter-icon" id="icon_trxDate"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('client', event)"><span>Client</span><i class="fas fa-filter filter-icon" id="icon_client"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('service', event)"><span>Service</span><i class="fas fa-filter filter-icon" id="icon_service"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('price', event)"><span>Price</span><i class="fas fa-filter filter-icon" id="icon_price"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('discount', event)"><span>Discount</span><i class="fas fa-filter filter-icon" id="icon_discount"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('extra', event)"><span>Extra</span><i class="fas fa-filter filter-icon" id="icon_extra"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('netTotal', event)"><span>Net Total</span><i class="fas fa-filter filter-icon" id="icon_netTotal"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('paid', event)"><span>Paid</span><i class="fas fa-filter filter-icon" id="icon_paid"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('credit', event)"><span>Credit</span><i class="fas fa-filter filter-icon" id="icon_credit"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('method', event)"><span>Method</span><i class="fas fa-filter filter-icon" id="icon_method"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('doctor', event)"><span>Doctor</span><i class="fas fa-filter filter-icon" id="icon_doctor"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('specialist', event)"><span>Specialist</span><i class="fas fa-filter filter-icon" id="icon_specialist"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('notes', event)"><span>Notes</span><i class="fas fa-filter filter-icon" id="icon_notes"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('user', event)"><span>User</span><i class="fas fa-filter filter-icon" id="icon_user"></i></div></th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal الفلتر المركزي المميز -->
+  <div id="filterModalOverlay" class="filter-modal-overlay" onclick="closePopupOnOutside(event)">
+    <div class="sheets-filter-popup" id="sheetsPopup">
+      <div class="popup-title">
+        <span id="popupTitleText">تصفية العمود</span>
+        <i class="fas fa-times" style="cursor: pointer; color: #777;" onclick="closePopup()"></i>
+      </div>
+
+      <div class="popup-menu-item" onclick="popupSort('asc')"><i class="fas fa-sort-alpha-down"></i> الفرز تصاعدياً</div>
+      <div class="popup-menu-item" onclick="popupSort('desc')"><i class="fas fa-sort-alpha-up"></i> الفرز تنازلياً</div>
+      <div class="popup-divider"></div>
+
+      <!-- قسم الشروط الذكية المتغيرة حسب نوع العمود -->
+      <div id="conditionSection" class="condition-section">
+        <label id="condTitle" style="font-weight: 700; color: var(--primary-green); font-size: 12px;">فلترة بشرط:</label>
+        
+        <!-- قائمة خيارات الشرط -->
+        <select id="condOperator" onchange="handleOperatorChange()">
+          <!-- يتم التعبئة ديناميكياً حسب نوع العمود (نص / رقم / تاريخ) -->
+        </select>
+
+        <!-- حقول الإدخال الديناميكية -->
+        <div id="condInputsContainer">
+          <input type="text" id="condVal1" placeholder="القيمة..." style="display:none;">
+          <input type="text" id="condVal2" placeholder="القيمة الثانية..." style="display:none;">
+        </div>
+      </div>
+
+      <div class="popup-search-box">
+        <input type="text" id="popupSearchInput" placeholder="بحث سريع في القيم الفريدة..." oninput="filterPopupCheckboxes()">
+      </div>
+      <div class="select-all-row" onclick="toggleSelectAllPopup(this)">
+        <input type="checkbox" id="popupSelectAllCB" checked> تحديد الكل
+      </div>
+      <div class="popup-checkbox-list" id="popupCheckboxList">
+        <!-- يتم التعبئة هنا -->
+      </div>
+      <div class="popup-actions">
+        <button class="popup-btn popup-btn-cancel" onclick="closePopup()">إلغاء</button>
+        <button class="popup-btn popup-btn-ok" onclick="applyPopupFilter()">تطبيق الفلتر</button>
+      </div>
+    </div>
   </div>
 
   <footer>
@@ -672,35 +480,202 @@
   </footer>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzq68qBRFdHTKheKnrmXEJs6SbmlKuoKx1u65TRVHY1wNPrHfnBzf76JVzo3Lvpx1is/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzC2mn9eMXysDx9z1jHKr3ZwIcmmGS4RhTihFs4TE1pt6_x5kzvQA7oixtIGAe2gr60/exec";
 
     const form = document.getElementById('clinicForm');
     const tableBody = document.getElementById('tableBody');
     const recordCount = document.getElementById('recordCount');
     const submitBtn = document.getElementById('submitBtn');
 
-    let globalData = []; // تخزين كل بيانات شيت Data للاستخدام الديناميكي السريع
+    let globalData = [];
+    let salesMasterData = [];
+    
+    let activeColumnFilters = {}; 
+    let activeConditions = {}; // تخزين الشروط المتقدمة لكل عمود
+    let currentOpenCol = null;
+    let currentSortColumn = null;
+    let currentSortDirection = 'asc';
+
+    // تعريف أنواع الأعمدة
+    const numericColumns = ['num', 'price', 'discount', 'extra', 'netTotal', 'paid', 'credit'];
+    const dateColumns = ['actionDate', 'trxDate'];
+    // بقية الأعمدة تعتبر نصية (Text Columns) تلقائياً
 
     window.addEventListener('DOMContentLoaded', () => {
-      loadAllDataFromDataSheet();
-      fetchLogsFromSheet();
+      startLiveClock();
+      setTodayAsDefaultDate();
+      preloadDataSheet();
+      checkLoginSession();
     });
 
-    function loadAllDataFromDataSheet() {
-      if(!SCRIPT_URL || SCRIPT_URL.includes("ضع_رابط")) return;
+    function switchPage(pageId) {
+      document.querySelectorAll('.view-page').forEach(page => page.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
-      fetch(`${SCRIPT_URL}?sheet=Data`)
+      document.getElementById(pageId).classList.add('active');
+
+      if (pageId === 'pageAdd') {
+        document.getElementById('btnPageAdd').classList.add('active');
+      } else if (pageId === 'pageData') {
+        document.getElementById('btnPageData').classList.add('active');
+        fetchLogsFromSheet();
+      }
+    }
+
+    function preloadDataSheet() {
+      if(!SCRIPT_URL) return;
+      fetch(`${SCRIPT_URL}?sheet=Data&t=${Date.now()}`)
         .then(res => res.json())
         .then(response => {
           if (response.status === "success" && response.data) {
             globalData = response.data;
-            populateStaffUI(globalData);
+            if (sessionStorage.getItem('yuni_user')) {
+              populateStaffUI(globalData);
+            }
           }
         })
-        .catch(err => console.error("Error loading Data sheet:", err));
+        .catch(err => console.error("Preload error:", err));
     }
 
-    // 1. تعبئة الأطباء والأخصائيات
+    function checkLoginSession() {
+      const savedUser = sessionStorage.getItem('yuni_user');
+      const savedRole = sessionStorage.getItem('yuni_role') || 'Post';
+      if (savedUser) {
+        showMainApp(savedUser, savedRole);
+      } else {
+        document.getElementById('loginOverlay').style.display = 'flex';
+      }
+    }
+
+    function checkAdminRole(roleStr) {
+      if (!roleStr) return false;
+      const cleanRole = roleStr.toString().trim().toLowerCase();
+      return cleanRole === 'admin' || cleanRole === 'مدير' || cleanRole === 'أدمن';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const uVal = document.getElementById('loginUser').value.trim();
+      const pVal = document.getElementById('loginPass').value.trim();
+      const errorDiv = document.getElementById('loginError');
+      const loginBtn = document.getElementById('loginSubmitBtn');
+
+      errorDiv.style.display = 'none';
+
+      if (globalData.length > 0) {
+        verifyUserCredentials(uVal, pVal);
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.innerText = "جاري التحقق...";
+
+      fetch(`${SCRIPT_URL}?sheet=Data&t=${Date.now()}`)
+        .then(res => res.json())
+        .then(response => {
+          loginBtn.disabled = false;
+          loginBtn.innerText = "دخول";
+
+          if (response.status === "success" && response.data) {
+            globalData = response.data;
+            verifyUserCredentials(uVal, pVal);
+          } else {
+            errorDiv.innerText = response.message ? `خطأ: ${response.message}` : "تعذر الاتصال بقاعدة البيانات!";
+            errorDiv.style.display = 'block';
+          }
+        })
+        .catch(err => {
+          loginBtn.disabled = false;
+          loginBtn.innerText = "دخول";
+          errorDiv.innerText = "حدث خطأ في الاتصال بالسيرفر!";
+          errorDiv.style.display = 'block';
+        });
+    });
+
+    function verifyUserCredentials(uVal, pVal) {
+      const errorDiv = document.getElementById('loginError');
+      
+      const userMatch = globalData.find(item => {
+        let empName = "";
+        let empPass = "";
+
+        Object.keys(item).forEach(key => {
+          const cleanKey = key.trim();
+          if (cleanKey === 'Employee Name' || cleanKey === 'اسم الموظف') empName = item[key].toString().trim();
+          if (cleanKey === 'Employee Password' || cleanKey === 'كلمة المرور') empPass = item[key].toString().trim();
+        });
+
+        return empName.toLowerCase() === uVal.toLowerCase() && empPass === pVal.toString().trim();
+      });
+
+      if (userMatch) {
+        let matchedName = uVal;
+        let matchedRole = 'Post';
+
+        Object.keys(userMatch).forEach(key => {
+          const cleanKey = key.trim();
+          if (cleanKey === 'Employee Name' || cleanKey === 'اسم الموظف') matchedName = userMatch[key];
+          if (cleanKey === 'Employee Permission' || cleanKey === 'Role' || cleanKey === 'الصلاحية') matchedRole = userMatch[key];
+        });
+
+        sessionStorage.setItem('yuni_user', matchedName);
+        sessionStorage.setItem('yuni_role', matchedRole);
+        showMainApp(matchedName, matchedRole);
+      } else {
+        errorDiv.innerText = "اسم المستخدم أو كلمة المرور غير صحيحة!";
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    function showMainApp(username, role) {
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('mainHeader').style.display = 'flex';
+      document.getElementById('currentUserDisplay').innerText = username;
+
+      const btnPageData = document.getElementById('btnPageData');
+      const isAdmin = checkAdminRole(role);
+
+      if (isAdmin) {
+        btnPageData.style.display = 'inline-flex';
+      } else {
+        btnPageData.style.display = 'none';
+      }
+
+      switchPage('pageAdd');
+
+      if (globalData.length > 0) {
+        populateStaffUI(globalData);
+      } else {
+        preloadDataSheet();
+      }
+    }
+
+    function logoutUser() {
+      sessionStorage.removeItem('yuni_user');
+      sessionStorage.removeItem('yuni_role');
+      location.reload();
+    }
+
+    function startLiveClock() {
+      function updateClock() {
+        const now = new Date();
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const dateStr = now.toLocaleDateString('ar-EG', dateOptions);
+        const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('currentDateBadge').innerHTML = `<i class="far fa-calendar-alt"></i> ${dateStr} | <i class="far fa-clock"></i> ${timeStr}`;
+      }
+      updateClock();
+      setInterval(updateClock, 1000);
+    }
+
+    function setTodayAsDefaultDate() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      document.getElementById('entryDate').value = `${yyyy}-${mm}-${dd}`;
+    }
+
     function populateStaffUI(data) {
       const doctorContainer = document.getElementById('doctorContainer');
       const specialistContainer = document.getElementById('specialistContainer');
@@ -712,9 +687,14 @@
       let specialists = [];
 
       data.forEach(item => {
-        const name = item['Employee Name'] || item['اسم الموظف'];
-        const jobRaw = item['Employee Job'] || item['الوظيفة'] || '';
-        const job = jobRaw.toString().trim().toLowerCase();
+        let name = "";
+        let job = "";
+
+        Object.keys(item).forEach(k => {
+          const ck = k.trim();
+          if (ck === 'Employee Name' || ck === 'اسم الموظف') name = item[k];
+          if (ck === 'Employee Job' || ck === 'الوظيفة') job = item[k].toString().trim().toLowerCase();
+        });
 
         if (name) {
           if (job === 'doctor' || job === 'طبيب' || job === 'دكتور') {
@@ -758,12 +738,21 @@
       }
     }
 
-    // 2. التحكم في الاختيار المزدوج وفلترة الخدمات تلقائياً
     function handleStaffMutualExclusion(type) {
       const docCBs = document.querySelectorAll('.doc-cb');
       const specCBs = document.querySelectorAll('.spec-cb');
       const docContainer = document.getElementById('doctorContainer');
       const specContainer = document.getElementById('specialistContainer');
+
+      if (type === 'reset') {
+        docCBs.forEach(cb => { cb.checked = false; cb.disabled = false; });
+        specCBs.forEach(cb => { cb.checked = false; cb.disabled = false; });
+        docContainer.classList.remove('disabled');
+        specContainer.classList.remove('disabled');
+        clearServicesUI();
+        calculateAll();
+        return;
+      }
 
       const anyDocChecked = Array.from(docCBs).some(cb => cb.checked);
       const anySpecChecked = Array.from(specCBs).some(cb => cb.checked);
@@ -792,7 +781,6 @@
       document.getElementById('tabsContainer').innerHTML = '<div class="empty-msg">يرجى اختيار طبيب أو أخصائي أولاً لعرض الخدمات المتاحة</div>';
     }
 
-    // 3. عرض الخدمات المفلترة بناءً على نوع التخصص (Speciality)
     function renderFilteredServices(targetSpeciality) {
       const tabsHeader = document.getElementById('tabsHeader');
       const tabsContainer = document.getElementById('tabsContainer');
@@ -802,15 +790,22 @@
       let categories = {};
 
       globalData.forEach(item => {
-        const itemSpeciality = (item['Item/Service Speciality'] || '').toString().trim().toLowerCase();
+        let itemSpeciality = "";
+        let cat = "خدمات عامة";
+        let name = "";
+        let price = 0;
+
+        Object.keys(item).forEach(k => {
+          const ck = k.trim();
+          if (ck === 'Item/Service Speciality') itemSpeciality = item[k].toString().trim().toLowerCase();
+          if (ck === 'Item/Service Category' || ck === 'التصنيف') cat = item[k];
+          if (ck === 'Item/Service' || ck === 'اسم الخدمة') name = item[k];
+          if (ck === 'Item/Service Price' || ck === 'السعر') price = parseFloat(item[k]) || 0;
+        });
+
         const target = targetSpeciality.toLowerCase();
 
-        // مطابقة التخصص مع مرونة القراءة
         if (itemSpeciality === target || itemSpeciality.includes(target) || (target.includes('laser') && itemSpeciality.includes('laser'))) {
-          const cat = item['Item/Service Category'] || item['التصنيف'] || 'خدمات عامة';
-          const name = item['Item/Service'] || item['اسم الخدمة'];
-          const price = parseFloat(item['Item/Service Price'] || item['السعر']) || 0;
-
           if (name) {
             if (!categories[cat]) categories[cat] = [];
             categories[cat].push({ name, price });
@@ -845,7 +840,7 @@
           contentDiv.innerHTML += `
             <label class="checkbox-item">
               <div>
-                <input type="checkbox" class="service-cb" value="${catName} - ${srv.name}" data-price="${srv.price}">
+                <input type="checkbox" class="service-cb" value="${srv.name}" data-price="${srv.price}">
                 <span>${srv.name}</span>
               </div>
               <span class="price-tag">${srv.price} ج.م</span>
@@ -877,21 +872,17 @@
     function toggleAllServices(shouldSelect) {
       const activeTab = document.querySelector('.tab-content.active');
       if (activeTab) {
-        activeTab.querySelectorAll('.service-cb').forEach(cb => {
-          cb.checked = shouldSelect;
-        });
+        activeTab.querySelectorAll('.service-cb').forEach(cb => { cb.checked = shouldSelect; });
       } else {
-        document.querySelectorAll('.service-cb').forEach(cb => {
-          cb.checked = shouldSelect;
-        });
+        document.querySelectorAll('.service-cb').forEach(cb => { cb.checked = shouldSelect; });
       }
       calculateAll();
     }
 
     function clearAllForm() {
       form.reset();
+      setTodayAsDefaultDate();
       handleStaffMutualExclusion('reset');
-      calculateAll();
     }
 
     function calculateAll() {
@@ -917,148 +908,496 @@
       document.getElementById('sumServicesDisplay').innerText = totalWithExtra.toFixed(2) + ' ج.م';
       document.getElementById('netAmountDisplay').innerText = netAmount.toFixed(2) + ' ج.م';
       document.getElementById('totalPaidDisplay').innerText = totalPaid.toFixed(2) + ' ج.م';
-      
-      const debtDisplay = document.getElementById('debtDisplay');
-      debtDisplay.innerText = debt.toFixed(2) + ' ج.م';
 
-      if (debt > 0) {
-        debtDisplay.className = 'val val-debt';
-      } else if (debt < 0) {
-        debtDisplay.className = 'val val-credit';
-      } else {
-        debtDisplay.className = 'val';
-      }
-
-      return { baseServicesTotal, extraFee, discount, netAmount, cash, wallet, insta, pos, totalPaid, debt };
+      const debtElem = document.getElementById('debtDisplay');
+      debtElem.innerText = debt.toFixed(2) + ' ج.م';
+      debtElem.className = debt > 0 ? 'val val-debt' : 'val val-credit';
     }
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
 
+      const clientName = document.getElementById('clientName').value.trim();
+      const entryDate = document.getElementById('entryDate').value;
+      const currentUser = sessionStorage.getItem('yuni_user') || 'عام';
+
       const selectedDocs = Array.from(document.querySelectorAll('.doc-cb:checked')).map(cb => cb.value);
       const selectedSpecs = Array.from(document.querySelectorAll('.spec-cb:checked')).map(cb => cb.value);
 
-      if (selectedDocs.length === 0 && selectedSpecs.length === 0) {
-        alert("يرجى اختيار طبيب أو أخصائي واحد على الأقل!");
+      const selectedServices = Array.from(document.querySelectorAll('.service-cb:checked')).map(cb => ({
+        name: cb.value,
+        price: parseFloat(cb.getAttribute('data-price')) || 0
+      }));
+
+      const extraFee = parseFloat(document.getElementById('extraFee').value) || 0;
+      const discount = parseFloat(document.getElementById('discount').value) || 0;
+      const discountNote = document.getElementById('discountNote').value.trim();
+
+      const cash = parseFloat(document.getElementById('payCash').value) || 0;
+      const wallet = parseFloat(document.getElementById('payWallet').value) || 0;
+      const insta = parseFloat(document.getElementById('payInsta').value) || 0;
+      const pos = parseFloat(document.getElementById('payPOS').value) || 0;
+
+      if (selectedServices.length === 0 && extraFee === 0) {
+        alert('يرجى اختيار خدمة واحدة على الأقل أو إدخال رسوم إضافية!');
         return;
       }
 
-      const name = document.getElementById('clientName').value;
-      const doctorStr = selectedDocs.length > 0 ? selectedDocs.join(', ') : '-';
-      const specialistStr = selectedSpecs.length > 0 ? selectedSpecs.join(', ') : '-';
-      
-      const note = document.getElementById('discountNote').value;
-      const calcs = calculateAll();
-      
-      const checkedBoxes = document.querySelectorAll('.service-cb:checked');
-      const selectedServices = Array.from(checkedBoxes).map(cb => cb.value);
-      
-      if (selectedServices.length === 0) {
-        selectedServices.push('بدون خدمة');
-      }
+      let paymentsArr = [];
+      if (cash > 0) paymentsArr.push({ method: "Cash", amount: cash });
+      if (wallet > 0) paymentsArr.push({ method: "Wallet", amount: wallet });
+      if (insta > 0) paymentsArr.push({ method: "InstaPay", amount: insta });
+      if (pos > 0) paymentsArr.push({ method: "POS", amount: pos });
 
-      const postPayload = {
-        sheet: "Log",
+      const totalPaid = cash + wallet + insta + pos;
+      const netTotal = Math.max(0, (selectedServices.reduce((a, b) => a + b.price, 0) + extraFee) - discount);
+      const credit = netTotal - totalPaid;
+
+      const payload = {
+        sheet: "Sales",
         data: {
-          "اسم العميلة": name,
-          "الطبيب": doctorStr,
-          "المتخصص": specialistStr,
-          "الخدمات المختارة": selectedServices,
-          "إضافات": calcs.extraFee,
-          "الخصم": calcs.discount,
-          "سبب الخصم": note,
-          "الصافي المطلوب": calcs.netAmount,
-          "كاش": calcs.cash,
-          "محفظة": calcs.wallet,
-          "انستاباي": calcs.insta,
-          "POS": calcs.pos,
-          "إجمالي المدفوع": calcs.totalPaid,
-          "المتبقي": calcs.debt
+          client: clientName,
+          trxDate: entryDate,
+          doctors: selectedDocs.join(', '),
+          specialists: selectedSpecs.join(', '),
+          services: selectedServices,
+          payments: paymentsArr,
+          extra: extraFee,
+          discount: discount,
+          notes: discountNote,
+          netTotal: netTotal,
+          credit: credit,
+          user: currentUser
         }
       };
 
       submitBtn.disabled = true;
-      submitBtn.innerText = "جاري الحفظ والشحن...";
+      submitBtn.innerText = "جاري الحفظ والتسجيل...";
 
       fetch(SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify(postPayload)
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
       })
       .then(res => res.json())
-      .then(res => {
+      .then(data => {
         submitBtn.disabled = false;
         submitBtn.innerText = "تسجيل وحفظ العملية";
-        clearAllForm();
-        fetchLogsFromSheet();
+
+        if (data.status === "success") {
+          alert("تم حفظ العملية بنجاح!");
+          clearAllForm();
+        } else {
+          alert("حدث خطأ أثناء الحفظ: " + (data.message || "خطأ غير معروف"));
+        }
       })
       .catch(err => {
-        alert("حدث خطأ أثناء الحفظ في الشيت!");
         console.error(err);
         submitBtn.disabled = false;
         submitBtn.innerText = "تسجيل وحفظ العملية";
+        alert("تعذر الاتصال بالسيرفر لحفظ العملية!");
       });
     });
 
     function fetchLogsFromSheet() {
-      if(!SCRIPT_URL || SCRIPT_URL.includes("ضع_رابط")) return;
+      if (!SCRIPT_URL) return;
 
-      fetch(`${SCRIPT_URL}?sheet=Log`)
+      tableBody.innerHTML = '<tr><td colspan="16" style="text-align:center;">جاري تحميل سجلات المبيعات...</td></tr>';
+
+      fetch(`${SCRIPT_URL}?sheet=Sales&t=${Date.now()}`)
         .then(res => res.json())
         .then(response => {
           if (response.status === "success" && response.data) {
-            renderLogsTable(response.data);
+            salesMasterData = response.data;
+            applyTableFilters();
+          } else {
+            tableBody.innerHTML = '<tr><td colspan="16" style="text-align:center;">لا توجد سجلات متاحة حالياً</td></tr>';
+            recordCount.innerText = "0 عمليات";
           }
         })
-        .catch(err => console.error("Error fetching logs:", err));
+        .catch(err => {
+          console.error(err);
+          tableBody.innerHTML = '<tr><td colspan="16" style="text-align:center; color:red;">تعذر تحميل السجلات</td></tr>';
+        });
     }
 
-    function renderLogsTable(logs) {
+    const columnKeyMap = {
+      num: ['num'],
+      actionDate: ['Action Date', 'تاريخ التسجيل'],
+      trxDate: ['Trx Date', 'تاريخ الفاتورة'],
+      client: ['Client', 'اسم العميلة'],
+      service: ['Service', 'الخدمة'],
+      price: ['Price', 'السعر'],
+      discount: ['Discount', 'الخصم'],
+      extra: ['Extra', 'الإضافي'],
+      netTotal: ['Net Total', 'صافي الفاتورة'],
+      paid: ['Paid', 'المدفوع'],
+      credit: ['Credit', 'المتبقي'],
+      method: ['Payment Method', 'Method', 'طريقة الدفع'],
+      doctor: ['Doctor', 'الطبيب'],
+      specialist: ['Specialist', 'الأخصائي'],
+      notes: ['Notes', 'ملاحظات'],
+      user: ['User', 'المستخدم']
+    };
+
+    function getMappedValue(row, colName, originalIndex) {
+      if (colName === 'num') return originalIndex;
+      const keys = columnKeyMap[colName] || [];
+      for (let k of keys) {
+        if (row[k] !== undefined && row[k] !== null) return row[k];
+      }
+      return '';
+    }
+
+    // فتح نافذة الفلتر المتقدمة مع التعرف الذكي على نوع العمود
+    function openColumnFilter(colName, event) {
+      event.stopPropagation();
+      currentOpenCol = colName;
+      document.getElementById('popupTitleText').innerText = `فلتر العمود: ${colName}`;
+
+      const condOperator = document.getElementById('condOperator');
+      condOperator.innerHTML = '<option value="none">-- بدون شرط متقدم --</option>';
+
+      let colType = 'text';
+      if (numericColumns.includes(colName)) colType = 'number';
+      if (dateColumns.includes(colName)) colType = 'date';
+
+      // بناء قائمة الخيارات بناءً على نوع البيانات
+      if (colType === 'text') {
+        document.getElementById('condTitle').innerText = 'فلترة بشرط نصي:';
+        condOperator.innerHTML += `
+          <option value="contains">يحتوي على (Contains)</option>
+          <option value="notContains">لا يحتوي على (Not Contain)</option>
+          <option value="startsWith">يبدأ بـ (Starts With)</option>
+          <option value="endsWith">ينتهي بـ (Ends With)</option>
+
+          <option value="equals">يساوي تماماً (Equals)</option>
+        `;
+      } else if (colType === 'number') {
+        document.getElementById('condTitle').innerText = 'فلترة بشرط رقمي:';
+        condOperator.innerHTML += `
+          <option value="equals">يساوي (=)</option>
+          <option value="greater">أكبر من (>)</option>
+          <option value="less">أصغر من (<)</option>
+
+          <option value="between">بين رقمين (Between)</option>
+        `;
+      } else if (colType === 'date') {
+        document.getElementById('condTitle').innerText = 'فلترة بشرط التاريخ:';
+        condOperator.innerHTML += `
+          <option value="equals">في تاريخ (=)</option>
+          <option value="greater">بعد تاريخ (أكبر من)</option>
+          <option value="less">قبل تاريخ (أصغر من)</option>
+          <option value="between">بين تاريخين (Between)</option>
+        `;
+      }
+
+      // استعادة الحالة السابقة إن وجدت
+      const existingCond = activeConditions[colName] || { op: 'none', val1: '', val2: '' };
+      condOperator.value = existingCond.op;
+
+      renderConditionInputs(colType, existingCond.val1, existingCond.val2);
+
+      // تعبئة القيم الفريدة لـ Checkboxes
+      let uniqueVals = new Set();
+      salesMasterData.forEach((row, idx) => {
+        let val = getMappedValue(row, colName, salesMasterData.length - idx);
+        uniqueVals.add(val.toString().trim());
+      });
+
+      const cbList = document.getElementById('popupCheckboxList');
+      cbList.innerHTML = '';
+      document.getElementById('popupSearchInput').value = '';
+      document.getElementById('popupSelectAllCB').checked = true;
+
+      if (!activeColumnFilters[colName]) {
+        activeColumnFilters[colName] = {};
+        uniqueVals.forEach(val => { activeColumnFilters[colName][val] = true; });
+      }
+
+      Array.from(uniqueVals).sort().forEach(val => {
+        const isChecked = activeColumnFilters[colName][val] !== false;
+        cbList.innerHTML += `
+          <label class="popup-cb-item">
+            <input type="checkbox" class="popup-val-cb" value="${val}" ${isChecked ? 'checked' : ''} onchange="updateSelectAllState()">
+            <span>${val === "" ? "(فارغ)" : val}</span>
+          </label>
+        `;
+      });
+
+      document.getElementById('filterModalOverlay').classList.add('active');
+    }
+
+    function renderConditionInputs(colType, val1 = '', val2 = '') {
+      const container = document.getElementById('condInputsContainer');
+      const inputType = (colType === 'number') ? 'number' : (colType === 'date' ? 'date' : 'text');
+      const op = document.getElementById('condOperator').value;
+
+      let html = '';
+      if (op !== 'none') {
+        html += `<input type="${inputType}" id="condVal1" placeholder="أدخل القيمة..." value="${val1}">`;
+        if (op === 'between') {
+          html += `<input type="${inputType}" id="condVal2" placeholder="أدخل القيمة الثانية..." value="${val2}">`;
+        }
+      }
+      container.innerHTML = html;
+    }
+
+    function handleOperatorChange() {
+      let colType = 'text';
+      if (numericColumns.includes(currentOpenCol)) colType = 'number';
+      if (dateColumns.includes(currentOpenCol)) colType = 'date';
+      renderConditionInputs(colType);
+    }
+
+    function filterPopupCheckboxes() {
+      const search = document.getElementById('popupSearchInput').value.toLowerCase();
+      document.querySelectorAll('.popup-cb-item').forEach(item => {
+        const text = item.querySelector('span').innerText.toLowerCase();
+        item.style.display = text.includes(search) ? 'flex' : 'none';
+      });
+    }
+
+    function toggleSelectAllPopup(element) {
+      const cb = document.getElementById('popupSelectAllCB');
+      cb.checked = !cb.checked;
+      document.querySelectorAll('.popup-val-cb').forEach(item => {
+        if (item.closest('.popup-cb-item').style.display !== 'none') {
+          item.checked = cb.checked;
+        }
+      });
+    }
+
+    function updateSelectAllState() {
+      const allCBs = document.querySelectorAll('.popup-val-cb');
+      const checkedCBs = document.querySelectorAll('.popup-val-cb:checked');
+      document.getElementById('popupSelectAllCB').checked = allCBs.length === checkedCBs.length;
+    }
+
+    function popupSort(direction) {
+      currentSortColumn = currentOpenCol;
+      currentSortDirection = direction;
+      closePopup();
+      applyTableFilters();
+    }
+
+    function closePopup() {
+      document.getElementById('filterModalOverlay').classList.remove('active');
+      currentOpenCol = null;
+    }
+
+    function closePopupOnOutside(e) {
+      if (e.target.id === 'filterModalOverlay') {
+        closePopup();
+      }
+    }
+
+    function applyPopupFilter() {
+      if (!currentOpenCol) return;
+
+      // 1. حفظ Checkboxes
+      if (!activeColumnFilters[currentOpenCol]) {
+        activeColumnFilters[currentOpenCol] = {};
+      }
+      document.querySelectorAll('.popup-val-cb').forEach(cb => {
+        activeColumnFilters[currentOpenCol][cb.value] = cb.checked;
+      });
+
+      // 2. حفظ الشروط المتقدمة
+      const op = document.getElementById('condOperator').value;
+      const v1Elem = document.getElementById('condVal1');
+      const v2Elem = document.getElementById('condVal2');
+
+      const val1 = v1Elem ? v1Elem.value.trim() : '';
+      const val2 = v2Elem ? v2Elem.value.trim() : '';
+
+      activeConditions[currentOpenCol] = { op, val1, val2 };
+
+      // 3. تمييز لون الأيقونة
+      const icon = document.getElementById(`icon_${currentOpenCol}`);
+      if (icon) {
+        const hasUnchecked = Object.values(activeColumnFilters[currentOpenCol]).includes(false);
+        const hasCondition = op !== 'none' && val1 !== '';
+        if (hasUnchecked || hasCondition) {
+          icon.style.color = '#C5221F';
+          icon.style.opacity = '1';
+        } else {
+          icon.style.color = '';
+          icon.style.opacity = '0.7';
+        }
+      }
+
+      closePopup();
+      applyTableFilters();
+    }
+
+    function resetAllFilters() {
+      document.getElementById('globalSearchInput').value = '';
+      activeColumnFilters = {};
+      activeConditions = {};
+      currentSortColumn = null;
+      currentSortDirection = 'asc';
+
+      document.querySelectorAll('.filter-icon').forEach(icon => {
+        icon.style.color = '';
+        icon.style.opacity = '0.7';
+      });
+
+      applyTableFilters();
+    }
+
+    function applyTableFilters() {
+      if (!salesMasterData || salesMasterData.length === 0) return;
+
+      const globalSearchVal = document.getElementById('globalSearchInput').value.toLowerCase().trim();
+
+      let mappedRows = salesMasterData.slice().reverse().map((row, idx) => {
+        const originalIndex = salesMasterData.length - idx;
+        return {
+          originalRow: row,
+          originalIndex: originalIndex,
+          num: originalIndex,
+          actionDate: (row['Action Date'] || row['تاريخ التسجيل'] || '').toString(),
+          trxDate: (row['Trx Date'] || row['تاريخ الفاتورة'] || '').toString(),
+          client: (row['Client'] || row['اسم العميلة'] || '').toString(),
+          service: (row['Service'] || row['الخدمة'] || '').toString(),
+          price: parseFloat(row['Price'] || row['السعر'] || 0),
+          discount: parseFloat(row['Discount'] || row['الخصم'] || 0),
+          extra: parseFloat(row['Extra'] || row['الإضافي'] || 0),
+          netTotal: parseFloat(row['Net Total'] || row['صافي الفاتورة'] || 0),
+          paid: parseFloat(row['Paid'] || row['المدفوع'] || 0),
+          credit: parseFloat(row['Credit'] || row['المتبقي'] || 0),
+          method: (row['Payment Method'] || row['Method'] || row['طريقة الدفع'] || '').toString(),
+          doctor: (row['Doctor'] || row['الطبيب'] || '').toString(),
+          specialist: (row['Specialist'] || row['الأخصائي'] || '').toString(),
+          notes: (row['Notes'] || row['ملاحظات'] || '').toString(),
+          user: (row['User'] || row['المستخدم'] || '').toString()
+        };
+      });
+
+      // البحث العام
+      if (globalSearchVal) {
+        mappedRows = mappedRows.filter(item => {
+          return Object.values(item).some(val => val.toString().toLowerCase().includes(globalSearchVal));
+        });
+      }
+
+      // تصفية الاختيارات (Checkboxes)
+      Object.keys(activeColumnFilters).forEach(colName => {
+        const colFilters = activeColumnFilters[colName];
+        if (colFilters) {
+          mappedRows = mappedRows.filter(item => {
+            const val = item[colName] !== undefined ? item[colName].toString().trim() : '';
+            return colFilters[val] !== false;
+          });
+        }
+      });
+
+      // تصفية الشروط المتقدمة الذكية (نص / رقم / تاريخ)
+      Object.keys(activeConditions).forEach(colName => {
+        const cond = activeConditions[colName];
+        if (cond && cond.op && cond.op !== 'none' && cond.val1 !== '') {
+          
+          let isNum = numericColumns.includes(colName);
+          let isDate = dateColumns.includes(colName);
+
+          mappedRows = mappedRows.filter(item => {
+            let itemVal = item[colName];
+
+            if (isNum) {
+              const val = parseFloat(itemVal) || 0;
+              const v1 = parseFloat(cond.val1) || 0;
+              const v2 = parseFloat(cond.val2) || 0;
+
+              if (cond.op === 'equals') return val === v1;
+              if (cond.op === 'greater') return val > v1;
+              if (cond.op === 'less') return val < v1;
+              if (cond.op === 'between') return val >= v1 && val <= v2;
+
+            } else if (isDate) {
+              const valDate = new Date(itemVal).setHours(0,0,0,0);
+              const v1Date = new Date(cond.val1).setHours(0,0,0,0);
+              const v2Date = cond.val2 ? new Date(cond.val2).setHours(0,0,0,0) : null;
+
+              if (isNaN(valDate)) return false;
+
+              if (cond.op === 'equals') return valDate === v1Date;
+              if (cond.op === 'greater') return valDate > v1Date;
+              if (cond.op === 'less') return valDate < v1Date;
+              if (cond.op === 'between') return valDate >= v1Date && valDate <= v2Date;
+
+            } else {
+              // نص (Text Conditions)
+              const strVal = (itemVal || '').toString().toLowerCase();
+              const targetStr = cond.val1.toLowerCase();
+
+              if (cond.op === 'contains') return strVal.includes(targetStr);
+              if (cond.op === 'notContains') return !strVal.includes(targetStr);
+              if (cond.op === 'startsWith') return strVal.startsWith(targetStr);
+              if (cond.op === 'endsWith') return strVal.endsWith(targetStr);
+              if (cond.op === 'equals') return strVal === targetStr;
+            }
+
+            return true;
+          });
+        }
+      });
+
+      // تطبيق الفرز (Sort)
+      if (currentSortColumn) {
+        mappedRows.sort((a, b) => {
+          let valA = a[currentSortColumn];
+          let valB = b[currentSortColumn];
+
+          if (!isNaN(valA) && !isNaN(valB)) {
+            valA = parseFloat(valA);
+            valB = parseFloat(valB);
+          } else {
+            valA = valA.toString().toLowerCase();
+            valB = valB.toString().toLowerCase();
+          }
+
+          if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
+          if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
+
+      renderSalesTable(mappedRows);
+    }
+
+    function renderSalesTable(data) {
       tableBody.innerHTML = '';
-      const reversedLogs = [...logs].reverse();
+      if (data.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="16" style="text-align:center;">لا توجد نتائج مطابقة للبحث أو الفلتر</td></tr>';
+        recordCount.innerText = "0 عمليات";
+        return;
+      }
 
-      reversedLogs.forEach(row => {
-        const time = row['التاريخ والوقت'] ? new Date(row['التاريخ والوقت']).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '-';
-        const name = row['اسم العميلة'] || '-';
-        const doctor = row['الطبيب'] || '-';
-        const specialist = row['المتخصص'] || '-';
-        const servicesStr = row['الخدمات المختارة'] || '';
-        const servicesArray = servicesStr ? servicesStr.split(', ') : ['بدون خدمة'];
-        const servicesHTML = servicesArray.map(s => `<span class="tag">${s}</span>`).join('');
-        
-        const discount = parseFloat(row['الخصم']) || 0;
-        const note = row['سبب الخصم'] || '';
-        const netAmount = parseFloat(row['الصافي المطلوب']) || 0;
-        const debt = parseFloat(row['المتبقي']) || 0;
+      recordCount.innerText = `${data.length} عمليات (من أصل ${salesMasterData.length})`;
 
-        let payDetails = [];
-        if(parseFloat(row['كاش']) > 0) payDetails.push(`نقدي: ${row['كاش']}`);
-        if(parseFloat(row['محفظة']) > 0) payDetails.push(`محفظة: ${row['محفظة']}`);
-        if(parseFloat(row['انستاباي']) > 0) payDetails.push(`انستاباي: ${row['انستاباي']}`);
-        if(parseFloat(row['POS']) > 0) payDetails.push(`POS: ${row['POS']}`);
-        if(payDetails.length === 0) payDetails.push('لم يدفع شيء');
-
-        let discountCell = discount > 0 
-          ? `<strong>${discount} ج.م</strong>${note ? `<span class="note-text">(${note})</span>` : ''}` 
-          : '-';
-
-        let debtClass = debt > 0 ? 'val-debt' : (debt < 0 ? 'val-credit' : '');
-
+      data.forEach((row) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${time}</td>
-          <td><strong>${name}</strong></td>
-          <td><span class="staff-tag">${doctor}</span></td>
-          <td><span class="staff-tag">${specialist}</span></td>
-          <td>${servicesHTML}</td>
-          <td>${discountCell}</td>
-          <td><strong>${netAmount.toFixed(2)} ج.م</strong></td>
-          <td>${payDetails.join(' | ')}</td>
-          <td><strong class="${debtClass}">${debt.toFixed(2)} ج.م</strong></td>
+          <td>${row.originalIndex}</td>
+          <td>${row.actionDate}</td>
+          <td>${row.trxDate}</td>
+          <td><strong>${row.client}</strong></td>
+          <td><span class="tag">${row.service}</span></td>
+          <td>${row.price.toFixed(2)}</td>
+          <td>${row.discount.toFixed(2)}</td>
+          <td>${row.extra.toFixed(2)}</td>
+          <td><strong>${row.netTotal.toFixed(2)}</strong></td>
+          <td>${row.paid.toFixed(2)}</td>
+          <td style="${row.credit > 0 ? 'color:red; font-weight:bold;' : ''}">${row.credit.toFixed(2)}</td>
+          <td>${row.method}</td>
+          <td>${row.doctor !== '-' && row.doctor !== '' ? `<span class="staff-tag">${row.doctor}</span>` : '-'}</td>
+          <td>${row.specialist !== '-' && row.specialist !== '' ? `<span class="staff-tag">${row.specialist}</span>` : '-'}</td>
+          <td>${row.notes}</td>
+          <td>${row.user}</td>
         `;
         tableBody.appendChild(tr);
       });
-
-      recordCount.innerText = `${logs.length} عمليات`;
     }
   </script>
 </body>
