@@ -138,6 +138,20 @@
       text-align: right;
       user-select: none;
     }
+
+    tfoot tr {
+      position: sticky;
+      bottom: 0;
+      background-color: #EBF2EE;
+      z-index: 10;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+    }
+
+    tfoot td {
+      border-top: 2px solid var(--primary-green);
+      font-size: 12px;
+      padding: 10px 12px;
+    }
     
     .th-content {
       display: flex;
@@ -185,7 +199,6 @@
     .popup-menu-item:hover { background-color: var(--light-green); color: var(--primary-green); }
     .popup-divider { height: 1px; background-color: var(--border-color); margin: 8px 0; }
     
-    /* قسم الشروط المتقدمة الذكية (نص / رقم / تاريخ) */
     .condition-section { background: #FAF8F5; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 10px; }
     .condition-section select, .condition-section input { margin-top: 6px; margin-bottom: 6px; font-size: 12px; padding: 8px; }
 
@@ -211,6 +224,40 @@
     .tag { display: inline-block; background-color: var(--light-green); color: var(--primary-green); padding: 3px 8px; border-radius: 6px; font-size: 12px; }
     .staff-tag { display: inline-block; background-color: #E8E2CE; color: var(--primary-green); padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; }
     .empty-msg { padding: 30px; text-align: center; color: #777; font-size: 14px; background-color: #FAF8F5; border-radius: 12px; border: 1.5px dashed var(--border-color); }
+
+    .client-search-wrapper { position: relative; }
+    .client-search-wrapper .form-group-label-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .add-client-link-btn { border: none; background: transparent; color: var(--accent-green); font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .add-client-link-btn:hover { text-decoration: underline; }
+    .client-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #FFFFFF;
+      border: 1.5px solid var(--border-color); border-radius: 10px; max-height: 230px; overflow-y: auto;
+      z-index: 500; box-shadow: 0 10px 25px rgba(24, 66, 50, 0.15); display: none;
+    }
+    .client-dropdown.active { display: block; }
+    .client-dropdown-item { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #F1EFEA; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .client-dropdown-item:last-of-type { border-bottom: none; }
+    .client-dropdown-item:hover { background-color: var(--light-green); }
+    .client-dropdown-item .cd-name { font-weight: 700; color: var(--primary-green); font-size: 14px; }
+    .client-dropdown-item .cd-phone { font-size: 12px; color: #777; white-space: nowrap; }
+    .client-dropdown-empty { padding: 14px; text-align: center; font-size: 13px; color: #888; }
+    .client-dropdown-add { padding: 11px 14px; cursor: pointer; text-align: center; font-weight: 700; color: var(--primary-green); background: var(--light-green); font-size: 13px; border-top: 1px solid var(--border-color); }
+    .client-dropdown-add:hover { background: #DCE9E1; }
+
+    .modal-overlay-generic {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(24, 66, 50, 0.55); backdrop-filter: blur(6px);
+      display: none; justify-content: center; align-items: center; z-index: 10001; padding: 15px;
+    }
+    .modal-overlay-generic.active { display: flex; }
+    .modal-card-generic {
+      background: #FFFFFF; border-radius: 18px; padding: 30px; width: 100%; max-width: 420px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.25); border: 1px solid var(--border-color);
+    }
+    .modal-card-generic h3 { color: var(--primary-green); margin-bottom: 20px; font-size: 19px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .modal-fields { display: flex; flex-direction: column; gap: 14px; }
+    .modal-error-msg { color: #C5221F; font-size: 13px; display: none; }
+    .modal-actions-row { display: flex; gap: 10px; margin-top: 6px; }
 
     footer { margin-top: 35px; padding: 15px; text-align: center; font-size: 13px; color: var(--primary-green); display: flex; align-items: center; justify-content: center; gap: 10px; border-top: 1px solid var(--border-color); width: 100%; max-width: 1300px; }
     .whatsapp-btn { display: inline-flex; align-items: center; gap: 4px; background-color: var(--whatsapp-green); color: #FFFFFF; padding: 4px 10px; border-radius: 14px; text-decoration: none; font-weight: 600; font-size: 11px; }
@@ -248,6 +295,9 @@
       <button class="nav-btn active" id="btnPageAdd" onclick="switchPage('pageAdd')">
         <i class="fas fa-plus-circle"></i> إضافة حركة جديدة
       </button>
+      <button class="nav-btn" id="btnPageCollections" onclick="switchPage('pageCollections')">
+        <i class="fas fa-hand-holding-usd"></i> تحصيلات
+      </button>
       <button class="nav-btn" id="btnPageData" onclick="switchPage('pageData')">
         <i class="fas fa-database"></i> استعراض البيانات
       </button>
@@ -270,9 +320,17 @@
         </div>
 
         <form id="clinicForm" class="form-grid">
-          <div class="form-group">
-            <label class="section-title" for="clientName">اسم العميلة</label>
-            <input type="text" id="clientName" required placeholder="مثال: سارة محمود أحمد">
+          <div class="form-group client-search-wrapper" id="clientSearchWrapper">
+            <div class="form-group-label-row">
+              <label class="section-title" for="clientSearchInput">اسم العميلة</label>
+              <button type="button" class="add-client-link-btn" onclick="openAddClientModal()"><i class="fas fa-user-plus"></i> عميلة جديدة</button>
+            </div>
+            <input type="text" id="clientSearchInput" autocomplete="off" required
+                   placeholder="ابحث بالاسم أو رقم الهاتف..."
+                   oninput="handleClientSearch()" onfocus="handleClientSearch()">
+            <input type="hidden" id="clientIdHidden" name="clientIdHidden">
+            <input type="hidden" id="clientNameHidden" name="clientNameHidden">
+            <div id="clientDropdown" class="client-dropdown"></div>
           </div>
 
           <div class="form-group">
@@ -378,6 +436,68 @@
       </div>
     </div>
 
+    <!-- صفحة التحصيلات -->
+    <div id="pageCollections" class="view-page">
+      <div class="card">
+        <div style="text-align: center; margin-bottom: 25px;">
+          <h2 style="color: var(--primary-green);">تسجيل تحصيل من عميلة</h2>
+          <div style="font-size: 13px; color: var(--gold-accent); margin-top: 5px;">لتحصيل رصيد آجل على عميلة بدون تسجيل خدمة جديدة</div>
+        </div>
+
+        <form id="collectionForm" class="form-grid">
+          <div class="form-group client-search-wrapper" id="collectionsClientSearchWrapper">
+            <div class="form-group-label-row">
+              <label class="section-title" for="collectionsClientSearchInput">اسم العميلة</label>
+              <button type="button" class="add-client-link-btn" onclick="openAddClientModal('collection')"><i class="fas fa-user-plus"></i> عميلة جديدة</button>
+            </div>
+            <input type="text" id="collectionsClientSearchInput" autocomplete="off" required
+                   placeholder="ابحث بالاسم أو رقم الهاتف..."
+                   oninput="handleClientSearch('collection')" onfocus="handleClientSearch('collection')">
+            <input type="hidden" id="collectionsClientIdHidden">
+            <input type="hidden" id="collectionsClientNameHidden">
+            <div id="collectionsClientDropdown" class="client-dropdown"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="section-title" for="collectionDate">تاريخ التحصيل</label>
+            <input type="date" id="collectionDate" required>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="section-title">طريقة التحصيل</label>
+            <div class="payment-grid">
+              <div class="payment-field">
+                <label>نقدي (Cash)</label>
+                <input type="number" id="collectionCash" min="0" placeholder="0" value="0">
+              </div>
+              <div class="payment-field">
+                <label>محفظة إلكترونية (Wallet)</label>
+                <input type="number" id="collectionWallet" min="0" placeholder="0" value="0">
+              </div>
+              <div class="payment-field">
+                <label>انستاباي (InstaPay)</label>
+                <input type="number" id="collectionInsta" min="0" placeholder="0" value="0">
+              </div>
+              <div class="payment-field">
+                <label>POS (فيزا / ماكينة)</label>
+                <input type="number" id="collectionPOS" min="0" placeholder="0" value="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="section-title" for="collectionNotes">ملاحظات (اختياري)</label>
+            <input type="text" id="collectionNotes" placeholder="أي تفاصيل إضافية عن التحصيل">
+          </div>
+
+          <div class="buttons-wrapper">
+            <button type="submit" id="collectionSubmitBtn" class="submit-btn">تسجيل التحصيل</button>
+            <button type="button" class="reset-btn" onclick="clearCollectionForm()">تفريغ البيانات</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- الصفحة الثانية: استعراض البيانات -->
     <div id="pageData" class="view-page">
       <div class="card">
@@ -421,6 +541,26 @@
               </tr>
             </thead>
             <tbody id="tableBody"></tbody>
+            <tfoot>
+              <tr id="tableFooterRow">
+                <td id="foot_num">-</td>
+                <td id="foot_actionDate">-</td>
+                <td id="foot_trxDate">-</td>
+                <td id="foot_client">-</td>
+                <td id="foot_service">-</td>
+                <td id="foot_price"><strong>0.00</strong></td>
+                <td id="foot_discount"><strong>0.00</strong></td>
+                <td id="foot_extra"><strong>0.00</strong></td>
+                <td id="foot_netTotal"><strong>0.00</strong></td>
+                <td id="foot_paid"><strong>0.00</strong></td>
+                <td id="foot_credit"><strong>0.00</strong></td>
+                <td id="foot_method">-</td>
+                <td id="foot_doctor">-</td>
+                <td id="foot_specialist">-</td>
+                <td id="foot_notes">-</td>
+                <td id="foot_user">-</td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       </div>
@@ -472,6 +612,36 @@
     </div>
   </div>
 
+  <!-- Modal إضافة عميلة جديدة -->
+  <div id="addClientOverlay" class="modal-overlay-generic">
+    <div class="modal-card-generic">
+      <h3><i class="fas fa-user-plus"></i> إضافة عميلة جديدة</h3>
+      <div class="modal-fields">
+        <div class="form-group">
+          <label class="section-title" for="newClientName">اسم العميلة</label>
+          <input type="text" id="newClientName" autocomplete="off" placeholder="الاسم بالكامل" required>
+        </div>
+        <div class="form-group">
+          <label class="section-title" for="newClientPhone1">رقم الهاتف</label>
+          <input type="text" id="newClientPhone1" autocomplete="off" placeholder="01xxxxxxxxx" maxlength="11" required>
+        </div>
+        <div class="form-group">
+          <label class="section-title" for="newClientPhone2">رقم هاتف آخر (اختياري)</label>
+          <input type="text" id="newClientPhone2" autocomplete="off" placeholder="اختياري" maxlength="11">
+        </div>
+        <div class="form-group">
+          <label class="section-title" for="newClientAddress">العنوان (اختياري)</label>
+          <input type="text" id="newClientAddress" autocomplete="off" placeholder="العنوان بالتفصيل">
+        </div>
+        <div id="addClientError" class="modal-error-msg"></div>
+        <div class="modal-actions-row">
+          <button type="button" class="submit-btn" style="flex:2;" id="saveNewClientBtn" onclick="submitNewClient()">حفظ العميلة</button>
+          <button type="button" class="reset-btn" style="flex:1;" onclick="closeAddClientModal()">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <span>تطوير وبرمجة: <strong>أحمد ياسر دياب</strong></span>
     <a href="https://wa.me/201091936251" target="_blank" class="whatsapp-btn">
@@ -488,6 +658,7 @@
     const submitBtn = document.getElementById('submitBtn');
 
     let globalData = [];
+    let clientsData = [];
     let salesMasterData = [];
     
     let activeColumnFilters = {}; 
@@ -497,9 +668,8 @@
     let currentSortDirection = 'asc';
 
     // تعريف أنواع الأعمدة
-    const numericColumns = ['num', 'price', 'discount', 'extra', 'netTotal', 'paid', 'credit'];
+    const numericColumns = ['price', 'discount', 'extra', 'netTotal', 'paid', 'credit'];
     const dateColumns = ['actionDate', 'trxDate'];
-    // بقية الأعمدة تعتبر نصية (Text Columns) تلقائياً
 
     window.addEventListener('DOMContentLoaded', () => {
       startLiveClock();
@@ -516,6 +686,8 @@
 
       if (pageId === 'pageAdd') {
         document.getElementById('btnPageAdd').classList.add('active');
+      } else if (pageId === 'pageCollections') {
+        document.getElementById('btnPageCollections').classList.add('active');
       } else if (pageId === 'pageData') {
         document.getElementById('btnPageData').classList.add('active');
         fetchLogsFromSheet();
@@ -535,6 +707,198 @@
           }
         })
         .catch(err => console.error("Preload error:", err));
+    }
+
+    function preloadClientsSheet() {
+      if (!SCRIPT_URL) return;
+      fetch(`${SCRIPT_URL}?sheet=Clients&t=${Date.now()}`)
+        .then(res => res.json())
+        .then(response => {
+          if (response.status === "success" && response.data) {
+            clientsData = response.data;
+          }
+        })
+        .catch(err => console.error("Clients preload error:", err));
+    }
+
+    function getClientField(item, keys) {
+      let val = "";
+      Object.keys(item).forEach(k => {
+        if (keys.includes(k.trim())) val = item[k];
+      });
+      return val;
+    }
+
+    function getClientFieldIds(target) {
+      if (target === 'collection') {
+        return {
+          input: 'collectionsClientSearchInput',
+          idHidden: 'collectionsClientIdHidden',
+          nameHidden: 'collectionsClientNameHidden',
+          dropdown: 'collectionsClientDropdown',
+          wrapper: 'collectionsClientSearchWrapper'
+        };
+      }
+      return {
+        input: 'clientSearchInput',
+        idHidden: 'clientIdHidden',
+        nameHidden: 'clientNameHidden',
+        dropdown: 'clientDropdown',
+        wrapper: 'clientSearchWrapper'
+      };
+    }
+
+    function handleClientSearch(target) {
+      target = target || 'sale';
+      const ids = getClientFieldIds(target);
+      const query = document.getElementById(ids.input).value.trim().toLowerCase();
+      const dropdown = document.getElementById(ids.dropdown);
+
+      // أي تعديل يدوي في النص يلغي الاختيار السابق لحد ما تختار عميلة من القائمة
+      document.getElementById(ids.idHidden).value = '';
+      document.getElementById(ids.nameHidden).value = '';
+
+      dropdown.innerHTML = '';
+
+      if (!query) {
+        dropdown.classList.remove('active');
+        return;
+      }
+
+      const matches = clientsData.filter(item => {
+        const name = getClientField(item, ['Client Name']).toString().toLowerCase();
+        const phone1 = getClientField(item, ['Client Number']).toString().toLowerCase();
+        const phone2 = getClientField(item, ['Client Number 2']).toString().toLowerCase();
+        return name.includes(query) || phone1.includes(query) || phone2.includes(query);
+      }).slice(0, 25);
+
+      if (matches.length === 0) {
+        dropdown.innerHTML = '<div class="client-dropdown-empty">لا توجد نتائج مطابقة</div>';
+      } else {
+        matches.forEach(item => {
+          const id = getClientField(item, ['Client ID']);
+          const name = getClientField(item, ['Client Name']);
+          const phone1 = getClientField(item, ['Client Number']);
+
+          const row = document.createElement('div');
+          row.className = 'client-dropdown-item';
+          row.innerHTML = `<span class="cd-name">${name}</span><span class="cd-phone">${phone1 || ''}</span>`;
+          row.onclick = () => selectClient(target, id, name);
+          dropdown.appendChild(row);
+        });
+      }
+
+      const addRow = document.createElement('div');
+      addRow.className = 'client-dropdown-add';
+      addRow.innerHTML = '<i class="fas fa-plus-circle"></i> إضافة عميلة جديدة';
+      addRow.onclick = () => openAddClientModal(target);
+      dropdown.appendChild(addRow);
+
+      dropdown.classList.add('active');
+    }
+
+    function selectClient(target, id, name) {
+      target = target || 'sale';
+      const ids = getClientFieldIds(target);
+      document.getElementById(ids.input).value = name;
+      document.getElementById(ids.idHidden).value = id;
+      document.getElementById(ids.nameHidden).value = name;
+      document.getElementById(ids.dropdown).classList.remove('active');
+    }
+
+    document.addEventListener('click', function(e) {
+      ['sale', 'collection'].forEach(target => {
+        const ids = getClientFieldIds(target);
+        const wrapper = document.getElementById(ids.wrapper);
+        if (wrapper && !wrapper.contains(e.target)) {
+          const dropdown = document.getElementById(ids.dropdown);
+          if (dropdown) dropdown.classList.remove('active');
+        }
+      });
+    });
+
+    let addClientModalTarget = 'sale';
+
+    function openAddClientModal(target) {
+      addClientModalTarget = target || 'sale';
+      const ids = getClientFieldIds(addClientModalTarget);
+      document.getElementById(ids.dropdown).classList.remove('active');
+      const searchVal = document.getElementById(ids.input).value.trim();
+      const alreadySelected = document.getElementById(ids.idHidden).value;
+      // نستخدم النص المكتوب في مربع البحث كاسم مقترح فقط لو المستخدم كان بيكتب اسم جديد لسه مش موجود
+      // (يعني لسه مفيش عميلة متحددة من القائمة)
+      document.getElementById('newClientName').value = (!alreadySelected && searchVal) ? searchVal : '';
+      document.getElementById('newClientPhone1').value = '';
+      document.getElementById('newClientPhone2').value = '';
+      document.getElementById('newClientAddress').value = '';
+      document.getElementById('addClientError').style.display = 'none';
+      document.getElementById('addClientOverlay').classList.add('active');
+    }
+
+    function closeAddClientModal() {
+      document.getElementById('addClientOverlay').classList.remove('active');
+    }
+
+    function submitNewClient() {
+      const name = document.getElementById('newClientName').value.trim();
+      const phone1 = document.getElementById('newClientPhone1').value.trim();
+      const phone2 = document.getElementById('newClientPhone2').value.trim();
+      const address = document.getElementById('newClientAddress').value.trim();
+      const errorDiv = document.getElementById('addClientError');
+      const btn = document.getElementById('saveNewClientBtn');
+
+      errorDiv.style.display = 'none';
+
+      if (!name || !phone1) {
+        errorDiv.innerText = "يرجى إدخال اسم العميلة ورقم الهاتف الأساسي!";
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      const phoneRegex = /^\d{11}$/;
+      if (!phoneRegex.test(phone1)) {
+        errorDiv.innerText = "رقم الهاتف الأساسي يجب أن يكون 11 رقم بالضبط!";
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (phone2 && !phoneRegex.test(phone2)) {
+        errorDiv.innerText = "رقم الهاتف الآخر يجب أن يكون 11 رقم بالضبط!";
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "جاري الحفظ...";
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'addClient', name: name, phone1: phone1, phone2: phone2, address: address })
+      })
+      .then(res => res.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerText = "حفظ العميلة";
+
+        if (data.status === "success") {
+          clientsData.push(data.client);
+          selectClient(addClientModalTarget, data.client["Client ID"], data.client["Client Name"]);
+          document.getElementById('newClientName').value = '';
+          document.getElementById('newClientPhone1').value = '';
+          document.getElementById('newClientPhone2').value = '';
+          document.getElementById('newClientAddress').value = '';
+          closeAddClientModal();
+        } else {
+          errorDiv.innerText = data.message || "حدث خطأ أثناء إضافة العميلة!";
+          errorDiv.style.display = 'block';
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerText = "حفظ العميلة";
+        errorDiv.innerText = "تعذر الاتصال بالسيرفر!";
+        errorDiv.style.display = 'block';
+      });
     }
 
     function checkLoginSession() {
@@ -648,6 +1012,10 @@
       } else {
         preloadDataSheet();
       }
+
+      if (clientsData.length === 0) {
+        preloadClientsSheet();
+      }
     }
 
     function logoutUser() {
@@ -673,7 +1041,10 @@
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
-      document.getElementById('entryDate').value = `${yyyy}-${mm}-${dd}`;
+      const dateStr = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('entryDate').value = dateStr;
+      const collectionDateEl = document.getElementById('collectionDate');
+      if (collectionDateEl) collectionDateEl.value = dateStr;
     }
 
     function populateStaffUI(data) {
@@ -883,6 +1254,9 @@
       form.reset();
       setTodayAsDefaultDate();
       handleStaffMutualExclusion('reset');
+      document.getElementById('clientIdHidden').value = '';
+      document.getElementById('clientNameHidden').value = '';
+      document.getElementById('clientDropdown').classList.remove('active');
     }
 
     function calculateAll() {
@@ -917,9 +1291,14 @@
     form.addEventListener('submit', function(e) {
       e.preventDefault();
 
-      const clientName = document.getElementById('clientName').value.trim();
+      const clientName = document.getElementById('clientNameHidden').value.trim();
       const entryDate = document.getElementById('entryDate').value;
       const currentUser = sessionStorage.getItem('yuni_user') || 'عام';
+
+      if (!clientName) {
+        alert('يرجى اختيار العميلة من القائمة، أو إضافتها كعميلة جديدة أولاً.');
+        return;
+      }
 
       const selectedDocs = Array.from(document.querySelectorAll('.doc-cb:checked')).map(cb => cb.value);
       const selectedSpecs = Array.from(document.querySelectorAll('.spec-cb:checked')).map(cb => cb.value);
@@ -999,6 +1378,95 @@
       });
     });
 
+    const collectionForm = document.getElementById('collectionForm');
+    const collectionSubmitBtn = document.getElementById('collectionSubmitBtn');
+
+    collectionForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const clientName = document.getElementById('collectionsClientNameHidden').value.trim();
+      const collectionDate = document.getElementById('collectionDate').value;
+      const currentUser = sessionStorage.getItem('yuni_user') || 'عام';
+
+      if (!clientName) {
+        alert('يرجى اختيار العميلة من القائمة، أو إضافتها كعميلة جديدة أولاً.');
+        return;
+      }
+
+      const cash = parseFloat(document.getElementById('collectionCash').value) || 0;
+      const wallet = parseFloat(document.getElementById('collectionWallet').value) || 0;
+      const insta = parseFloat(document.getElementById('collectionInsta').value) || 0;
+      const pos = parseFloat(document.getElementById('collectionPOS').value) || 0;
+      const notes = document.getElementById('collectionNotes').value.trim();
+
+      const totalCollected = cash + wallet + insta + pos;
+
+      if (totalCollected <= 0) {
+        alert('يرجى إدخال مبلغ تحصيل واحد على الأقل!');
+        return;
+      }
+
+      let paymentsArr = [];
+      if (cash > 0) paymentsArr.push({ method: "Cash", amount: cash });
+      if (wallet > 0) paymentsArr.push({ method: "Wallet", amount: wallet });
+      if (insta > 0) paymentsArr.push({ method: "InstaPay", amount: insta });
+      if (pos > 0) paymentsArr.push({ method: "POS", amount: pos });
+
+      const payload = {
+        sheet: "Sales",
+        data: {
+          client: clientName,
+          trxDate: collectionDate,
+          doctors: "",
+          specialists: "",
+          services: [],
+          payments: paymentsArr,
+          extra: 0,
+          discount: 0,
+          notes: notes,
+          netTotal: 0,
+          credit: -totalCollected,
+          user: currentUser,
+          paymentLabel: "Payment Collect"
+        }
+      };
+
+      collectionSubmitBtn.disabled = true;
+      collectionSubmitBtn.innerText = "جاري تسجيل التحصيل...";
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        collectionSubmitBtn.disabled = false;
+        collectionSubmitBtn.innerText = "تسجيل التحصيل";
+
+        if (data.status === "success") {
+          alert("تم تسجيل التحصيل بنجاح!");
+          clearCollectionForm();
+        } else {
+          alert("حدث خطأ أثناء تسجيل التحصيل: " + (data.message || "خطأ غير معروف"));
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        collectionSubmitBtn.disabled = false;
+        collectionSubmitBtn.innerText = "تسجيل التحصيل";
+        alert("تعذر الاتصال بالسيرفر لتسجيل التحصيل!");
+      });
+    });
+
+    function clearCollectionForm() {
+      collectionForm.reset();
+      document.getElementById('collectionsClientIdHidden').value = '';
+      document.getElementById('collectionsClientNameHidden').value = '';
+      document.getElementById('collectionsClientDropdown').classList.remove('active');
+      setTodayAsDefaultDate();
+    }
+
     function fetchLogsFromSheet() {
       if (!SCRIPT_URL) return;
 
@@ -1013,11 +1481,13 @@
           } else {
             tableBody.innerHTML = '<tr><td colspan="16" style="text-align:center;">لا توجد سجلات متاحة حالياً</td></tr>';
             recordCount.innerText = "0 عمليات";
+            resetFooterTotals();
           }
         })
         .catch(err => {
           console.error(err);
           tableBody.innerHTML = '<tr><td colspan="16" style="text-align:center; color:red;">تعذر تحميل السجلات</td></tr>';
+          resetFooterTotals();
         });
     }
 
@@ -1049,7 +1519,6 @@
       return '';
     }
 
-    // فتح نافذة الفلتر المتقدمة مع التعرف الذكي على نوع العمود
     function openColumnFilter(colName, event) {
       event.stopPropagation();
       currentOpenCol = colName;
@@ -1062,7 +1531,6 @@
       if (numericColumns.includes(colName)) colType = 'number';
       if (dateColumns.includes(colName)) colType = 'date';
 
-      // بناء قائمة الخيارات بناءً على نوع البيانات
       if (colType === 'text') {
         document.getElementById('condTitle').innerText = 'فلترة بشرط نصي:';
         condOperator.innerHTML += `
@@ -1070,7 +1538,6 @@
           <option value="notContains">لا يحتوي على (Not Contain)</option>
           <option value="startsWith">يبدأ بـ (Starts With)</option>
           <option value="endsWith">ينتهي بـ (Ends With)</option>
-
           <option value="equals">يساوي تماماً (Equals)</option>
         `;
       } else if (colType === 'number') {
@@ -1079,7 +1546,6 @@
           <option value="equals">يساوي (=)</option>
           <option value="greater">أكبر من (>)</option>
           <option value="less">أصغر من (<)</option>
-
           <option value="between">بين رقمين (Between)</option>
         `;
       } else if (colType === 'date') {
@@ -1092,13 +1558,11 @@
         `;
       }
 
-      // استعادة الحالة السابقة إن وجدت
       const existingCond = activeConditions[colName] || { op: 'none', val1: '', val2: '' };
       condOperator.value = existingCond.op;
 
       renderConditionInputs(colType, existingCond.val1, existingCond.val2);
 
-      // تعبئة القيم الفريدة لـ Checkboxes
       let uniqueVals = new Set();
       salesMasterData.forEach((row, idx) => {
         let val = getMappedValue(row, colName, salesMasterData.length - idx);
@@ -1195,7 +1659,6 @@
     function applyPopupFilter() {
       if (!currentOpenCol) return;
 
-      // 1. حفظ Checkboxes
       if (!activeColumnFilters[currentOpenCol]) {
         activeColumnFilters[currentOpenCol] = {};
       }
@@ -1203,7 +1666,6 @@
         activeColumnFilters[currentOpenCol][cb.value] = cb.checked;
       });
 
-      // 2. حفظ الشروط المتقدمة
       const op = document.getElementById('condOperator').value;
       const v1Elem = document.getElementById('condVal1');
       const v2Elem = document.getElementById('condVal2');
@@ -1213,7 +1675,6 @@
 
       activeConditions[currentOpenCol] = { op, val1, val2 };
 
-      // 3. تمييز لون الأيقونة
       const icon = document.getElementById(`icon_${currentOpenCol}`);
       if (icon) {
         const hasUnchecked = Object.values(activeColumnFilters[currentOpenCol]).includes(false);
@@ -1247,7 +1708,10 @@
     }
 
     function applyTableFilters() {
-      if (!salesMasterData || salesMasterData.length === 0) return;
+      if (!salesMasterData || salesMasterData.length === 0) {
+        resetFooterTotals();
+        return;
+      }
 
       const globalSearchVal = document.getElementById('globalSearchInput').value.toLowerCase().trim();
 
@@ -1275,14 +1739,12 @@
         };
       });
 
-      // البحث العام
       if (globalSearchVal) {
         mappedRows = mappedRows.filter(item => {
           return Object.values(item).some(val => val.toString().toLowerCase().includes(globalSearchVal));
         });
       }
 
-      // تصفية الاختيارات (Checkboxes)
       Object.keys(activeColumnFilters).forEach(colName => {
         const colFilters = activeColumnFilters[colName];
         if (colFilters) {
@@ -1293,7 +1755,6 @@
         }
       });
 
-      // تصفية الشروط المتقدمة الذكية (نص / رقم / تاريخ)
       Object.keys(activeConditions).forEach(colName => {
         const cond = activeConditions[colName];
         if (cond && cond.op && cond.op !== 'none' && cond.val1 !== '') {
@@ -1327,7 +1788,6 @@
               if (cond.op === 'between') return valDate >= v1Date && valDate <= v2Date;
 
             } else {
-              // نص (Text Conditions)
               const strVal = (itemVal || '').toString().toLowerCase();
               const targetStr = cond.val1.toLowerCase();
 
@@ -1343,7 +1803,6 @@
         }
       });
 
-      // تطبيق الفرز (Sort)
       if (currentSortColumn) {
         mappedRows.sort((a, b) => {
           let valA = a[currentSortColumn];
@@ -1371,6 +1830,7 @@
       if (data.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="16" style="text-align:center;">لا توجد نتائج مطابقة للبحث أو الفلتر</td></tr>';
         recordCount.innerText = "0 عمليات";
+        resetFooterTotals();
         return;
       }
 
@@ -1397,6 +1857,40 @@
           <td>${row.user}</td>
         `;
         tableBody.appendChild(tr);
+      });
+
+      // حساب وتحديث الإجماليات الديناميكية أسفل الجدول
+      updateFooterTotals(data);
+    }
+
+    function updateFooterTotals(data) {
+      const countText = `${data.length} سجل`;
+
+      // الأعمدة غير الرقمية تعرض العدد
+      ['num', 'actionDate', 'trxDate', 'client', 'service', 'method', 'doctor', 'specialist', 'notes', 'user'].forEach(col => {
+        const el = document.getElementById(`foot_${col}`);
+        if (el) el.innerHTML = `<span style="font-size:11px; color:#555;">${countText}</span>`;
+      });
+
+      // الأعمدة الرقمية تجمع القيم
+      numericColumns.forEach(col => {
+        const total = data.reduce((sum, row) => sum + (parseFloat(row[col]) || 0), 0);
+        const el = document.getElementById(`foot_${col}`);
+        if (el) {
+          el.innerHTML = `<strong>${total.toFixed(2)}</strong>`;
+        }
+      });
+    }
+
+    function resetFooterTotals() {
+      ['num', 'actionDate', 'trxDate', 'client', 'service', 'method', 'doctor', 'specialist', 'notes', 'user'].forEach(col => {
+        const el = document.getElementById(`foot_${col}`);
+        if (el) el.innerHTML = `<span style="font-size:11px; color:#555;">0 سجل</span>`;
+      });
+
+      numericColumns.forEach(col => {
+        const el = document.getElementById(`foot_${col}`);
+        if (el) el.innerHTML = `<strong>0.00</strong>`;
       });
     }
   </script>
