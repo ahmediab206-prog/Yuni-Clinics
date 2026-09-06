@@ -468,19 +468,28 @@
             <div class="payment-grid">
               <div class="payment-field">
                 <label>نقدي (Cash)</label>
-                <input type="number" id="collectionCash" min="0" placeholder="0" value="0">
+                <input type="number" id="collectionCash" class="collection-pay-part" min="0" placeholder="0" value="0" oninput="calculateCollectionTotal()">
               </div>
               <div class="payment-field">
                 <label>محفظة إلكترونية (Wallet)</label>
-                <input type="number" id="collectionWallet" min="0" placeholder="0" value="0">
+                <input type="number" id="collectionWallet" class="collection-pay-part" min="0" placeholder="0" value="0" oninput="calculateCollectionTotal()">
               </div>
               <div class="payment-field">
                 <label>انستاباي (InstaPay)</label>
-                <input type="number" id="collectionInsta" min="0" placeholder="0" value="0">
+                <input type="number" id="collectionInsta" class="collection-pay-part" min="0" placeholder="0" value="0" oninput="calculateCollectionTotal()">
               </div>
               <div class="payment-field">
                 <label>POS (فيزا / ماكينة)</label>
-                <input type="number" id="collectionPOS" min="0" placeholder="0" value="0">
+                <input type="number" id="collectionPOS" class="collection-pay-part" min="0" placeholder="0" value="0" oninput="calculateCollectionTotal()">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <div class="summary-box">
+              <div class="summary-item">
+                <span class="title">إجمالي التحصيل (كل الطرق)</span>
+                <span class="val" id="collectionTotalDisplay">0.00 ج.م</span>
               </div>
             </div>
           </div>
@@ -1459,12 +1468,21 @@
       });
     });
 
+    function calculateCollectionTotal() {
+      let total = 0;
+      document.querySelectorAll('.collection-pay-part').forEach(input => {
+        total += parseFloat(input.value) || 0;
+      });
+      document.getElementById('collectionTotalDisplay').innerText = total.toFixed(2) + ' ج.م';
+    }
+
     function clearCollectionForm() {
       collectionForm.reset();
       document.getElementById('collectionsClientIdHidden').value = '';
       document.getElementById('collectionsClientNameHidden').value = '';
       document.getElementById('collectionsClientDropdown').classList.remove('active');
       setTodayAsDefaultDate();
+      calculateCollectionTotal();
     }
 
     function fetchLogsFromSheet() {
