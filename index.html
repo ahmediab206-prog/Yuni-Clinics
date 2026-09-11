@@ -261,6 +261,7 @@
 
     footer { margin-top: 35px; padding: 15px; text-align: center; font-size: 13px; color: var(--primary-green); display: flex; align-items: center; justify-content: center; gap: 10px; border-top: 1px solid var(--border-color); width: 100%; max-width: 1300px; }
     .whatsapp-btn { display: inline-flex; align-items: center; gap: 4px; background-color: var(--whatsapp-green); color: #FFFFFF; padding: 4px 10px; border-radius: 14px; text-decoration: none; font-weight: 600; font-size: 11px; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -683,11 +684,11 @@
     window.addEventListener('DOMContentLoaded', () => {
       startLiveClock();
       setTodayAsDefaultDate();
-      preloadDataSheet();
       checkLoginSession();
     });
 
     function switchPage(pageId) {
+      if (!can(PAGE_TABS[pageId], 'view')) return;
       document.querySelectorAll('.view-page').forEach(page => page.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -705,7 +706,7 @@
 
     function preloadDataSheet() {
       if(!SCRIPT_URL) return;
-      fetch(`${SCRIPT_URL}?sheet=Data&t=${Date.now()}`)
+      apiRead('Data')
         .then(res => res.json())
         .then(response => {
           if (response.status === "success" && response.data) {
@@ -720,7 +721,7 @@
 
     function preloadClientsSheet() {
       if (!SCRIPT_URL) return;
-      fetch(`${SCRIPT_URL}?sheet=Clients&t=${Date.now()}`)
+      apiRead('Clients')
         .then(res => res.json())
         .then(response => {
           if (response.status === "success" && response.data) {
@@ -829,6 +830,7 @@
     let addClientModalTarget = 'sale';
 
     function openAddClientModal(target) {
+      if (!can(target === 'collection' ? 'Collect' : 'Sales', 'add')) return;
       addClientModalTarget = target || 'sale';
       const ids = getClientFieldIds(addClientModalTarget);
       document.getElementById(ids.dropdown).classList.remove('active');
@@ -849,6 +851,7 @@
     }
 
     function submitNewClient() {
+      if (!can(addClientModalTarget === 'collection' ? 'Collect' : 'Sales', 'add')) return;
       const name = document.getElementById('newClientName').value.trim();
       const phone1 = document.getElementById('newClientPhone1').value.trim();
       const phone2 = document.getElementById('newClientPhone2').value.trim();
@@ -882,7 +885,7 @@
       fetch(SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'addClient', name: name, phone1: phone1, phone2: phone2, address: address })
+        body: JSON.stringify({ action: 'addClient', token: sessionStorage.getItem('yuni_token'), tab: addClientModalTarget === 'collection' ? 'Collect' : 'Sales', name: name, phone1: phone1, phone2: phone2, address: address })
       })
       .then(res => res.json())
       .then(data => {
@@ -910,127 +913,69 @@
       });
     }
 
-    function checkLoginSession() {
-      const savedUser = sessionStorage.getItem('yuni_user');
-      const savedRole = sessionStorage.getItem('yuni_role') || 'Post';
-      if (savedUser) {
-        showMainApp(savedUser, savedRole);
-      } else {
-        document.getElementById('loginOverlay').style.display = 'flex';
-      }
+    let authUser = null;
+    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageData:'Transactions'};
+    function can(tab, action) {
+      const p = authUser && authUser.permissions[tab];
+      return !!(p && p.view === true && p[action] === true);
     }
-
-    function checkAdminRole(roleStr) {
-      if (!roleStr) return false;
-      const cleanRole = roleStr.toString().trim().toLowerCase();
-      return cleanRole === 'admin' || cleanRole === 'مدير' || cleanRole === 'أدمن';
+    function apiPost(payload) {
+      return fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({...payload, token:sessionStorage.getItem('yuni_token')})});
     }
-
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    function apiRead(sheet) {
+      return fetch(SCRIPT_URL + '?sheet=' + encodeURIComponent(sheet) + '&token=' + encodeURIComponent(sessionStorage.getItem('yuni_token') || '') + '&t=' + Date.now());
+    }
+    async function checkLoginSession() {
+      if (!sessionStorage.getItem('yuni_token')) return;
+      try {
+        const result = await (await apiPost({action:'session'})).json();
+        if (result.status !== 'success') throw new Error(result.message);
+        showMainApp(result.user);
+      } catch (_) { sessionStorage.removeItem('yuni_token'); sessionStorage.removeItem('yuni_user'); }
+    }
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const uVal = document.getElementById('loginUser').value.trim();
-      const pVal = document.getElementById('loginPass').value.trim();
-      const errorDiv = document.getElementById('loginError');
-      const loginBtn = document.getElementById('loginSubmitBtn');
-
-      errorDiv.style.display = 'none';
-
-      if (globalData.length > 0) {
-        verifyUserCredentials(uVal, pVal);
-        return;
-      }
-
-      loginBtn.disabled = true;
-      loginBtn.innerText = "جاري التحقق...";
-
-      fetch(`${SCRIPT_URL}?sheet=Data&t=${Date.now()}`)
-        .then(res => res.json())
-        .then(response => {
-          loginBtn.disabled = false;
-          loginBtn.innerText = "دخول";
-
-          if (response.status === "success" && response.data) {
-            globalData = response.data;
-            verifyUserCredentials(uVal, pVal);
-          } else {
-            errorDiv.innerText = response.message ? `خطأ: ${response.message}` : "تعذر الاتصال بقاعدة البيانات!";
-            errorDiv.style.display = 'block';
-          }
-        })
-        .catch(err => {
-          loginBtn.disabled = false;
-          loginBtn.innerText = "دخول";
-          errorDiv.innerText = "حدث خطأ في الاتصال بالسيرفر!";
-          errorDiv.style.display = 'block';
-        });
+      const btn = document.getElementById('loginSubmitBtn');
+      const error = document.getElementById('loginError');
+      error.style.display = 'none'; btn.disabled = true; btn.innerText = 'جاري التحقق...';
+      try {
+        const result = await (await apiPost({action:'login', username:document.getElementById('loginUser').value.trim(), password:document.getElementById('loginPass').value})).json();
+        if (result.status !== 'success') throw new Error(result.message);
+        sessionStorage.setItem('yuni_token',result.token);
+        document.getElementById('loginPass').value = '';
+        showMainApp(result.user);
+      } catch (err) { error.innerText = err.message || 'تعذر الاتصال بالسيرفر'; error.style.display = 'block'; }
+      finally { btn.disabled = false; btn.innerText = 'دخول'; }
     });
-
-    function verifyUserCredentials(uVal, pVal) {
-      const errorDiv = document.getElementById('loginError');
-      
-      const userMatch = globalData.find(item => {
-        let empName = "";
-        let empPass = "";
-
-        Object.keys(item).forEach(key => {
-          const cleanKey = key.trim();
-          if (cleanKey === 'Employee Name' || cleanKey === 'اسم الموظف') empName = item[key].toString().trim();
-          if (cleanKey === 'Employee Password' || cleanKey === 'كلمة المرور') empPass = item[key].toString().trim();
-        });
-
-        return empName.toLowerCase() === uVal.toLowerCase() && empPass === pVal.toString().trim();
-      });
-
-      if (userMatch) {
-        let matchedName = uVal;
-        let matchedRole = 'Post';
-
-        Object.keys(userMatch).forEach(key => {
-          const cleanKey = key.trim();
-          if (cleanKey === 'Employee Name' || cleanKey === 'اسم الموظف') matchedName = userMatch[key];
-          if (cleanKey === 'Employee Permission' || cleanKey === 'Role' || cleanKey === 'الصلاحية') matchedRole = userMatch[key];
-        });
-
-        sessionStorage.setItem('yuni_user', matchedName);
-        sessionStorage.setItem('yuni_role', matchedRole);
-        showMainApp(matchedName, matchedRole);
-      } else {
-        errorDiv.innerText = "اسم المستخدم أو كلمة المرور غير صحيحة!";
-        errorDiv.style.display = 'block';
-      }
-    }
-
-    function showMainApp(username, role) {
+    function showMainApp(user) {
+      authUser = user;
+      sessionStorage.setItem('yuni_user',user.name);
       document.getElementById('loginOverlay').style.display = 'none';
       document.getElementById('mainHeader').style.display = 'flex';
-      document.getElementById('currentUserDisplay').innerText = username;
-
-      const btnPageData = document.getElementById('btnPageData');
-      const isAdmin = checkAdminRole(role);
-
-      if (isAdmin) {
-        btnPageData.style.display = 'inline-flex';
-      } else {
-        btnPageData.style.display = 'none';
-      }
-
-      switchPage('pageAdd');
-
-      if (globalData.length > 0) {
-        populateStaffUI(globalData);
-      } else {
-        preloadDataSheet();
-      }
-
-      if (clientsData.length === 0) {
-        preloadClientsSheet();
-      }
+      document.getElementById('currentUserDisplay').innerText = user.name;
+      document.querySelectorAll('.view-page, .nav-btn').forEach(el => el.classList.remove('active'));
+      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageData:'btnPageData'};
+      Object.keys(PAGE_TABS).forEach(page => {
+        const btn = document.getElementById(buttons[page]);
+        btn.style.display = 'inline-flex';
+        btn.disabled = !can(PAGE_TABS[page],'view');
+        btn.setAttribute('aria-disabled',String(btn.disabled));
+        btn.title = btn.disabled ? 'ليس لديك صلاحية عرض هذه الشاشة' : '';
+      });
+      document.getElementById('submitBtn').disabled = !can('Sales','add');
+      document.getElementById('collectionSubmitBtn').disabled = !can('Collect','add');
+      document.querySelectorAll('#pageAdd .add-client-link-btn').forEach(el => el.disabled = !can('Sales','add'));
+      document.querySelectorAll('#pageCollections .add-client-link-btn').forEach(el => el.disabled = !can('Collect','add'));
+      const first = Object.keys(PAGE_TABS).find(page => can(PAGE_TABS[page],'view'));
+      let notice = document.getElementById('noPermissionNotice');
+      if (!notice) { notice = document.createElement('p'); notice.id = 'noPermissionNotice'; notice.textContent = 'لا توجد شاشات متاحة لحسابك. تواصل مع المسؤول لتفعيل صلاحية View.'; document.querySelector('.main-wrapper').appendChild(notice); }
+      notice.hidden = !!first;
+      if (first) { switchPage(first); preloadDataSheet(); preloadClientsSheet(); }
     }
-
-    function logoutUser() {
-      sessionStorage.removeItem('yuni_user');
-      sessionStorage.removeItem('yuni_role');
-      location.reload();
+    async function logoutUser() {
+      try { await apiPost({action:'logout'}); }
+      finally { sessionStorage.removeItem('yuni_token'); sessionStorage.removeItem('yuni_user'); sessionStorage.removeItem('yuni_role'); location.reload(); }
     }
 
     function startLiveClock() {
@@ -1299,6 +1244,7 @@
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
+      if (!can('Sales', 'add')) return;
 
       const clientName = document.getElementById('clientNameHidden').value.trim();
       const entryDate = document.getElementById('entryDate').value;
@@ -1365,7 +1311,7 @@
       fetch(SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({...payload, token: sessionStorage.getItem('yuni_token'), action: 'saveSale'})
       })
       .then(res => res.json())
       .then(data => {
@@ -1392,6 +1338,7 @@
 
     collectionForm.addEventListener('submit', function(e) {
       e.preventDefault();
+      if (!can('Collect', 'add')) return;
 
       const clientName = document.getElementById('collectionsClientNameHidden').value.trim();
       const collectionDate = document.getElementById('collectionDate').value;
@@ -1446,7 +1393,7 @@
       fetch(SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({...payload, token: sessionStorage.getItem('yuni_token'), action: 'saveCollection'})
       })
       .then(res => res.json())
       .then(data => {
@@ -1486,11 +1433,12 @@
     }
 
     function fetchLogsFromSheet() {
+      if (!can('Transactions','view')) return;
       if (!SCRIPT_URL) return;
 
       tableBody.innerHTML = '<tr><td colspan="16" style="text-align:center;">جاري تحميل سجلات المبيعات...</td></tr>';
 
-      fetch(`${SCRIPT_URL}?sheet=Sales&t=${Date.now()}`)
+      apiRead('Sales')
         .then(res => res.json())
         .then(response => {
           if (response.status === "success" && response.data) {
