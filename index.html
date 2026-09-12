@@ -262,6 +262,43 @@
     footer { margin-top: 35px; padding: 15px; text-align: center; font-size: 13px; color: var(--primary-green); display: flex; align-items: center; justify-content: center; gap: 10px; border-top: 1px solid var(--border-color); width: 100%; max-width: 1300px; }
     .whatsapp-btn { display: inline-flex; align-items: center; gap: 4px; background-color: var(--whatsapp-green); color: #FFFFFF; padding: 4px 10px; border-radius: 14px; text-decoration: none; font-weight: 600; font-size: 11px; }
   button:disabled { opacity: .45; cursor: not-allowed; }
+
+  /* زرار حذف الفاتورة */
+  .delete-invoice-btn {
+    background: none;
+    border: none;
+    color: #C5221F;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background 0.2s;
+    opacity: 0.6;
+  }
+  .delete-invoice-btn:hover { background: #FCE8E6; opacity: 1; }
+
+  /* موديل تأكيد الحذف */
+  .delete-confirm-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(197, 34, 31, 0.18); backdrop-filter: blur(5px);
+    display: none; justify-content: center; align-items: center; z-index: 20000; padding: 15px;
+  }
+  .delete-confirm-overlay.active { display: flex; }
+  .delete-confirm-card {
+    background: #FFFFFF; border-radius: 18px; padding: 32px 28px; width: 100%; max-width: 430px;
+    box-shadow: 0 15px 40px rgba(197, 34, 31, 0.2); border: 1.5px solid #F5C6CB;
+    text-align: center;
+  }
+  .delete-confirm-card .del-icon { font-size: 36px; color: #C5221F; margin-bottom: 12px; }
+  .delete-confirm-card h3 { color: #C5221F; font-size: 19px; margin-bottom: 16px; }
+  .delete-confirm-details { background: #FFF5F5; border: 1px solid #F5C6CB; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; text-align: right; font-size: 14px; line-height: 2; color: var(--text-color); }
+  .delete-confirm-details strong { color: var(--primary-green); }
+  .delete-confirm-actions { display: flex; gap: 10px; justify-content: center; }
+  .btn-confirm-delete { flex: 1; padding: 13px; background: #C5221F; color: #FFF; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+  .btn-confirm-delete:hover { background: #A81C18; }
+  .btn-confirm-delete:disabled { background: #999; cursor: not-allowed; }
+  .btn-cancel-delete { flex: 1; padding: 13px; background: #FAF8F5; color: #555; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+  .btn-cancel-delete:hover { background: #E8E2CE; }
   </style>
 </head>
 <body>
@@ -538,6 +575,7 @@
           <table>
             <thead>
               <tr>
+                <th id="deleteColHeader" style="width:38px; display:none;"></th>
                 <th><div class="th-content" onclick="openColumnFilter('num', event)"><span>#</span><i class="fas fa-filter filter-icon" id="icon_num"></i></div></th>
                 <th><div class="th-content" onclick="openColumnFilter('actionDate', event)"><span>Action Date</span><i class="fas fa-filter filter-icon" id="icon_actionDate"></i></div></th>
                 <th><div class="th-content" onclick="openColumnFilter('trxDate', event)"><span>Trx Date</span><i class="fas fa-filter filter-icon" id="icon_trxDate"></i></div></th>
@@ -559,6 +597,7 @@
             <tbody id="tableBody"></tbody>
             <tfoot>
               <tr id="tableFooterRow">
+                <td id="foot_del" style="display:none;"></td>
                 <td id="foot_num">-</td>
                 <td id="foot_actionDate">-</td>
                 <td id="foot_trxDate">-</td>
@@ -675,6 +714,36 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Modal تأكيد حذف الفاتورة -->
+  <div id="deleteConfirmOverlay" class="delete-confirm-overlay" onclick="closeDeleteModalOnOutside(event)">
+    <div class="delete-confirm-card">
+      <div class="del-icon"><i class="fas fa-trash-alt"></i></div>
+      <h3>تأكيد حذف الفاتورة</h3>
+      <div class="delete-confirm-details">
+        <div>رقم الفاتورة: <strong id="delInvoiceNum">-</strong></div>
+        <div>اسم العميلة: <strong id="delClientName">-</strong></div>
+        <div>إجمالي الفاتورة: <strong id="delNetTotal">-</strong></div>
+        <div>تاريخ الفاتورة: <strong id="delTrxDate">-</strong></div>
+      </div>
+
+      <!-- حقل الباسورد — يظهر فقط لو الفاتورة خارج نطاق اليومين -->
+      <div id="delPasswordSection" style="display:none; margin-bottom:16px;">
+        <div style="background:#FFF3CD; border:1px solid #FFCC80; border-radius:8px; padding:10px 14px; font-size:12px; color:#7A4F00; margin-bottom:10px;">
+          <i class="fas fa-lock"></i> هذه الفاتورة خارج نطاق اليوم وأمس — يلزم إدخال كلمة المرور الخاصة للحذف.
+        </div>
+        <input type="password" id="delPasswordInput" placeholder="أدخل كلمة المرور..." 
+          style="width:100%; padding:11px 14px; border:1.5px solid var(--border-color); border-radius:10px; font-size:14px; outline:none;">
+        <div id="delPasswordError" style="color:#C5221F; font-size:12px; margin-top:5px; display:none;">كلمة المرور غير صحيحة.</div>
+      </div>
+
+      <p style="font-size:12px; color:#C5221F; margin-bottom:16px;">⚠️ هذا الإجراء لا يمكن التراجع عنه. سيتم حذف جميع سطور الفاتورة نهائياً.</p>
+      <div class="delete-confirm-actions">
+        <button class="btn-cancel-delete" onclick="closeDeleteModal()"><i class="fas fa-times"></i> إلغاء</button>
+        <button class="btn-confirm-delete" id="confirmDeleteBtn" onclick="confirmDeleteInvoice()"><i class="fas fa-trash-alt"></i> تأكيد الحذف</button>
+      </div>
+    </div>
   </div>
 
   <!-- Modal الفلتر المركزي المميز -->
@@ -1793,6 +1862,7 @@
           originalRow: row,
           originalIndex: originalIndex,
           num: originalIndex,
+          invoiceNum: (row['Num'] || row['رقم الفاتورة'] || '').toString().trim(),
           actionDate: (row['Action Date'] || row['تاريخ التسجيل'] || '').toString(),
           trxDate: (row['Trx Date'] || row['تاريخ الفاتورة'] || '').toString(),
           client: (row['Client'] || row['اسم العميلة'] || '').toString(),
@@ -1899,8 +1969,15 @@
 
     function renderSalesTable(data) {
       tableBody.innerHTML = '';
+
+      // إظهار/إخفاء عمود الحذف بناءً على صلاحية delete في Transactions
+      const canDelete = can('Transactions', 'delete');
+      const colCount = canDelete ? 17 : 16;
+      document.getElementById('deleteColHeader').style.display = canDelete ? '' : 'none';
+      document.getElementById('foot_del').style.display = canDelete ? '' : 'none';
+
       if (data.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="16" style="text-align:center;">لا توجد نتائج مطابقة للبحث أو الفلتر</td></tr>';
+        tableBody.innerHTML = `<tr><td colspan="${colCount}" style="text-align:center;">لا توجد نتائج مطابقة للبحث أو الفلتر</td></tr>`;
         recordCount.innerText = "0 عمليات";
         resetFooterTotals();
         return;
@@ -1908,9 +1985,42 @@
 
       recordCount.innerText = `${data.length} عمليات (من أصل ${salesMasterData.length})`;
 
+      // invoiceTotals من salesMasterData الكاملة — يشمل كل سطور كل فاتورة بغض النظر عن الفلتر
+      const invoiceTotals = {};
+      salesMasterData.forEach(r => {
+        const num = (r['Num'] || r['رقم الفاتورة'] || '').toString().trim();
+        if (!num) return;
+        const net = parseFloat(r['Net Total'] || r['صافي الفاتورة'] || 0);
+        invoiceTotals[num] = (invoiceTotals[num] || 0) + net;
+      });
+
+      const seenInvoices = new Set();
+
       data.forEach((row) => {
+        const invoiceNum = row.invoiceNum;
+        const isFirstRowOfInvoice = invoiceNum !== '' && !seenInvoices.has(invoiceNum);
+        if (invoiceNum !== '') seenInvoices.add(invoiceNum);
+
         const tr = document.createElement('tr');
+
+        let deleteCell = '';
+        if (canDelete) {
+          if (isFirstRowOfInvoice) {
+            // الإجمالي الحقيقي = مجموع كل سطور الفاتورة من salesMasterData كاملة
+            const invoiceTotal = (invoiceTotals[invoiceNum] || 0).toFixed(2);
+            deleteCell = `<td style="text-align:center; padding:6px 4px;">
+              <button class="delete-invoice-btn" title="حذف فاتورة رقم ${invoiceNum}"
+                onclick="openDeleteModal(${invoiceNum}, '${(row.client||'').replace(/'/g,"\\'")}', ${invoiceTotal}, '${row.trxDate}')">
+                <i class="fas fa-times-circle"></i>
+              </button>
+            </td>`;
+          } else {
+            deleteCell = `<td></td>`;
+          }
+        }
+
         tr.innerHTML = `
+          ${deleteCell}
           <td>${row.originalIndex}</td>
           <td>${row.actionDate}</td>
           <td>${row.trxDate}</td>
@@ -2333,6 +2443,98 @@
       document.getElementById('foot_bal_totalSales').innerHTML = `<strong>${sumSales.toFixed(2)}</strong>`;
       document.getElementById('foot_bal_totalPaid').innerHTML = `<strong>${sumPaid.toFixed(2)}</strong>`;
       document.getElementById('foot_bal_remaining').innerHTML = `<strong style="${sumRemaining > 0 ? 'color:red' : ''}">${sumRemaining.toFixed(2)}</strong>`;
+    }
+
+    // ============================================================
+    // حذف الفاتورة - موديل التأكيد
+    // ============================================================
+    let pendingDeleteInvoiceNum = null;
+    let pendingDeleteNeedsPassword = false;
+
+    function openDeleteModal(invoiceNum, clientName, netTotal, trxDate) {
+      pendingDeleteInvoiceNum = invoiceNum;
+
+      // التحقق من نطاق التاريخ: اليوم أو أمس فقط بدون باسورد
+      const today = new Date(); today.setHours(0,0,0,0);
+      const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+      const invoiceDate = new Date(trxDate); invoiceDate.setHours(0,0,0,0);
+      const needsPassword = isNaN(invoiceDate.getTime()) || invoiceDate < yesterday;
+
+      pendingDeleteNeedsPassword = needsPassword;
+
+      document.getElementById('delInvoiceNum').innerText = invoiceNum;
+      document.getElementById('delClientName').innerText = clientName || '-';
+      document.getElementById('delNetTotal').innerText = parseFloat(netTotal).toFixed(2) + ' جنيه';
+      document.getElementById('delTrxDate').innerText = trxDate || '-';
+
+      const passSection = document.getElementById('delPasswordSection');
+      const passInput = document.getElementById('delPasswordInput');
+      const passError = document.getElementById('delPasswordError');
+      passSection.style.display = needsPassword ? '' : 'none';
+      passInput.value = '';
+      passError.style.display = 'none';
+
+      document.getElementById('confirmDeleteBtn').disabled = false;
+      document.getElementById('confirmDeleteBtn').innerHTML = '<i class="fas fa-trash-alt"></i> تأكيد الحذف';
+      document.getElementById('deleteConfirmOverlay').classList.add('active');
+      if (needsPassword) setTimeout(() => passInput.focus(), 100);
+    }
+
+    function closeDeleteModal() {
+      pendingDeleteInvoiceNum = null;
+      pendingDeleteNeedsPassword = false;
+      document.getElementById('deleteConfirmOverlay').classList.remove('active');
+      document.getElementById('delPasswordInput').value = '';
+      document.getElementById('delPasswordError').style.display = 'none';
+    }
+
+    function closeDeleteModalOnOutside(event) {
+      if (event.target === document.getElementById('deleteConfirmOverlay')) {
+        closeDeleteModal();
+      }
+    }
+
+    async function confirmDeleteInvoice() {
+      if (!pendingDeleteInvoiceNum) return;
+      const btn = document.getElementById('confirmDeleteBtn');
+      const passInput = document.getElementById('delPasswordInput');
+      const passError = document.getElementById('delPasswordError');
+
+      // لو محتاج باسورد، نبعته مع الطلب ونخلي السيرفر يتحقق منه
+      const enteredPassword = pendingDeleteNeedsPassword ? passInput.value.trim() : null;
+      if (pendingDeleteNeedsPassword && !enteredPassword) {
+        passError.innerText = 'يرجى إدخال كلمة المرور.';
+        passError.style.display = '';
+        passInput.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحذف...';
+      passError.style.display = 'none';
+
+      try {
+        const payload = { action: 'deleteInvoice', invoiceNum: pendingDeleteInvoiceNum };
+        if (pendingDeleteNeedsPassword) payload.overridePassword = enteredPassword;
+
+        const res = await apiPost(payload);
+        const result = await res.json();
+        if (result.status !== 'success') throw new Error(result.message);
+        closeDeleteModal();
+        fetchLogsFromSheet();
+      } catch (err) {
+        // لو الخطأ متعلق بالباسورد نوضحه في الحقل مش بـ alert
+        if (pendingDeleteNeedsPassword && err.message && err.message.includes('كلمة المرور')) {
+          passError.innerText = err.message;
+          passError.style.display = '';
+          passInput.value = '';
+          passInput.focus();
+        } else {
+          alert('❌ خطأ: ' + (err.message || 'تعذر الحذف'));
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-trash-alt"></i> تأكيد الحذف';
+      }
     }
   </script>
 </body>
