@@ -302,6 +302,12 @@
       <button class="nav-btn" id="btnPageData" onclick="switchPage('pageData')">
         <i class="fas fa-database"></i> استعراض البيانات
       </button>
+      <button class="nav-btn" id="btnPageBalances" onclick="switchPage('pageBalances')">
+        <i class="fas fa-balance-scale"></i> الأرصدة
+      </button>
+      <button class="nav-btn" id="btnPageLogs" onclick="switchPage('pageLogs')">
+        <i class="fas fa-history"></i> السجل
+      </button>
     </div>
 
     <div class="user-profile-bar">
@@ -576,6 +582,99 @@
       </div>
     </div>
 
+    <!-- صفحة Logs -->
+    <div id="pageLogs" class="view-page">
+      <div class="card">
+        <div class="table-header">
+          <div>
+            <h3>سجل حركات النظام (Logs)</h3>
+            <p style="font-size: 12px; color: #666; margin-top: 4px;">انقر على رأس أي عمود لفتح التصفية والشروط الخاصة بنوع بياناته</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="button" class="btn-small" onclick="resetLogsFilters()"><i class="fas fa-eraser"></i> مسح كافة الفلاتر</button>
+            <button type="button" class="btn-small" onclick="fetchLogsData()"><i class="fas fa-sync-alt"></i> تحديث</button>
+            <span class="badge" id="logsRecordCount">0 سجل</span>
+          </div>
+        </div>
+
+        <div class="global-search-bar">
+          <i class="fas fa-search" style="color: var(--primary-green);"></i>
+          <input type="text" id="logsGlobalSearch" placeholder="بحث عام سريع في كافة السجلات..." oninput="applyLogsFilters()">
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th><div class="th-content" onclick="openLogsFilter('log_num', event)"><span>#</span><i class="fas fa-filter filter-icon" id="icon_log_num"></i></div></th>
+                <th><div class="th-content" onclick="openLogsFilter('log_timestamp', event)"><span>Timestamp</span><i class="fas fa-filter filter-icon" id="icon_log_timestamp"></i></div></th>
+                <th><div class="th-content" onclick="openLogsFilter('log_user', event)"><span>User</span><i class="fas fa-filter filter-icon" id="icon_log_user"></i></div></th>
+                <th><div class="th-content" onclick="openLogsFilter('log_action', event)"><span>Action</span><i class="fas fa-filter filter-icon" id="icon_log_action"></i></div></th>
+                <th><div class="th-content" onclick="openLogsFilter('log_screen', event)"><span>Screen</span><i class="fas fa-filter filter-icon" id="icon_log_screen"></i></div></th>
+                <th><div class="th-content" onclick="openLogsFilter('log_details', event)"><span>Details</span><i class="fas fa-filter filter-icon" id="icon_log_details"></i></div></th>
+              </tr>
+            </thead>
+            <tbody id="logsTableBody"></tbody>
+            <tfoot>
+              <tr>
+                <td id="foot_log_num">-</td>
+                <td id="foot_log_timestamp">-</td>
+                <td id="foot_log_user">-</td>
+                <td id="foot_log_action">-</td>
+                <td id="foot_log_screen">-</td>
+                <td id="foot_log_details">-</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- صفحة Balances -->
+    <div id="pageBalances" class="view-page">
+      <div class="card">
+        <div class="table-header">
+          <div>
+            <h3>أرصدة العملاء (Balances)</h3>
+            <p style="font-size: 12px; color: #666; margin-top: 4px;">ملخص إجمالي المبيعات والمسدد والمتبقي لكل عميل</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="button" class="btn-small" onclick="fetchBalancesData()"><i class="fas fa-sync-alt"></i> تحديث</button>
+            <span class="badge" id="balancesRecordCount">0 عميل</span>
+          </div>
+        </div>
+
+        <div class="global-search-bar">
+          <i class="fas fa-search" style="color: var(--primary-green);"></i>
+          <input type="text" id="balancesSearchInput" placeholder="بحث باسم العميل أو رقمه..." oninput="filterBalancesTable()">
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:50px;">#</th>
+                <th onclick="sortBalances('id')" style="cursor:pointer;"><div class="th-content"><span>رقم العميل</span><i class="fas fa-sort filter-icon"></i></div></th>
+                <th onclick="sortBalances('name')" style="cursor:pointer;"><div class="th-content"><span>اسم العميل</span><i class="fas fa-sort filter-icon"></i></div></th>
+                <th onclick="sortBalances('totalSales')" style="cursor:pointer;"><div class="th-content"><span>إجمالي المبيعات</span><i class="fas fa-sort filter-icon"></i></div></th>
+                <th onclick="sortBalances('totalPaid')" style="cursor:pointer;"><div class="th-content"><span>إجمالي المسدد</span><i class="fas fa-sort filter-icon"></i></div></th>
+                <th onclick="sortBalances('remaining')" style="cursor:pointer;"><div class="th-content"><span>المتبقي</span><i class="fas fa-sort filter-icon"></i></div></th>
+              </tr>
+            </thead>
+            <tbody id="balancesTableBody"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" style="font-weight:700; color:var(--primary-green);">الإجمالي</td>
+                <td id="foot_bal_totalSales"><strong>0.00</strong></td>
+                <td id="foot_bal_totalPaid"><strong>0.00</strong></td>
+                <td id="foot_bal_remaining"><strong>0.00</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Modal الفلتر المركزي المميز -->
@@ -701,6 +800,12 @@
       } else if (pageId === 'pageData') {
         document.getElementById('btnPageData').classList.add('active');
         fetchLogsFromSheet();
+      } else if (pageId === 'pageLogs') {
+        document.getElementById('btnPageLogs').classList.add('active');
+        fetchLogsData();
+      } else if (pageId === 'pageBalances') {
+        document.getElementById('btnPageBalances').classList.add('active');
+        fetchBalancesData();
       }
     }
 
@@ -914,7 +1019,7 @@
     }
 
     let authUser = null;
-    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageData:'Transactions'};
+    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances'};
     function can(tab, action) {
       const p = authUser && authUser.permissions[tab];
       return !!(p && p.view === true && p[action] === true);
@@ -955,9 +1060,10 @@
       document.getElementById('mainHeader').style.display = 'flex';
       document.getElementById('currentUserDisplay').innerText = user.name;
       document.querySelectorAll('.view-page, .nav-btn').forEach(el => el.classList.remove('active'));
-      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageData:'btnPageData'};
+      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances'};
       Object.keys(PAGE_TABS).forEach(page => {
         const btn = document.getElementById(buttons[page]);
+        if (!btn) return;
         btn.style.display = 'inline-flex';
         btn.disabled = !can(PAGE_TABS[page],'view');
         btn.setAttribute('aria-disabled',String(btn.disabled));
@@ -1858,6 +1964,375 @@
         const el = document.getElementById(`foot_${col}`);
         if (el) el.innerHTML = `<strong>0.00</strong>`;
       });
+    }
+
+    // ============================================================
+    // LOGS PAGE
+    // ============================================================
+    let logsMasterData = [];
+    let logsActiveFilters = {};
+    let logsActiveConditions = {};
+    let logsCurrentOpenCol = null;
+    let logsCurrentSortCol = null;
+    let logsCurrentSortDir = 'asc';
+
+    const logsNumericCols = [];
+    const logsDateCols = ['log_timestamp'];
+
+    const logsColumnKeyMap = {
+      log_num: ['num'],
+      log_timestamp: ['Timestamp'],
+      log_user: ['User'],
+      log_action: ['Action'],
+      log_screen: ['Screen'],
+      log_details: ['Details']
+    };
+
+    function fetchLogsData() {
+      if (!can('Logs', 'view')) return;
+      if (!SCRIPT_URL) return;
+      const tbody = document.getElementById('logsTableBody');
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري تحميل السجلات...</td></tr>';
+
+      apiRead('Log')
+        .then(r => r.json())
+        .then(response => {
+          if (response.status === 'success' && response.data) {
+            logsMasterData = response.data;
+            applyLogsFilters();
+          } else {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد سجلات</td></tr>';
+            document.getElementById('logsRecordCount').innerText = '0 سجل';
+          }
+        })
+        .catch(() => {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">تعذر تحميل السجلات</td></tr>';
+        });
+    }
+
+    function getLogsMapped(row, idx) {
+      return {
+        log_num: idx,
+        log_timestamp: (row['Timestamp'] || '').toString(),
+        log_user: (row['User'] || '').toString(),
+        log_action: (row['Action'] || '').toString(),
+        log_screen: (row['Screen'] || '').toString(),
+        log_details: (row['Details'] || '').toString()
+      };
+    }
+
+    function applyLogsFilters() {
+      if (!logsMasterData || logsMasterData.length === 0) {
+        document.getElementById('logsTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد سجلات</td></tr>';
+        document.getElementById('logsRecordCount').innerText = '0 سجل';
+        updateLogsFooter([]);
+        return;
+      }
+
+      const globalVal = document.getElementById('logsGlobalSearch').value.toLowerCase().trim();
+
+      let rows = logsMasterData.slice().reverse().map((row, idx) => getLogsMapped(row, logsMasterData.length - idx));
+
+      if (globalVal) {
+        rows = rows.filter(item => Object.values(item).some(v => v.toString().toLowerCase().includes(globalVal)));
+      }
+
+      Object.keys(logsActiveFilters).forEach(col => {
+        const f = logsActiveFilters[col];
+        if (f) rows = rows.filter(item => f[item[col] !== undefined ? item[col].toString().trim() : ''] !== false);
+      });
+
+      Object.keys(logsActiveConditions).forEach(col => {
+        const cond = logsActiveConditions[col];
+        if (!cond || cond.op === 'none' || !cond.val1) return;
+        const isDate = logsDateCols.includes(col);
+        rows = rows.filter(item => {
+          const itemVal = item[col];
+          if (isDate) {
+            const vd = new Date(itemVal).setHours(0,0,0,0);
+            const v1d = new Date(cond.val1).setHours(0,0,0,0);
+            const v2d = cond.val2 ? new Date(cond.val2).setHours(0,0,0,0) : null;
+            if (isNaN(vd)) return false;
+            if (cond.op === 'equals') return vd === v1d;
+            if (cond.op === 'greater') return vd > v1d;
+            if (cond.op === 'less') return vd < v1d;
+            if (cond.op === 'between') return vd >= v1d && vd <= v2d;
+          } else {
+            const sv = (itemVal || '').toString().toLowerCase();
+            const tv = cond.val1.toLowerCase();
+            if (cond.op === 'contains') return sv.includes(tv);
+            if (cond.op === 'notContains') return !sv.includes(tv);
+            if (cond.op === 'startsWith') return sv.startsWith(tv);
+            if (cond.op === 'endsWith') return sv.endsWith(tv);
+            if (cond.op === 'equals') return sv === tv;
+          }
+          return true;
+        });
+      });
+
+      if (logsCurrentSortCol) {
+        rows.sort((a, b) => {
+          let va = a[logsCurrentSortCol], vb = b[logsCurrentSortCol];
+          va = va.toString().toLowerCase(); vb = vb.toString().toLowerCase();
+          if (va < vb) return logsCurrentSortDir === 'asc' ? -1 : 1;
+          if (va > vb) return logsCurrentSortDir === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
+
+      renderLogsTable(rows);
+    }
+
+    function renderLogsTable(data) {
+      const tbody = document.getElementById('logsTableBody');
+      tbody.innerHTML = '';
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد نتائج مطابقة</td></tr>';
+        document.getElementById('logsRecordCount').innerText = '0 سجل';
+        updateLogsFooter([]);
+        return;
+      }
+      document.getElementById('logsRecordCount').innerText = `${data.length} سجل (من أصل ${logsMasterData.length})`;
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.log_num}</td>
+          <td>${row.log_timestamp}</td>
+          <td><strong>${row.log_user}</strong></td>
+          <td><span class="tag">${row.log_action}</span></td>
+          <td><span class="staff-tag">${row.log_screen}</span></td>
+          <td>${row.log_details}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      updateLogsFooter(data);
+    }
+
+    function updateLogsFooter(data) {
+      const countText = `${data.length} سجل`;
+      ['log_num','log_timestamp','log_user','log_action','log_screen','log_details'].forEach(col => {
+        const el = document.getElementById(`foot_${col}`);
+        if (el) el.innerHTML = `<span style="font-size:11px; color:#555;">${countText}</span>`;
+      });
+    }
+
+    function openLogsFilter(colName, event) {
+      event.stopPropagation();
+      logsCurrentOpenCol = colName;
+      currentOpenCol = '__logs__' + colName;
+
+      document.getElementById('popupTitleText').innerText = `فلتر: ${colName.replace('log_', '')}`;
+      const condOperator = document.getElementById('condOperator');
+      condOperator.innerHTML = '<option value="none">-- بدون شرط متقدم --</option>';
+
+      let colType = 'text';
+      if (logsDateCols.includes(colName)) colType = 'date';
+
+      if (colType === 'text') {
+        document.getElementById('condTitle').innerText = 'فلترة بشرط نصي:';
+        condOperator.innerHTML += `
+          <option value="contains">يحتوي على</option>
+          <option value="notContains">لا يحتوي على</option>
+          <option value="startsWith">يبدأ بـ</option>
+          <option value="endsWith">ينتهي بـ</option>
+          <option value="equals">يساوي تماماً</option>
+        `;
+      } else {
+        document.getElementById('condTitle').innerText = 'فلترة بشرط التاريخ:';
+        condOperator.innerHTML += `
+          <option value="equals">في تاريخ</option>
+          <option value="greater">بعد تاريخ</option>
+          <option value="less">قبل تاريخ</option>
+          <option value="between">بين تاريخين</option>
+        `;
+      }
+
+      const existingCond = logsActiveConditions[colName] || { op: 'none', val1: '', val2: '' };
+      condOperator.value = existingCond.op;
+      renderConditionInputs(colType, existingCond.val1, existingCond.val2);
+
+      let uniqueVals = new Set();
+      logsMasterData.forEach((row, idx) => {
+        const mapped = getLogsMapped(row, idx);
+        uniqueVals.add((mapped[colName] || '').toString().trim());
+      });
+
+      const cbList = document.getElementById('popupCheckboxList');
+      cbList.innerHTML = '';
+      document.getElementById('popupSearchInput').value = '';
+      document.getElementById('popupSelectAllCB').checked = true;
+
+      if (!logsActiveFilters[colName]) {
+        logsActiveFilters[colName] = {};
+        uniqueVals.forEach(v => { logsActiveFilters[colName][v] = true; });
+      }
+
+      Array.from(uniqueVals).sort().forEach(val => {
+        const isChecked = logsActiveFilters[colName][val] !== false;
+        cbList.innerHTML += `
+          <label class="popup-cb-item">
+            <input type="checkbox" class="popup-val-cb" value="${val}" ${isChecked ? 'checked' : ''} onchange="updateSelectAllState()">
+            <span>${val === '' ? '(فارغ)' : val}</span>
+          </label>
+        `;
+      });
+
+      // Override popup ok button temporarily
+      document.querySelector('.popup-btn-ok').onclick = function() { applyLogsPopupFilter(); };
+      document.getElementById('filterModalOverlay').classList.add('active');
+    }
+
+    function applyLogsPopupFilter() {
+      if (!logsCurrentOpenCol) return;
+      if (!logsActiveFilters[logsCurrentOpenCol]) logsActiveFilters[logsCurrentOpenCol] = {};
+      document.querySelectorAll('.popup-val-cb').forEach(cb => {
+        logsActiveFilters[logsCurrentOpenCol][cb.value] = cb.checked;
+      });
+      const op = document.getElementById('condOperator').value;
+      const v1Elem = document.getElementById('condVal1');
+      const v2Elem = document.getElementById('condVal2');
+      logsActiveConditions[logsCurrentOpenCol] = { op, val1: v1Elem ? v1Elem.value.trim() : '', val2: v2Elem ? v2Elem.value.trim() : '' };
+
+      const icon = document.getElementById(`icon_${logsCurrentOpenCol}`);
+      if (icon) {
+        const hasUnchecked = Object.values(logsActiveFilters[logsCurrentOpenCol]).includes(false);
+        const hasCondition = op !== 'none' && (v1Elem && v1Elem.value.trim());
+        icon.style.color = (hasUnchecked || hasCondition) ? '#C5221F' : '';
+        icon.style.opacity = (hasUnchecked || hasCondition) ? '1' : '0.7';
+      }
+      logsCurrentOpenCol = null;
+      document.querySelector('.popup-btn-ok').onclick = function() { applyPopupFilter(); };
+      closePopup();
+      applyLogsFilters();
+    }
+
+    function resetLogsFilters() {
+      document.getElementById('logsGlobalSearch').value = '';
+      logsActiveFilters = {};
+      logsActiveConditions = {};
+      logsCurrentSortCol = null;
+      logsCurrentSortDir = 'asc';
+      document.querySelectorAll('[id^="icon_log_"]').forEach(icon => {
+        icon.style.color = ''; icon.style.opacity = '0.7';
+      });
+      applyLogsFilters();
+    }
+
+    // ============================================================
+    // BALANCES PAGE
+    // ============================================================
+    let balancesMasterData = [];
+    let balancesSortCol = 'name';
+    let balancesSortDir = 'asc';
+
+    function fetchBalancesData() {
+      if (!can('Balances', 'view')) return;
+      if (!SCRIPT_URL) return;
+      const tbody = document.getElementById('balancesTableBody');
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري تحميل البيانات...</td></tr>';
+
+      apiRead('Sales')
+        .then(r => r.json())
+        .then(response => {
+          if (response.status === 'success' && response.data) {
+            computeBalances(response.data);
+          } else {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد بيانات</td></tr>';
+          }
+        })
+        .catch(() => {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">تعذر تحميل البيانات</td></tr>';
+        });
+    }
+
+    function computeBalances(salesData) {
+      const map = {};
+      salesData.forEach(row => {
+        const name = (row['Client'] || row['اسم العميلة'] || '').toString().trim();
+        if (!name) return;
+        if (!map[name]) map[name] = { name, id: '', totalSales: 0, totalPaid: 0 };
+        map[name].totalSales += parseFloat(row['Net Total'] || row['صافي الفاتورة'] || 0);
+        map[name].totalPaid += parseFloat(row['Paid'] || row['المدفوع'] || 0);
+      });
+
+      // Try to get IDs from clientsData
+      clientsData.forEach(c => {
+        const name = (c['Client Name'] || '').toString().trim();
+        if (map[name]) map[name].id = c['Client ID'] || '';
+      });
+
+      balancesMasterData = Object.values(map).map(r => ({
+        ...r,
+        remaining: r.totalSales - r.totalPaid
+      }));
+
+      filterBalancesTable();
+    }
+
+    function filterBalancesTable() {
+      const query = document.getElementById('balancesSearchInput').value.toLowerCase().trim();
+      let data = balancesMasterData.filter(r =>
+        !query || r.name.toLowerCase().includes(query) || r.id.toLowerCase().includes(query)
+      );
+
+      data.sort((a, b) => {
+        let va = a[balancesSortCol], vb = b[balancesSortCol];
+        if (typeof va === 'number') {
+          return balancesSortDir === 'asc' ? va - vb : vb - va;
+        }
+        va = va.toString().toLowerCase(); vb = vb.toString().toLowerCase();
+        if (va < vb) return balancesSortDir === 'asc' ? -1 : 1;
+        if (va > vb) return balancesSortDir === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      renderBalancesTable(data);
+    }
+
+    function sortBalances(col) {
+      if (balancesSortCol === col) {
+        balancesSortDir = balancesSortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        balancesSortCol = col;
+        balancesSortDir = 'asc';
+      }
+      filterBalancesTable();
+    }
+
+    function renderBalancesTable(data) {
+      const tbody = document.getElementById('balancesTableBody');
+      tbody.innerHTML = '';
+      document.getElementById('balancesRecordCount').innerText = `${data.length} عميل`;
+
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد نتائج مطابقة</td></tr>';
+        document.getElementById('foot_bal_totalSales').innerHTML = '<strong>0.00</strong>';
+        document.getElementById('foot_bal_totalPaid').innerHTML = '<strong>0.00</strong>';
+        document.getElementById('foot_bal_remaining').innerHTML = '<strong>0.00</strong>';
+        return;
+      }
+
+      let sumSales = 0, sumPaid = 0, sumRemaining = 0;
+      data.forEach((row, idx) => {
+        sumSales += row.totalSales;
+        sumPaid += row.totalPaid;
+        sumRemaining += row.remaining;
+        const tr = document.createElement('tr');
+        const remainStyle = row.remaining > 0 ? 'color:red; font-weight:bold;' : (row.remaining < 0 ? 'color:var(--primary-green); font-weight:bold;' : '');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${row.id || '-'}</td>
+          <td><strong>${row.name}</strong></td>
+          <td>${row.totalSales.toFixed(2)}</td>
+          <td>${row.totalPaid.toFixed(2)}</td>
+          <td style="${remainStyle}">${row.remaining.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('foot_bal_totalSales').innerHTML = `<strong>${sumSales.toFixed(2)}</strong>`;
+      document.getElementById('foot_bal_totalPaid').innerHTML = `<strong>${sumPaid.toFixed(2)}</strong>`;
+      document.getElementById('foot_bal_remaining').innerHTML = `<strong style="${sumRemaining > 0 ? 'color:red' : ''}">${sumRemaining.toFixed(2)}</strong>`;
     }
   </script>
 </body>
