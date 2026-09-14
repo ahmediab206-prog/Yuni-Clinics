@@ -261,6 +261,79 @@
 
     footer { margin-top: 35px; padding: 15px; text-align: center; font-size: 13px; color: var(--primary-green); display: flex; align-items: center; justify-content: center; gap: 10px; border-top: 1px solid var(--border-color); width: 100%; max-width: 1300px; }
     .whatsapp-btn { display: inline-flex; align-items: center; gap: 4px; background-color: var(--whatsapp-green); color: #FFFFFF; padding: 4px 10px; border-radius: 14px; text-decoration: none; font-weight: 600; font-size: 11px; }
+
+  /* النقدية Tab */
+  .balance-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 0; }
+  .bal-tab-btn {
+    padding: 10px 22px; border: none; background: transparent;
+    font-size: 15px; font-weight: 700; color: var(--primary-green);
+    cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px;
+    transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+  }
+  .bal-tab-btn.active { border-bottom-color: var(--primary-green); color: var(--primary-green); }
+  .bal-tab-btn:not(.active) { color: #888; }
+  .bal-tab-content { display: none; }
+  .bal-tab-content.active { display: block; }
+
+  /* Cash summary cards */
+  .cash-filter-bar { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px; background: var(--light-green); padding: 16px 20px; border-radius: 14px; border: 1px solid rgba(24,66,50,0.15); }
+  .cash-filter-field { display: flex; flex-direction: column; gap: 6px; }
+  .cash-filter-field label { font-size: 13px; font-weight: 700; color: var(--primary-green); }
+  .cash-filter-field input[type="date"] { width: auto; padding: 10px 12px; }
+  .cash-period-toggle { display: flex; gap: 6px; }
+  .period-btn { padding: 8px 16px; border: 1.5px solid var(--border-color); border-radius: 8px; background: #FAF8F5; color: var(--primary-green); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .period-btn.active { background: var(--primary-green); color: #FFF; border-color: var(--primary-green); }
+
+  .cash-summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .cash-method-card {
+    background: #FFF; border: 1.5px solid var(--border-color); border-radius: 14px;
+    padding: 20px; display: flex; flex-direction: column; gap: 8px;
+    box-shadow: 0 4px 12px rgba(24,66,50,0.06); transition: box-shadow 0.2s;
+  }
+  .cash-method-card:hover { box-shadow: 0 6px 18px rgba(24,66,50,0.12); }
+  .cash-method-icon { font-size: 22px; width: 44px; height: 44px; border-radius: 10px; background: var(--light-green); display: flex; align-items: center; justify-content: center; color: var(--primary-green); margin-bottom: 4px; }
+  .cash-method-label { font-size: 13px; color: #666; font-weight: 600; }
+  .cash-method-amount { font-size: 24px; font-weight: 700; color: var(--primary-green); }
+  .cash-method-sub { font-size: 11px; color: #999; }
+  .cash-total-bar { background: var(--primary-green); color: #FFF; border-radius: 12px; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .cash-total-label { font-size: 14px; opacity: 0.85; }
+  .cash-total-value { font-size: 26px; font-weight: 700; }
+
+  .close-day-section { border: 1.5px solid var(--border-color); border-radius: 14px; padding: 20px; background: #FAF8F5; }
+  .close-day-section h4 { color: var(--primary-green); font-size: 16px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .close-day-section p { font-size: 13px; color: #777; margin-bottom: 16px; }
+  .close-day-warning { background: #FFF8E1; border: 1px solid #FFD54F; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #7A4F00; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .btn-close-day { padding: 13px 28px; background: var(--gold-accent); color: #FFF; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.25s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-close-day:hover { background: #B8903F; }
+  .btn-close-day:disabled { background: #999; cursor: not-allowed; }
+  .multi-day-notice { background: #FCE8E6; border: 1px solid #F5C6CB; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #C5221F; margin-bottom: 14px; display: none; align-items: center; gap: 8px; }
+  .multi-day-notice.show { display: flex; }
+
+  .cash-user-filter-wrap { position: relative; }
+  .cash-user-filter-btn { padding: 10px 14px; border: 1.5px solid var(--border-color); border-radius: 8px; background: #FAF8F5; color: var(--primary-green); font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .cash-user-filter-btn:hover { background: #E8E2CE; }
+  .cash-user-filter-dropdown { position: absolute; top: calc(100% + 6px); right: 0; z-index: 50; background: #FFFFFF; border: 1.5px solid var(--border-color); border-radius: 10px; box-shadow: 0 10px 25px rgba(24,66,50,0.15); padding: 10px; width: 240px; }
+  .cash-user-filter-actions { display: flex; gap: 8px; margin-bottom: 8px; }
+  .btn-tiny { flex: 1; padding: 5px 8px; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid var(--border-color); background: #FAF8F5; color: var(--primary-green); cursor: pointer; }
+  .btn-tiny:hover { background: var(--light-green); }
+  .cash-user-filter-list { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .cash-user-check-item { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+  .cash-user-check-item:hover { background: var(--light-green); }
+  .cash-user-check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary-green); cursor: pointer; }
+  .cash-filter-note { background: #E5F0EC; border: 1px solid rgba(24,66,50,0.25); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--primary-green); margin-bottom: 14px; display: none; align-items: center; gap: 8px; }
+  .cash-filter-note.show { display: flex; }
+
+  .cash-loading-note { background: #FFF8E1; border: 1px solid #FFD54F; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #7A4F00; margin-bottom: 14px; display: none; align-items: center; gap: 8px; }
+  .cash-loading-note.show { display: flex; }
+  .cash-summary-grid.is-loading .cash-method-card { opacity: 0.5; }
+  .cash-summary-grid.is-loading .cash-method-amount { position: relative; color: transparent !important; }
+  .cash-summary-grid.is-loading .cash-method-amount::after {
+    content: '...'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: var(--primary-green); animation: cashPulse 1s ease-in-out infinite;
+  }
+  @keyframes cashPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+  .cash-total-bar.is-loading .cash-total-value { opacity: 0.6; }
+
   button:disabled { opacity: .45; cursor: not-allowed; }
 
   /* زرار حذف الفاتورة */
@@ -672,44 +745,198 @@
     <!-- صفحة Balances -->
     <div id="pageBalances" class="view-page">
       <div class="card">
-        <div class="table-header">
-          <div>
-            <h3>أرصدة العملاء (Balances)</h3>
-            <p style="font-size: 12px; color: #666; margin-top: 4px;">ملخص إجمالي المبيعات والمسدد والمتبقي لكل عميل</p>
+        <h2 style="color:var(--primary-green); margin-bottom: 20px; font-size: 20px;"><i class="fas fa-balance-scale"></i> الأرصدة</h2>
+
+        <!-- Tabs -->
+        <div class="balance-tabs">
+          <button class="bal-tab-btn active" id="balTabClients" onclick="switchBalTab('clients')">
+            <i class="fas fa-users"></i> أرصدة العملاء
+          </button>
+          <button class="bal-tab-btn" id="balTabCash" onclick="switchBalTab('cash')">
+            <i class="fas fa-cash-register"></i> النقدية
+          </button>
+        </div>
+
+        <!-- Tab: عملاء -->
+        <div id="balTabClientsContent" class="bal-tab-content active">
+          <div class="table-header" style="margin-bottom:16px;">
+            <div>
+              <h3 style="font-size:17px;">أرصدة العملاء</h3>
+              <p style="font-size: 12px; color: #666; margin-top: 4px;">ملخص إجمالي المبيعات والمسدد والمتبقي لكل عميل</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <button type="button" class="btn-small" onclick="fetchBalancesData()"><i class="fas fa-sync-alt"></i> تحديث</button>
+              <span class="badge" id="balancesRecordCount">0 عميل</span>
+            </div>
           </div>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <button type="button" class="btn-small" onclick="fetchBalancesData()"><i class="fas fa-sync-alt"></i> تحديث</button>
-            <span class="badge" id="balancesRecordCount">0 عميل</span>
+          <div class="global-search-bar">
+            <i class="fas fa-search" style="color: var(--primary-green);"></i>
+            <input type="text" id="balancesSearchInput" placeholder="بحث باسم العميل أو رقمه..." oninput="filterBalancesTable()">
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:50px;">#</th>
+                  <th onclick="sortBalances('id')" style="cursor:pointer;"><div class="th-content"><span>رقم العميل</span><i class="fas fa-sort filter-icon"></i></div></th>
+                  <th onclick="sortBalances('name')" style="cursor:pointer;"><div class="th-content"><span>اسم العميل</span><i class="fas fa-sort filter-icon"></i></div></th>
+                  <th onclick="sortBalances('totalSales')" style="cursor:pointer;"><div class="th-content"><span>إجمالي المبيعات</span><i class="fas fa-sort filter-icon"></i></div></th>
+                  <th onclick="sortBalances('totalPaid')" style="cursor:pointer;"><div class="th-content"><span>إجمالي المسدد</span><i class="fas fa-sort filter-icon"></i></div></th>
+                  <th onclick="sortBalances('remaining')" style="cursor:pointer;"><div class="th-content"><span>المتبقي</span><i class="fas fa-sort filter-icon"></i></div></th>
+                </tr>
+              </thead>
+              <tbody id="balancesTableBody"></tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3" style="font-weight:700; color:var(--primary-green);">الإجمالي</td>
+                  <td id="foot_bal_totalSales"><strong>0.00</strong></td>
+                  <td id="foot_bal_totalPaid"><strong>0.00</strong></td>
+                  <td id="foot_bal_remaining"><strong>0.00</strong></td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </div>
 
-        <div class="global-search-bar">
-          <i class="fas fa-search" style="color: var(--primary-green);"></i>
-          <input type="text" id="balancesSearchInput" placeholder="بحث باسم العميل أو رقمه..." oninput="filterBalancesTable()">
+        <!-- Tab: النقدية -->
+        <div id="balTabCashContent" class="bal-tab-content">
+
+          <!-- فلتر الفترة -->
+          <div class="cash-filter-bar">
+            <div class="cash-filter-field">
+              <label>نوع الفترة</label>
+              <div class="cash-period-toggle">
+                <button class="period-btn active" id="periodBtnDay" onclick="setCashPeriod('day')">يوم واحد</button>
+                <button class="period-btn" id="periodBtnRange" onclick="setCashPeriod('range')">فترة مخصصة</button>
+              </div>
+            </div>
+            <div class="cash-filter-field">
+              <label for="cashDateFrom">من تاريخ</label>
+              <input type="date" id="cashDateFrom" onchange="loadCashSummary()">
+            </div>
+            <div class="cash-filter-field" id="cashDateToField" style="display:none;">
+              <label for="cashDateTo">إلى تاريخ</label>
+              <input type="date" id="cashDateTo" onchange="loadCashSummary()">
+            </div>
+            <div class="cash-filter-field" id="cashUserFilterField">
+              <label>الموظف / الكاشير</label>
+              <div class="cash-user-filter-wrap">
+                <button type="button" class="cash-user-filter-btn" onclick="event.stopPropagation(); toggleCashUserFilter()">
+                  <i class="fas fa-user-friends"></i>
+                  <span id="cashUserFilterLabel">كل الموظفين</span>
+                  <i class="fas fa-chevron-down" style="font-size:10px;"></i>
+                </button>
+                <div class="cash-user-filter-dropdown" id="cashUserFilterDropdown" style="display:none;" onclick="event.stopPropagation();">
+                  <div class="cash-user-filter-actions">
+                    <button type="button" class="btn-tiny" onclick="selectAllCashUsers()">تحديد الكل</button>
+                    <button type="button" class="btn-tiny" onclick="clearCashUsers()">كل الموظفين</button>
+                  </div>
+                  <div id="cashUserFilterList" class="cash-user-filter-list"></div>
+                </div>
+              </div>
+            </div>
+            <div class="cash-filter-field">
+              <label>&nbsp;</label>
+              <button class="btn-small" onclick="loadCashSummary()" style="padding:10px 16px; font-size:13px;"><i class="fas fa-search"></i> عرض</button>
+            </div>
+          </div>
+
+          <!-- تنبيه فلتر الموظف -->
+          <div class="cash-filter-note" id="cashFilterNote">
+            <i class="fas fa-info-circle"></i>
+            العرض الحالي للبطاقات مفلتر حسب الموظف/الموظفين المحددين لأغراض المراجعة فقط — عملية إغلاق اليوم تشمل دائماً إجمالي كل الموظفين.
+          </div>
+
+          <!-- تنبيه التحميل -->
+          <div class="cash-loading-note" id="cashLoadingNote">
+            <i class="fas fa-spinner fa-spin"></i>
+            جاري تحميل وحساب الأرقام...
+          </div>
+
+          <!-- البطاقات -->
+          <div class="cash-summary-grid" id="cashSummaryGrid">
+            <div class="cash-method-card">
+              <div class="cash-method-icon"><i class="fas fa-money-bill-wave"></i></div>
+              <div class="cash-method-label">نقدي (Cash)</div>
+              <div class="cash-method-amount" id="cashAmt_Cash">0.00</div>
+              <div class="cash-method-sub">ج.م</div>
+            </div>
+            <div class="cash-method-card">
+              <div class="cash-method-icon"><i class="fas fa-wallet"></i></div>
+              <div class="cash-method-label">محفظة إلكترونية (Wallet)</div>
+              <div class="cash-method-amount" id="cashAmt_Wallet">0.00</div>
+              <div class="cash-method-sub">ج.م</div>
+            </div>
+            <div class="cash-method-card">
+              <div class="cash-method-icon"><i class="fas fa-mobile-alt"></i></div>
+              <div class="cash-method-label">انستاباي (InstaPay)</div>
+              <div class="cash-method-amount" id="cashAmt_InstaPay">0.00</div>
+              <div class="cash-method-sub">ج.م</div>
+            </div>
+            <div class="cash-method-card">
+              <div class="cash-method-icon"><i class="fas fa-credit-card"></i></div>
+              <div class="cash-method-label">POS (فيزا / ماكينة)</div>
+              <div class="cash-method-amount" id="cashAmt_POS">0.00</div>
+              <div class="cash-method-sub">ج.م</div>
+            </div>
+          </div>
+
+          <!-- إجمالي -->
+          <div class="cash-total-bar">
+            <span class="cash-total-label"><i class="fas fa-coins"></i> إجمالي المحصّل في الفترة</span>
+            <span class="cash-total-value" id="cashGrandTotal">0.00 ج.م</span>
+          </div>
+
+          <!-- قسم الإغلاق -->
+          <div class="close-day-section">
+            <h4><i class="fas fa-lock"></i> إغلاق اليوم</h4>
+            <p>تسجيل إغلاق يوم واحد فقط — يحفظ رصيد كل طريقة دفع في شيت Closing.</p>
+            <div class="close-day-warning">
+              <i class="fas fa-info-circle"></i>
+              الإغلاق يعمل فقط عند اختيار يوم واحد. لا يمكن الإغلاق على فترة متعددة الأيام.
+            </div>
+            <div class="multi-day-notice" id="multiDayNotice">
+              <i class="fas fa-exclamation-circle"></i>
+              تم تحديد أكثر من يوم — الإغلاق غير متاح للفترات المتعددة.
+            </div>
+            <button class="btn-close-day" id="btnCloseDay" onclick="openCloseDayModal()">
+              <i class="fas fa-check-circle"></i> تأكيد إغلاق اليوم
+            </button>
+          </div>
         </div>
 
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:50px;">#</th>
-                <th onclick="sortBalances('id')" style="cursor:pointer;"><div class="th-content"><span>رقم العميل</span><i class="fas fa-sort filter-icon"></i></div></th>
-                <th onclick="sortBalances('name')" style="cursor:pointer;"><div class="th-content"><span>اسم العميل</span><i class="fas fa-sort filter-icon"></i></div></th>
-                <th onclick="sortBalances('totalSales')" style="cursor:pointer;"><div class="th-content"><span>إجمالي المبيعات</span><i class="fas fa-sort filter-icon"></i></div></th>
-                <th onclick="sortBalances('totalPaid')" style="cursor:pointer;"><div class="th-content"><span>إجمالي المسدد</span><i class="fas fa-sort filter-icon"></i></div></th>
-                <th onclick="sortBalances('remaining')" style="cursor:pointer;"><div class="th-content"><span>المتبقي</span><i class="fas fa-sort filter-icon"></i></div></th>
-              </tr>
-            </thead>
-            <tbody id="balancesTableBody"></tbody>
-            <tfoot>
-              <tr>
-                <td colspan="3" style="font-weight:700; color:var(--primary-green);">الإجمالي</td>
-                <td id="foot_bal_totalSales"><strong>0.00</strong></td>
-                <td id="foot_bal_totalPaid"><strong>0.00</strong></td>
-                <td id="foot_bal_remaining"><strong>0.00</strong></td>
-              </tr>
-            </tfoot>
-          </table>
+      </div>
+    </div>
+
+    <!-- Modal تأكيد إغلاق اليوم -->
+    <div id="closeDayOverlay" class="modal-overlay-generic" style="z-index: 10002;">
+      <div class="modal-card-generic" style="max-width:480px;">
+        <h3 style="margin-bottom:8px;"><i class="fas fa-lock" style="color:var(--gold-accent);"></i> تأكيد إغلاق اليوم</h3>
+        <p style="font-size:13px; color:#666; text-align:center; margin-bottom:18px;" id="closeDayDateLabel">-</p>
+        <div style="background:#FAF8F5; border:1.5px solid var(--border-color); border-radius:12px; padding:16px; margin-bottom:18px;">
+          <div id="closeDaySummaryRows" style="display:flex; flex-direction:column; gap:10px;"></div>
+          <div style="border-top:2px solid var(--primary-green); margin-top:12px; padding-top:12px; display:flex; justify-content:space-between; font-weight:700; color:var(--primary-green); font-size:15px;">
+            <span>الإجمالي</span>
+            <span id="closeDayTotal">0.00 ج.م</span>
+          </div>
+        </div>
+
+        <!-- حقل الباسورد — يظهر فقط لو تاريخ الإغلاق أقدم من اليوم أو أمس -->
+        <div id="closeDayPasswordSection" style="display:none; margin-bottom:16px;">
+          <div style="background:#FFF3CD; border:1px solid #FFCC80; border-radius:8px; padding:10px 14px; font-size:12px; color:#7A4F00; margin-bottom:10px;">
+            <i class="fas fa-lock"></i> هذا التاريخ خارج نطاق اليوم وأمس — يلزم إدخال كلمة المرور الخاصة لتسجيل الإغلاق.
+          </div>
+          <input type="password" id="closeDayPasswordInput" placeholder="أدخل كلمة المرور..."
+            style="width:100%; padding:11px 14px; border:1.5px solid var(--border-color); border-radius:10px; font-size:14px; outline:none;">
+          <div id="closeDayPasswordError" style="color:#C5221F; font-size:12px; margin-top:5px; display:none;">كلمة المرور غير صحيحة.</div>
+        </div>
+
+        <div id="closeDayError" style="color:#C5221F; font-size:13px; display:none; margin-bottom:12px;"></div>
+        <div class="modal-actions-row">
+          <button class="submit-btn" style="flex:2; background:var(--gold-accent);" id="confirmCloseDayBtn" onclick="confirmCloseDay()">
+            <i class="fas fa-lock"></i> تأكيد الإغلاق
+          </button>
+          <button class="reset-btn" style="flex:1;" onclick="closeCloseDayModal()">إلغاء</button>
         </div>
       </div>
     </div>
@@ -2536,6 +2763,386 @@
         btn.innerHTML = '<i class="fas fa-trash-alt"></i> تأكيد الحذف';
       }
     }
+
+    // ============================================================
+    // النقدية TAB
+    // ============================================================
+    let cashPeriodMode = 'day'; // 'day' or 'range'
+    let cashSalesCache = null;
+    let cashSelectedUsers = []; // فارغة = كل الموظفين
+    let cashAllUsersList = [];
+    let cashFullTotals = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 }; // الإجمالي الفعلي لكل الموظفين — يُستخدم دائماً في الإغلاق
+
+    function switchBalTab(tab) {
+      document.querySelectorAll('.bal-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.bal-tab-content').forEach(c => c.classList.remove('active'));
+      if (tab === 'clients') {
+        document.getElementById('balTabClients').classList.add('active');
+        document.getElementById('balTabClientsContent').classList.add('active');
+        fetchBalancesData();
+      } else {
+        document.getElementById('balTabCash').classList.add('active');
+        document.getElementById('balTabCashContent').classList.add('active');
+        // set today as default
+        const today = getTodayStr();
+        if (!document.getElementById('cashDateFrom').value) {
+          document.getElementById('cashDateFrom').value = today;
+          document.getElementById('cashDateTo').value = today;
+        }
+        loadCashSummary();
+      }
+    }
+
+    function getTodayStr() {
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
+
+    // ============================================================
+    // فلتر الموظف/الكاشير في تبويب النقدية (للعرض فقط — الإغلاق دائماً للكل)
+    // ============================================================
+    document.addEventListener('click', function(e) {
+      const wrap = document.getElementById('cashUserFilterField');
+      const dd = document.getElementById('cashUserFilterDropdown');
+      if (wrap && dd && dd.style.display !== 'none' && !wrap.contains(e.target)) {
+        dd.style.display = 'none';
+      }
+    });
+
+    function toggleCashUserFilter() {
+      const dd = document.getElementById('cashUserFilterDropdown');
+      dd.style.display = (dd.style.display === 'none') ? '' : 'none';
+    }
+
+    function getUsersInRangeFromData(salesData, fromD, toD) {
+      const set = new Set();
+      salesData.forEach(row => {
+        const trxDateStr = (row['Trx Date'] || row['تاريخ الفاتورة'] || '').toString().trim();
+        if (!trxDateStr) return;
+        const trxDate = new Date(trxDateStr);
+        if (isNaN(trxDate)) return;
+        trxDate.setHours(12,0,0,0);
+        if (trxDate < fromD || trxDate > toD) return;
+        const u = (row['User'] || row['المستخدم'] || '').toString().trim();
+        if (u) set.add(u);
+      });
+      return Array.from(set).sort((a,b) => a.localeCompare(b, 'ar'));
+    }
+
+    function renderCashUserFilterList(users) {
+      cashAllUsersList = users;
+      // نحتفظ فقط بالمحددين الموجودين ضمن الفترة الحالية
+      cashSelectedUsers = cashSelectedUsers.filter(u => users.includes(u));
+
+      const listEl = document.getElementById('cashUserFilterList');
+      if (users.length === 0) {
+        listEl.innerHTML = '<div style="font-size:12px; color:#999; padding:8px;">لا يوجد بيانات في هذه الفترة</div>';
+      } else {
+        listEl.innerHTML = users.map(u => {
+          const safe = u.replace(/'/g, "\\'");
+          const checked = cashSelectedUsers.includes(u) ? 'checked' : '';
+          return `<label class="cash-user-check-item">
+            <input type="checkbox" ${checked} onchange="toggleCashUserSelection('${safe}', this.checked)">
+            <span>${u}</span>
+          </label>`;
+        }).join('');
+      }
+      updateCashUserFilterLabel();
+    }
+
+    function toggleCashUserSelection(user, checked) {
+      if (checked) {
+        if (!cashSelectedUsers.includes(user)) cashSelectedUsers.push(user);
+      } else {
+        cashSelectedUsers = cashSelectedUsers.filter(u => u !== user);
+      }
+      updateCashUserFilterLabel();
+      applyCashUserFilterDisplay();
+    }
+
+    function selectAllCashUsers() {
+      cashSelectedUsers = cashAllUsersList.slice();
+      renderCashUserFilterList(cashAllUsersList);
+      applyCashUserFilterDisplay();
+    }
+
+    function clearCashUsers() {
+      cashSelectedUsers = [];
+      renderCashUserFilterList(cashAllUsersList);
+      applyCashUserFilterDisplay();
+    }
+
+    function updateCashUserFilterLabel() {
+      const label = document.getElementById('cashUserFilterLabel');
+      if (!label) return;
+      if (cashSelectedUsers.length === 0) label.innerText = 'كل الموظفين';
+      else if (cashSelectedUsers.length === 1) label.innerText = cashSelectedUsers[0];
+      else label.innerText = cashSelectedUsers.length + ' موظفين محددين';
+    }
+
+    function applyCashUserFilterDisplay() {
+      if (!cashSalesCache) return;
+      const from = document.getElementById('cashDateFrom').value;
+      let to = cashPeriodMode === 'day' ? from : document.getElementById('cashDateTo').value;
+      if (!from) return;
+      if (!to) to = from;
+      computeCashSummary(cashSalesCache, from, to);
+    }
+
+    function setCashPeriod(mode) {
+      cashPeriodMode = mode;
+      document.getElementById('periodBtnDay').classList.toggle('active', mode === 'day');
+      document.getElementById('periodBtnRange').classList.toggle('active', mode === 'range');
+
+      const toField = document.getElementById('cashDateToField');
+      if (mode === 'day') {
+        toField.style.display = 'none';
+        // sync To = From
+        const from = document.getElementById('cashDateFrom').value;
+        if (from) document.getElementById('cashDateTo').value = from;
+      } else {
+        toField.style.display = '';
+      }
+      loadCashSummary();
+    }
+
+    let isCashLoading = false;
+
+    async function loadCashSummary() {
+      if (!can('Balances', 'view')) return;
+      const from = document.getElementById('cashDateFrom').value;
+      let to = cashPeriodMode === 'day'
+        ? from
+        : document.getElementById('cashDateTo').value;
+
+      if (!from) return;
+      if (!to) to = from;
+
+      // Check if multi-day (for closing restriction)
+      const isMultiDay = (from !== to);
+      const multiNotice = document.getElementById('multiDayNotice');
+      const closeBtn = document.getElementById('btnCloseDay');
+      if (isMultiDay) {
+        multiNotice.classList.add('show');
+        closeBtn.disabled = true;
+      } else {
+        multiNotice.classList.remove('show');
+        closeBtn.disabled = !can('Balances', 'add');
+      }
+
+      // إظهار مؤشر التحميل — الأرقام الظاهرة حالياً قديمة لحد ما التحميل يخلص
+      isCashLoading = true;
+      document.getElementById('cashLoadingNote').classList.add('show');
+      document.getElementById('cashSummaryGrid').classList.add('is-loading');
+      document.getElementById('cashGrandTotal').closest('.cash-total-bar').classList.add('is-loading');
+      closeBtn.disabled = true;
+
+      try {
+        const response = await apiRead('Sales');
+        const result = await response.json();
+        if (result.status !== 'success' || !result.data) throw new Error(result.message || 'تعذر تحميل بيانات النقدية');
+        cashSalesCache = result.data;
+        computeCashSummary(result.data, from, to);
+      } catch(e) {
+        console.error('Cash load error', e);
+        alert('❌ تعذر تحميل بيانات النقدية، برجاء المحاولة مرة أخرى.');
+      } finally {
+        isCashLoading = false;
+        document.getElementById('cashLoadingNote').classList.remove('show');
+        document.getElementById('cashSummaryGrid').classList.remove('is-loading');
+        document.getElementById('cashGrandTotal').closest('.cash-total-bar').classList.remove('is-loading');
+        // نعيد ضبط حالة زرار الإغلاق بعد انتهاء التحميل
+        closeBtn.disabled = isMultiDay ? true : !can('Balances', 'add');
+      }
+    }
+
+    function computeCashSummary(salesData, fromDate, toDate) {
+      const fullMethods = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+      const displayMethods = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+      const hasFilter = cashSelectedUsers.length > 0;
+
+      const from = new Date(fromDate); from.setHours(0,0,0,0);
+      const to = new Date(toDate); to.setHours(23,59,59,999);
+
+      salesData.forEach(row => {
+        const trxDateStr = (row['Trx Date'] || row['تاريخ الفاتورة'] || '').toString().trim();
+        if (!trxDateStr) return;
+        const trxDate = new Date(trxDateStr);
+        if (isNaN(trxDate)) return;
+        trxDate.setHours(12,0,0,0); // neutral hour
+
+        if (trxDate < from || trxDate > to) return;
+
+        const method = (row['Payment Method'] || row['Method'] || '').toString().trim();
+        const paid = parseFloat(row['Paid'] || row['المدفوع'] || 0);
+
+        if (paid === 0) return;
+
+        // الإجمالي الفعلي لكل الموظفين — يُستخدم دائماً عند الإغلاق بغض النظر عن الفلتر
+        if (method === 'Cash') fullMethods.Cash += paid;
+        else if (method === 'Wallet') fullMethods.Wallet += paid;
+        else if (method === 'InstaPay') fullMethods.InstaPay += paid;
+        else if (method === 'POS') fullMethods.POS += paid;
+
+        // الإجمالي المعروض في البطاقات — يتأثر بفلتر الموظف لأغراض المراجعة فقط
+        const rowUser = (row['User'] || row['المستخدم'] || '').toString().trim();
+        if (!hasFilter || cashSelectedUsers.includes(rowUser)) {
+          if (method === 'Cash') displayMethods.Cash += paid;
+          else if (method === 'Wallet') displayMethods.Wallet += paid;
+          else if (method === 'InstaPay') displayMethods.InstaPay += paid;
+          else if (method === 'POS') displayMethods.POS += paid;
+        }
+      });
+
+      cashFullTotals = fullMethods;
+
+      document.getElementById('cashAmt_Cash').innerText = displayMethods.Cash.toFixed(2);
+      document.getElementById('cashAmt_Wallet').innerText = displayMethods.Wallet.toFixed(2);
+      document.getElementById('cashAmt_InstaPay').innerText = displayMethods.InstaPay.toFixed(2);
+      document.getElementById('cashAmt_POS').innerText = displayMethods.POS.toFixed(2);
+
+      const grand = displayMethods.Cash + displayMethods.Wallet + displayMethods.InstaPay + displayMethods.POS;
+      document.getElementById('cashGrandTotal').innerText = grand.toFixed(2) + ' ج.م';
+
+      const noteEl = document.getElementById('cashFilterNote');
+      if (noteEl) noteEl.classList.toggle('show', hasFilter);
+
+      // تحديث قائمة الموظفين المتاحين للفلتر بناءً على بيانات الفترة الحالية
+      renderCashUserFilterList(getUsersInRangeFromData(salesData, from, to));
+    }
+
+    function getCashAmounts() {
+      // دائماً إجمالي كل الموظفين — فلتر الموظف للعرض فقط ولا يؤثر على الإغلاق
+      return {
+        Cash: cashFullTotals.Cash || 0,
+        Wallet: cashFullTotals.Wallet || 0,
+        InstaPay: cashFullTotals.InstaPay || 0,
+        POS: cashFullTotals.POS || 0,
+      };
+    }
+
+    let pendingCloseDayNeedsPassword = false;
+
+    function openCloseDayModal() {
+      if (!can('Balances', 'add')) return;
+      if (isCashLoading) { alert('لسه جاري تحميل وحساب الأرقام، برجاء الانتظار لحظة ثم المحاولة مرة أخرى.'); return; }
+      const from = document.getElementById('cashDateFrom').value;
+      if (!from) { alert('يرجى تحديد اليوم أولاً.'); return; }
+
+      const amounts = getCashAmounts();
+      const grand = amounts.Cash + amounts.Wallet + amounts.InstaPay + amounts.POS;
+
+      document.getElementById('closeDayDateLabel').innerText = 'إغلاق يوم: ' + from;
+
+      const labels = { Cash: 'نقدي (Cash)', Wallet: 'محفظة (Wallet)', InstaPay: 'انستاباي (InstaPay)', POS: 'POS (فيزا)' };
+      const icons = { Cash: 'fa-money-bill-wave', Wallet: 'fa-wallet', InstaPay: 'fa-mobile-alt', POS: 'fa-credit-card' };
+      let rowsHtml = '';
+      Object.keys(amounts).forEach(m => {
+        rowsHtml += `<div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="display:flex; align-items:center; gap:8px; font-size:14px; color:#555;">
+            <i class="fas ${icons[m]}" style="color:var(--primary-green); width:16px;"></i>
+            ${labels[m]}
+          </span>
+          <strong style="font-size:15px; color:var(--primary-green);">${amounts[m].toFixed(2)} ج.م</strong>
+        </div>`;
+      });
+
+      document.getElementById('closeDaySummaryRows').innerHTML = rowsHtml;
+      document.getElementById('closeDayTotal').innerText = grand.toFixed(2) + ' ج.م';
+
+      // التحقق من نطاق التاريخ: اليوم أو أمس فقط بدون باسورد — زي حذف الفواتير
+      const today = new Date(); today.setHours(0,0,0,0);
+      const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+      const closingDay = new Date(from); closingDay.setHours(0,0,0,0);
+      const needsPassword = isNaN(closingDay.getTime()) || closingDay < yesterday;
+      pendingCloseDayNeedsPassword = needsPassword;
+
+      const passSection = document.getElementById('closeDayPasswordSection');
+      const passInput = document.getElementById('closeDayPasswordInput');
+      const passError = document.getElementById('closeDayPasswordError');
+      passSection.style.display = needsPassword ? '' : 'none';
+      passInput.value = '';
+      passError.style.display = 'none';
+
+      document.getElementById('closeDayError').style.display = 'none';
+      document.getElementById('confirmCloseDayBtn').disabled = false;
+      document.getElementById('confirmCloseDayBtn').innerHTML = '<i class="fas fa-lock"></i> تأكيد الإغلاق';
+      document.getElementById('closeDayOverlay').classList.add('active');
+      if (needsPassword) setTimeout(() => passInput.focus(), 100);
+    }
+
+    function closeCloseDayModal() {
+      pendingCloseDayNeedsPassword = false;
+      document.getElementById('closeDayOverlay').classList.remove('active');
+      document.getElementById('closeDayPasswordInput').value = '';
+      document.getElementById('closeDayPasswordError').style.display = 'none';
+    }
+
+    async function confirmCloseDay() {
+      if (!can('Balances', 'add')) return;
+      const from = document.getElementById('cashDateFrom').value;
+      const amounts = getCashAmounts();
+      const grand = amounts.Cash + amounts.Wallet + amounts.InstaPay + amounts.POS;
+      const currentUser = sessionStorage.getItem('yuni_user') || 'عام';
+
+      const btn = document.getElementById('confirmCloseDayBtn');
+      const errDiv = document.getElementById('closeDayError');
+      const passInput = document.getElementById('closeDayPasswordInput');
+      const passError = document.getElementById('closeDayPasswordError');
+
+      // لو محتاج باسورد، لازم يتدخل قبل الإرسال
+      const enteredPassword = pendingCloseDayNeedsPassword ? passInput.value.trim() : null;
+      if (pendingCloseDayNeedsPassword && !enteredPassword) {
+        passError.innerText = 'يرجى إدخال كلمة المرور.';
+        passError.style.display = '';
+        passInput.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+      errDiv.style.display = 'none';
+      passError.style.display = 'none';
+
+      try {
+        const payload = {
+          action: 'closeDay',
+          token: sessionStorage.getItem('yuni_token'),
+          date: from,
+          cash: amounts.Cash,
+          wallet: amounts.Wallet,
+          instaPay: amounts.InstaPay,
+          pos: amounts.POS,
+          total: grand,
+          user: currentUser
+        };
+        if (pendingCloseDayNeedsPassword) payload.overridePassword = enteredPassword;
+
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (result.status !== 'success') throw new Error(result.message);
+        closeCloseDayModal();
+        alert('✅ تم تسجيل إغلاق يوم ' + from + ' بنجاح!');
+      } catch (err) {
+        // لو الخطأ متعلق بالباسورد نوضحه في الحقل مش بـ alert
+        if (pendingCloseDayNeedsPassword && err.message && err.message.includes('كلمة المرور')) {
+          passError.innerText = err.message;
+          passError.style.display = '';
+          passInput.value = '';
+          passInput.focus();
+        } else {
+          errDiv.innerText = err.message || 'تعذر تسجيل الإغلاق';
+          errDiv.style.display = '';
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-lock"></i> تأكيد الإغلاق';
+      }
+    }
+
   </script>
 </body>
 </html>
