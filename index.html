@@ -333,6 +333,8 @@
   }
   @keyframes cashPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
   .cash-total-bar.is-loading .cash-total-value { opacity: 0.6; }
+  .cash-method-breakdown { font-size: 11px; color: #888; margin-top: 4px; line-height: 1.5; }
+  .cash-method-breakdown .exp-part { color: #C5221F; }
 
   button:disabled { opacity: .45; cursor: not-allowed; }
 
@@ -408,6 +410,9 @@
       </button>
       <button class="nav-btn" id="btnPageCollections" onclick="switchPage('pageCollections')">
         <i class="fas fa-hand-holding-usd"></i> تحصيلات
+      </button>
+      <button class="nav-btn" id="btnPageExpenses" onclick="switchPage('pageExpenses')">
+        <i class="fas fa-file-invoice-dollar"></i> المصروفات
       </button>
       <button class="nav-btn" id="btnPageData" onclick="switchPage('pageData')">
         <i class="fas fa-database"></i> استعراض البيانات
@@ -621,6 +626,134 @@
             <button type="button" class="reset-btn" onclick="clearCollectionForm()">تفريغ البيانات</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- الصفحة: المصروفات -->
+    <div id="pageExpenses" class="view-page">
+      <div class="card">
+        <div style="text-align: center; margin-bottom: 25px;">
+          <h2 style="color: var(--primary-green);">تسجيل مصروف جديد</h2>
+          <div style="font-size: 13px; color: var(--gold-accent); margin-top: 5px;">يُخصم تلقائياً من رصيد النقدية عند إغلاق اليوم</div>
+        </div>
+
+        <form id="expenseForm" class="form-grid">
+          <div class="form-group">
+            <label class="section-title" for="expenseDate">التاريخ</label>
+            <input type="date" id="expenseDate" required>
+          </div>
+          <div class="form-group">
+            <label class="section-title" for="expenseDesc">البيان</label>
+            <input type="text" id="expenseDesc" required placeholder="مثال: صيانة، مشتريات، مواصلات...">
+          </div>
+
+          <div class="form-group full-width">
+            <label class="section-title">المبلغ موزّع على طرق الدفع</label>
+            <div class="payment-grid">
+              <div class="payment-field">
+                <label>نقدي (Cash)</label>
+                <input type="number" id="expCash" class="expense-pay-part" min="0" placeholder="0" value="0" oninput="calculateExpenseTotal()">
+              </div>
+              <div class="payment-field">
+                <label>محفظة إلكترونية (Wallet)</label>
+                <input type="number" id="expWallet" class="expense-pay-part" min="0" placeholder="0" value="0" oninput="calculateExpenseTotal()">
+              </div>
+              <div class="payment-field">
+                <label>انستاباي (InstaPay)</label>
+                <input type="number" id="expInsta" class="expense-pay-part" min="0" placeholder="0" value="0" oninput="calculateExpenseTotal()">
+              </div>
+              <div class="payment-field">
+                <label>POS (فيزا / ماكينة)</label>
+                <input type="number" id="expPOS" class="expense-pay-part" min="0" placeholder="0" value="0" oninput="calculateExpenseTotal()">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <div class="summary-box">
+              <div class="summary-item">
+                <span class="title">إجمالي المصروف (كل الطرق)</span>
+                <span class="val" id="expenseTotalDisplay">0.00 ج.م</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="buttons-wrapper">
+            <button type="submit" id="expenseSubmitBtn" class="submit-btn">تسجيل المصروف</button>
+            <button type="button" class="reset-btn" onclick="clearExpenseForm()">تفريغ البيانات</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card" style="margin-top: 20px;">
+        <div class="table-header">
+          <div>
+            <h3><i class="fas fa-receipt"></i> سجل المصروفات</h3>
+            <p style="font-size: 12px; color: #666; margin-top: 4px;">انقر على رأس أي عمود لفتح التصفية والشروط الخاصة بنوع بياناته (نص، رقم، أو تاريخ)</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="button" class="btn-small" onclick="resetExpensesFilters()"><i class="fas fa-eraser"></i> مسح كافة الفلاتر</button>
+            <button type="button" class="btn-small" onclick="fetchExpensesData()"><i class="fas fa-sync-alt"></i> تحديث</button>
+            <span class="badge" id="expensesRecordCount">0 مصروف</span>
+          </div>
+        </div>
+
+        <div class="global-search-bar">
+          <i class="fas fa-search" style="color: var(--primary-green);"></i>
+          <input type="text" id="expensesGlobalSearch" placeholder="بحث عام سريع في كافة المصروفات..." oninput="applyExpensesFilters()">
+        </div>
+
+        <div class="cash-summary-grid" id="expMethodSummaryGrid" style="margin-bottom:18px;">
+          <div class="cash-method-card">
+            <div class="cash-method-icon"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="cash-method-label">نقدي (Cash)</div>
+            <div class="cash-method-amount" id="expSum_Cash">0.00</div>
+            <div class="cash-method-sub">ج.م</div>
+          </div>
+          <div class="cash-method-card">
+            <div class="cash-method-icon"><i class="fas fa-wallet"></i></div>
+            <div class="cash-method-label">محفظة (Wallet)</div>
+            <div class="cash-method-amount" id="expSum_Wallet">0.00</div>
+            <div class="cash-method-sub">ج.م</div>
+          </div>
+          <div class="cash-method-card">
+            <div class="cash-method-icon"><i class="fas fa-mobile-alt"></i></div>
+            <div class="cash-method-label">انستاباي (InstaPay)</div>
+            <div class="cash-method-amount" id="expSum_InstaPay">0.00</div>
+            <div class="cash-method-sub">ج.م</div>
+          </div>
+          <div class="cash-method-card">
+            <div class="cash-method-icon"><i class="fas fa-credit-card"></i></div>
+            <div class="cash-method-label">POS</div>
+            <div class="cash-method-amount" id="expSum_POS">0.00</div>
+            <div class="cash-method-sub">ج.م</div>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th><div class="th-content" onclick="openExpFilter('exp_num', event)"><span>#</span><i class="fas fa-filter filter-icon" id="icon_exp_num"></i></div></th>
+                <th><div class="th-content" onclick="openExpFilter('exp_date', event)"><span>التاريخ</span><i class="fas fa-filter filter-icon" id="icon_exp_date"></i></div></th>
+                <th><div class="th-content" onclick="openExpFilter('exp_statement', event)"><span>البيان</span><i class="fas fa-filter filter-icon" id="icon_exp_statement"></i></div></th>
+                <th><div class="th-content" onclick="openExpFilter('exp_method', event)"><span>طريقة الدفع</span><i class="fas fa-filter filter-icon" id="icon_exp_method"></i></div></th>
+                <th><div class="th-content" onclick="openExpFilter('exp_amount', event)"><span>المبلغ</span><i class="fas fa-filter filter-icon" id="icon_exp_amount"></i></div></th>
+                <th><div class="th-content" onclick="openExpFilter('exp_user', event)"><span>بواسطة</span><i class="fas fa-filter filter-icon" id="icon_exp_user"></i></div></th>
+              </tr>
+            </thead>
+            <tbody id="expensesTableBody">
+              <tr><td colspan="6" style="text-align:center; color:#999;">لا توجد بيانات بعد</td></tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4"><strong>الإجمالي</strong></td>
+                <td id="foot_exp_total"><strong>0.00</strong></td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -859,31 +992,38 @@
               <div class="cash-method-icon"><i class="fas fa-money-bill-wave"></i></div>
               <div class="cash-method-label">نقدي (Cash)</div>
               <div class="cash-method-amount" id="cashAmt_Cash">0.00</div>
-              <div class="cash-method-sub">ج.م</div>
+              <div class="cash-method-sub">ج.م (صافي بعد خصم المصروفات)</div>
+              <div class="cash-method-breakdown" id="cashBreak_Cash"></div>
             </div>
             <div class="cash-method-card">
               <div class="cash-method-icon"><i class="fas fa-wallet"></i></div>
               <div class="cash-method-label">محفظة إلكترونية (Wallet)</div>
               <div class="cash-method-amount" id="cashAmt_Wallet">0.00</div>
-              <div class="cash-method-sub">ج.م</div>
+              <div class="cash-method-sub">ج.م (صافي بعد خصم المصروفات)</div>
+              <div class="cash-method-breakdown" id="cashBreak_Wallet"></div>
             </div>
             <div class="cash-method-card">
               <div class="cash-method-icon"><i class="fas fa-mobile-alt"></i></div>
               <div class="cash-method-label">انستاباي (InstaPay)</div>
               <div class="cash-method-amount" id="cashAmt_InstaPay">0.00</div>
-              <div class="cash-method-sub">ج.م</div>
+              <div class="cash-method-sub">ج.م (صافي بعد خصم المصروفات)</div>
+              <div class="cash-method-breakdown" id="cashBreak_InstaPay"></div>
             </div>
             <div class="cash-method-card">
               <div class="cash-method-icon"><i class="fas fa-credit-card"></i></div>
               <div class="cash-method-label">POS (فيزا / ماكينة)</div>
               <div class="cash-method-amount" id="cashAmt_POS">0.00</div>
-              <div class="cash-method-sub">ج.م</div>
+              <div class="cash-method-sub">ج.م (صافي بعد خصم المصروفات)</div>
+              <div class="cash-method-breakdown" id="cashBreak_POS"></div>
             </div>
           </div>
 
           <!-- إجمالي -->
           <div class="cash-total-bar">
-            <span class="cash-total-label"><i class="fas fa-coins"></i> إجمالي المحصّل في الفترة</span>
+            <div style="display:flex; flex-direction:column; gap:2px;">
+              <span class="cash-total-label"><i class="fas fa-coins"></i> صافي المحصّل في الفترة (بعد خصم المصروفات)</span>
+              <span style="font-size:11px; opacity:0.85;" id="cashExpensesDeductedNote"></span>
+            </div>
             <span class="cash-total-value" id="cashGrandTotal">0.00 ج.م</span>
           </div>
 
@@ -919,6 +1059,13 @@
             <span>الإجمالي</span>
             <span id="closeDayTotal">0.00 ج.م</span>
           </div>
+        </div>
+
+        <!-- خانة الملاحظات -->
+        <div style="margin-bottom:16px; text-align:right;">
+          <label for="closeDayNotes" style="display:block; font-size:13px; font-weight:700; color:var(--primary-green); margin-bottom:6px;">ملاحظات (اختياري)</label>
+          <textarea id="closeDayNotes" rows="2" placeholder="أي ملاحظات عن إغلاق اليوم..."
+            style="width:100%; padding:11px 14px; border:1.5px solid var(--border-color); border-radius:10px; font-size:14px; outline:none; resize:vertical; font-family:inherit;"></textarea>
         </div>
 
         <!-- حقل الباسورد — يظهر فقط لو تاريخ الإغلاق أقدم من اليوم أو أمس -->
@@ -1069,6 +1216,7 @@
     let activeColumnFilters = {}; 
     let activeConditions = {}; // تخزين الشروط المتقدمة لكل عمود
     let currentOpenCol = null;
+    let activeFilterMode = 'sales'; // 'sales' | 'logs' | 'expenses' — يحدد أي دالة فلترة يستخدمها زرار الفرز في الـ popup المشترك
     let currentSortColumn = null;
     let currentSortDirection = 'asc';
 
@@ -1093,6 +1241,9 @@
         document.getElementById('btnPageAdd').classList.add('active');
       } else if (pageId === 'pageCollections') {
         document.getElementById('btnPageCollections').classList.add('active');
+      } else if (pageId === 'pageExpenses') {
+        document.getElementById('btnPageExpenses').classList.add('active');
+        fetchExpensesData();
       } else if (pageId === 'pageData') {
         document.getElementById('btnPageData').classList.add('active');
         fetchLogsFromSheet();
@@ -1315,7 +1466,7 @@
     }
 
     let authUser = null;
-    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances'};
+    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageExpenses:'Expenses', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances'};
     function can(tab, action) {
       const p = authUser && authUser.permissions[tab];
       return !!(p && p.view === true && p[action] === true);
@@ -1356,7 +1507,7 @@
       document.getElementById('mainHeader').style.display = 'flex';
       document.getElementById('currentUserDisplay').innerText = user.name;
       document.querySelectorAll('.view-page, .nav-btn').forEach(el => el.classList.remove('active'));
-      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances'};
+      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageExpenses:'btnPageExpenses',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances'};
       Object.keys(PAGE_TABS).forEach(page => {
         const btn = document.getElementById(buttons[page]);
         if (!btn) return;
@@ -1367,6 +1518,7 @@
       });
       document.getElementById('submitBtn').disabled = !can('Sales','add');
       document.getElementById('collectionSubmitBtn').disabled = !can('Collect','add');
+      document.getElementById('expenseSubmitBtn').disabled = !can('Expenses','add');
       document.querySelectorAll('#pageAdd .add-client-link-btn').forEach(el => el.disabled = !can('Sales','add'));
       document.querySelectorAll('#pageCollections .add-client-link-btn').forEach(el => el.disabled = !can('Collect','add'));
       const first = Object.keys(PAGE_TABS).find(page => can(PAGE_TABS[page],'view'));
@@ -1401,6 +1553,8 @@
       document.getElementById('entryDate').value = dateStr;
       const collectionDateEl = document.getElementById('collectionDate');
       if (collectionDateEl) collectionDateEl.value = dateStr;
+      const expenseDateEl = document.getElementById('expenseDate');
+      if (expenseDateEl) expenseDateEl.value = dateStr;
     }
 
     function populateStaffUI(data) {
@@ -1834,6 +1988,355 @@
       calculateCollectionTotal();
     }
 
+    // ============================================================
+    // صفحة المصروفات
+    // ============================================================
+    const expenseForm = document.getElementById('expenseForm');
+    const expenseSubmitBtn = document.getElementById('expenseSubmitBtn');
+    let expensesCache = [];
+
+    function calculateExpenseTotal() {
+      let total = 0;
+      document.querySelectorAll('.expense-pay-part').forEach(input => {
+        total += parseFloat(input.value) || 0;
+      });
+      document.getElementById('expenseTotalDisplay').innerText = total.toFixed(2) + ' ج.م';
+    }
+
+    function clearExpenseForm() {
+      expenseForm.reset();
+      const today = document.getElementById('expenseDate');
+      if (today) today.value = getTodayStr();
+      calculateExpenseTotal();
+    }
+
+    expenseForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (!can('Expenses', 'add')) return;
+
+      const expenseDate = document.getElementById('expenseDate').value;
+      const description = document.getElementById('expenseDesc').value.trim();
+      const currentUser = sessionStorage.getItem('yuni_user') || 'عام';
+
+      if (!expenseDate) { alert('يرجى تحديد التاريخ.'); return; }
+      if (!description) { alert('يرجى إدخال البيان.'); return; }
+
+      const cash = parseFloat(document.getElementById('expCash').value) || 0;
+      const wallet = parseFloat(document.getElementById('expWallet').value) || 0;
+      const insta = parseFloat(document.getElementById('expInsta').value) || 0;
+      const pos = parseFloat(document.getElementById('expPOS').value) || 0;
+      const total = cash + wallet + insta + pos;
+
+      if (total <= 0) { alert('يرجى إدخال مبلغ مصروف واحد على الأقل!'); return; }
+
+      const payload = {
+        action: 'addExpense',
+        token: sessionStorage.getItem('yuni_token'),
+        date: expenseDate,
+        description: description,
+        cash: cash,
+        wallet: wallet,
+        instaPay: insta,
+        pos: pos,
+        total: total,
+        user: currentUser
+      };
+
+      expenseSubmitBtn.disabled = true;
+      expenseSubmitBtn.innerText = 'جاري التسجيل...';
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        expenseSubmitBtn.disabled = false;
+        expenseSubmitBtn.innerText = 'تسجيل المصروف';
+        if (data.status === 'success') {
+          alert('✅ تم تسجيل المصروف بنجاح!');
+          clearExpenseForm();
+          fetchExpensesData();
+        } else {
+          alert('حدث خطأ أثناء تسجيل المصروف: ' + (data.message || 'خطأ غير معروف'));
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        expenseSubmitBtn.disabled = false;
+        expenseSubmitBtn.innerText = 'تسجيل المصروف';
+        alert('تعذر الاتصال بالسيرفر لتسجيل المصروف!');
+      });
+    });
+
+    async function fetchExpensesData() {
+      if (!can('Expenses', 'view')) return;
+      const tbody = document.getElementById('expensesTableBody');
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#999;"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr>';
+      try {
+        const response = await apiRead('Expenses');
+        const result = await response.json();
+        if (result.status !== 'success' || !result.data) throw new Error(result.message || 'تعذر تحميل المصروفات');
+        expensesCache = result.data;
+        expensesMasterData = result.data;
+        applyExpensesFilters();
+      } catch (e) {
+        console.error('Expenses load error', e);
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#C5221F;">تعذر تحميل بيانات المصروفات</td></tr>';
+        document.getElementById('expensesRecordCount').innerText = '0 مصروف';
+      }
+    }
+
+    // ============================================================
+    // فلترة جدول المصروفات (نفس نظام الفلترة في جدول المبيعات/السجلات)
+    // ============================================================
+    let expensesMasterData = [];
+    let expActiveFilters = {};
+    let expActiveConditions = {};
+    let expCurrentOpenCol = null;
+    let expCurrentSortCol = null;
+    let expCurrentSortDir = 'asc';
+
+    const expNumericCols = ['exp_num', 'exp_amount'];
+    const expDateCols = ['exp_date'];
+
+    function getExpMapped(row, idx) {
+      return {
+        exp_num: (row['Num'] !== undefined && row['Num'] !== '') ? row['Num'].toString() : idx.toString(),
+        exp_date: (row['Expense Date'] || '').toString(),
+        exp_statement: (row['Statement'] || '').toString(),
+        exp_method: (row['Payment Method'] || '').toString(),
+        exp_amount: parseFloat(row['Net Total'] || 0),
+        exp_user: (row['User'] || '').toString()
+      };
+    }
+
+    function applyExpensesFilters() {
+      const tbody = document.getElementById('expensesTableBody');
+      if (!expensesMasterData || expensesMasterData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#999;">لا توجد بيانات بعد</td></tr>';
+        document.getElementById('expensesRecordCount').innerText = '0 مصروف';
+        renderExpensesTable([]);
+        return;
+      }
+
+      const globalVal = document.getElementById('expensesGlobalSearch').value.toLowerCase().trim();
+
+      // الأحدث أولاً افتراضياً (نفس ترتيب سجل المبيعات)
+      let rows = expensesMasterData.slice().reverse().map((row, idx) => getExpMapped(row, expensesMasterData.length - idx));
+
+      if (globalVal) {
+        rows = rows.filter(item => Object.values(item).some(v => v.toString().toLowerCase().includes(globalVal)));
+      }
+
+      Object.keys(expActiveFilters).forEach(col => {
+        const f = expActiveFilters[col];
+        if (f) rows = rows.filter(item => f[item[col] !== undefined ? item[col].toString().trim() : ''] !== false);
+      });
+
+      Object.keys(expActiveConditions).forEach(col => {
+        const cond = expActiveConditions[col];
+        if (!cond || cond.op === 'none' || cond.val1 === '') return;
+        const isNum = expNumericCols.includes(col);
+        const isDate = expDateCols.includes(col);
+
+        rows = rows.filter(item => {
+          const itemVal = item[col];
+          if (isNum) {
+            const v = parseFloat(itemVal) || 0;
+            const v1 = parseFloat(cond.val1) || 0;
+            const v2 = parseFloat(cond.val2) || 0;
+            if (cond.op === 'equals') return v === v1;
+            if (cond.op === 'greater') return v > v1;
+            if (cond.op === 'less') return v < v1;
+            if (cond.op === 'between') return v >= v1 && v <= v2;
+          } else if (isDate) {
+            const vd = new Date(itemVal).setHours(0,0,0,0);
+            const v1d = new Date(cond.val1).setHours(0,0,0,0);
+            const v2d = cond.val2 ? new Date(cond.val2).setHours(0,0,0,0) : null;
+            if (isNaN(vd)) return false;
+            if (cond.op === 'equals') return vd === v1d;
+            if (cond.op === 'greater') return vd > v1d;
+            if (cond.op === 'less') return vd < v1d;
+            if (cond.op === 'between') return vd >= v1d && vd <= v2d;
+          } else {
+            const sv = (itemVal || '').toString().toLowerCase();
+            const tv = cond.val1.toLowerCase();
+            if (cond.op === 'contains') return sv.includes(tv);
+            if (cond.op === 'notContains') return !sv.includes(tv);
+            if (cond.op === 'startsWith') return sv.startsWith(tv);
+            if (cond.op === 'endsWith') return sv.endsWith(tv);
+            if (cond.op === 'equals') return sv === tv;
+          }
+          return true;
+        });
+      });
+
+      if (expCurrentSortCol) {
+        rows.sort((a, b) => {
+          let va = a[expCurrentSortCol], vb = b[expCurrentSortCol];
+          if (!isNaN(va) && !isNaN(vb) && va !== '' && vb !== '') {
+            va = parseFloat(va); vb = parseFloat(vb);
+          } else {
+            va = va.toString().toLowerCase(); vb = vb.toString().toLowerCase();
+          }
+          if (va < vb) return expCurrentSortDir === 'asc' ? -1 : 1;
+          if (va > vb) return expCurrentSortDir === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
+
+      renderExpensesTable(rows);
+    }
+
+    function renderExpensesTable(data) {
+      const tbody = document.getElementById('expensesTableBody');
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#999;">لا توجد نتائج مطابقة</td></tr>';
+      } else {
+        tbody.innerHTML = data.map(row => `<tr>
+            <td>${row.exp_num}</td>
+            <td>${row.exp_date}</td>
+            <td>${row.exp_statement}</td>
+            <td>${row.exp_method}</td>
+            <td><strong>${row.exp_amount.toFixed(2)}</strong></td>
+            <td>${row.exp_user}</td>
+          </tr>`).join('');
+      }
+
+      document.getElementById('expensesRecordCount').innerText = `${data.length} مصروف (من أصل ${expensesMasterData.length})`;
+
+      const sums = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+      let grandTotal = 0;
+      data.forEach(row => {
+        if (sums.hasOwnProperty(row.exp_method)) sums[row.exp_method] += row.exp_amount;
+        grandTotal += row.exp_amount;
+      });
+
+      document.getElementById('expSum_Cash').innerText = sums.Cash.toFixed(2);
+      document.getElementById('expSum_Wallet').innerText = sums.Wallet.toFixed(2);
+      document.getElementById('expSum_InstaPay').innerText = sums.InstaPay.toFixed(2);
+      document.getElementById('expSum_POS').innerText = sums.POS.toFixed(2);
+      document.getElementById('foot_exp_total').innerHTML = `<strong>${grandTotal.toFixed(2)}</strong>`;
+    }
+
+    function openExpFilter(colName, event) {
+      event.stopPropagation();
+      activeFilterMode = 'expenses';
+      expCurrentOpenCol = colName;
+
+      const labels = { exp_num: '#', exp_date: 'التاريخ', exp_statement: 'البيان', exp_method: 'طريقة الدفع', exp_amount: 'المبلغ', exp_user: 'بواسطة' };
+      document.getElementById('popupTitleText').innerText = `فلتر: ${labels[colName] || colName}`;
+
+      const condOperator = document.getElementById('condOperator');
+      condOperator.innerHTML = '<option value="none">-- بدون شرط متقدم --</option>';
+
+      let colType = 'text';
+      if (expNumericCols.includes(colName)) colType = 'number';
+      if (expDateCols.includes(colName)) colType = 'date';
+
+      if (colType === 'text') {
+        document.getElementById('condTitle').innerText = 'فلترة بشرط نصي:';
+        condOperator.innerHTML += `
+          <option value="contains">يحتوي على</option>
+          <option value="notContains">لا يحتوي على</option>
+          <option value="startsWith">يبدأ بـ</option>
+          <option value="endsWith">ينتهي بـ</option>
+          <option value="equals">يساوي تماماً</option>
+        `;
+      } else if (colType === 'number') {
+        document.getElementById('condTitle').innerText = 'فلترة بشرط رقمي:';
+        condOperator.innerHTML += `
+          <option value="equals">يساوي (=)</option>
+          <option value="greater">أكبر من (>)</option>
+          <option value="less">أصغر من (<)</option>
+          <option value="between">بين رقمين (Between)</option>
+        `;
+      } else {
+        document.getElementById('condTitle').innerText = 'فلترة بشرط التاريخ:';
+        condOperator.innerHTML += `
+          <option value="equals">في تاريخ</option>
+          <option value="greater">بعد تاريخ</option>
+          <option value="less">قبل تاريخ</option>
+          <option value="between">بين تاريخين</option>
+        `;
+      }
+
+      const existingCond = expActiveConditions[colName] || { op: 'none', val1: '', val2: '' };
+      condOperator.value = existingCond.op;
+      renderConditionInputs(colType, existingCond.val1, existingCond.val2);
+
+      let uniqueVals = new Set();
+      expensesMasterData.forEach((row, idx) => {
+        const mapped = getExpMapped(row, idx + 1);
+        uniqueVals.add((mapped[colName] !== undefined ? mapped[colName] : '').toString().trim());
+      });
+
+      const cbList = document.getElementById('popupCheckboxList');
+      cbList.innerHTML = '';
+      document.getElementById('popupSearchInput').value = '';
+      document.getElementById('popupSelectAllCB').checked = true;
+
+      if (!expActiveFilters[colName]) {
+        expActiveFilters[colName] = {};
+        uniqueVals.forEach(v => { expActiveFilters[colName][v] = true; });
+      }
+
+      Array.from(uniqueVals).sort().forEach(val => {
+        const isChecked = expActiveFilters[colName][val] !== false;
+        cbList.innerHTML += `
+          <label class="popup-cb-item">
+            <input type="checkbox" class="popup-val-cb" value="${val}" ${isChecked ? 'checked' : ''} onchange="updateSelectAllState()">
+            <span>${val === '' ? '(فارغ)' : val}</span>
+          </label>
+        `;
+      });
+
+      document.querySelector('.popup-btn-ok').onclick = function() { applyExpPopupFilter(); };
+      document.getElementById('filterModalOverlay').classList.add('active');
+    }
+
+    function applyExpPopupFilter() {
+      if (!expCurrentOpenCol) return;
+      if (!expActiveFilters[expCurrentOpenCol]) expActiveFilters[expCurrentOpenCol] = {};
+      document.querySelectorAll('.popup-val-cb').forEach(cb => {
+        expActiveFilters[expCurrentOpenCol][cb.value] = cb.checked;
+      });
+
+      const op = document.getElementById('condOperator').value;
+      const v1Elem = document.getElementById('condVal1');
+      const v2Elem = document.getElementById('condVal2');
+      const val1 = v1Elem ? v1Elem.value.trim() : '';
+      const val2 = v2Elem ? v2Elem.value.trim() : '';
+      expActiveConditions[expCurrentOpenCol] = { op, val1, val2 };
+
+      const icon = document.getElementById(`icon_${expCurrentOpenCol}`);
+      if (icon) {
+        const hasUnchecked = Object.values(expActiveFilters[expCurrentOpenCol]).includes(false);
+        const hasCondition = op !== 'none' && val1 !== '';
+        icon.style.color = (hasUnchecked || hasCondition) ? '#C5221F' : '';
+        icon.style.opacity = (hasUnchecked || hasCondition) ? '1' : '0.7';
+      }
+
+      expCurrentOpenCol = null;
+      document.querySelector('.popup-btn-ok').onclick = function() { applyPopupFilter(); };
+      closePopup();
+      applyExpensesFilters();
+    }
+
+    function resetExpensesFilters() {
+      document.getElementById('expensesGlobalSearch').value = '';
+      expActiveFilters = {};
+      expActiveConditions = {};
+      expCurrentSortCol = null;
+      expCurrentSortDir = 'asc';
+      document.querySelectorAll('[id^="icon_exp_"]').forEach(icon => {
+        icon.style.color = ''; icon.style.opacity = '0.7';
+      });
+      applyExpensesFilters();
+    }
+
     function fetchLogsFromSheet() {
       if (!can('Transactions','view')) return;
       if (!SCRIPT_URL) return;
@@ -1889,6 +2392,7 @@
 
     function openColumnFilter(colName, event) {
       event.stopPropagation();
+      activeFilterMode = 'sales';
       currentOpenCol = colName;
       document.getElementById('popupTitleText').innerText = `فلتر العمود: ${colName}`;
 
@@ -2007,10 +2511,22 @@
     }
 
     function popupSort(direction) {
-      currentSortColumn = currentOpenCol;
-      currentSortDirection = direction;
-      closePopup();
-      applyTableFilters();
+      if (activeFilterMode === 'logs') {
+        logsCurrentSortCol = logsCurrentOpenCol;
+        logsCurrentSortDir = direction;
+        closePopup();
+        applyLogsFilters();
+      } else if (activeFilterMode === 'expenses') {
+        expCurrentSortCol = expCurrentOpenCol;
+        expCurrentSortDir = direction;
+        closePopup();
+        applyExpensesFilters();
+      } else {
+        currentSortColumn = currentOpenCol;
+        currentSortDirection = direction;
+        closePopup();
+        applyTableFilters();
+      }
     }
 
     function closePopup() {
@@ -2455,6 +2971,7 @@
 
     function openLogsFilter(colName, event) {
       event.stopPropagation();
+      activeFilterMode = 'logs';
       logsCurrentOpenCol = colName;
       currentOpenCol = '__logs__' + colName;
 
@@ -2769,9 +3286,10 @@
     // ============================================================
     let cashPeriodMode = 'day'; // 'day' or 'range'
     let cashSalesCache = null;
+    let cashExpensesCache = null;
     let cashSelectedUsers = []; // فارغة = كل الموظفين
     let cashAllUsersList = [];
-    let cashFullTotals = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 }; // الإجمالي الفعلي لكل الموظفين — يُستخدم دائماً في الإغلاق
+    let cashFullTotals = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 }; // الصافي الفعلي (مبيعات - مصروفات) لكل الموظفين — يُستخدم دائماً في الإغلاق
 
     function switchBalTab(tab) {
       document.querySelectorAll('.bal-tab-btn').forEach(b => b.classList.remove('active'));
@@ -2814,19 +3332,28 @@
       dd.style.display = (dd.style.display === 'none') ? '' : 'none';
     }
 
-    function getUsersInRangeFromData(salesData, fromD, toD) {
+    function getUsersInRangeFromDataset(dataset, fromD, toD, dateFields, userFields) {
       const set = new Set();
-      salesData.forEach(row => {
-        const trxDateStr = (row['Trx Date'] || row['تاريخ الفاتورة'] || '').toString().trim();
-        if (!trxDateStr) return;
-        const trxDate = new Date(trxDateStr);
-        if (isNaN(trxDate)) return;
-        trxDate.setHours(12,0,0,0);
-        if (trxDate < fromD || trxDate > toD) return;
-        const u = (row['User'] || row['المستخدم'] || '').toString().trim();
+      (dataset || []).forEach(row => {
+        let dateStr = '';
+        for (const f of dateFields) { if (row[f]) { dateStr = row[f].toString().trim(); break; } }
+        if (!dateStr) return;
+        const d = new Date(dateStr);
+        if (isNaN(d)) return;
+        d.setHours(12,0,0,0);
+        if (d < fromD || d > toD) return;
+        let u = '';
+        for (const f of userFields) { if (row[f]) { u = row[f].toString().trim(); break; } }
         if (u) set.add(u);
       });
-      return Array.from(set).sort((a,b) => a.localeCompare(b, 'ar'));
+      return set;
+    }
+
+    function getUsersInRangeFromData(salesData, expensesData, fromD, toD) {
+      const salesSet = getUsersInRangeFromDataset(salesData, fromD, toD, ['Trx Date','تاريخ الفاتورة'], ['User','المستخدم']);
+      const expSet = getUsersInRangeFromDataset(expensesData, fromD, toD, ['Expense Date'], ['User']);
+      const merged = new Set([...salesSet, ...expSet]);
+      return Array.from(merged).sort((a,b) => a.localeCompare(b, 'ar'));
     }
 
     function renderCashUserFilterList(users) {
@@ -2886,7 +3413,7 @@
       let to = cashPeriodMode === 'day' ? from : document.getElementById('cashDateTo').value;
       if (!from) return;
       if (!to) to = from;
-      computeCashSummary(cashSalesCache, from, to);
+      computeCashSummary(cashSalesCache, cashExpensesCache || [], from, to);
     }
 
     function setCashPeriod(mode) {
@@ -2938,11 +3465,23 @@
       closeBtn.disabled = true;
 
       try {
-        const response = await apiRead('Sales');
-        const result = await response.json();
-        if (result.status !== 'success' || !result.data) throw new Error(result.message || 'تعذر تحميل بيانات النقدية');
-        cashSalesCache = result.data;
-        computeCashSummary(result.data, from, to);
+        const canSeeExpenses = can('Expenses', 'view');
+        const [salesResponse, expensesResponse] = await Promise.all([
+          apiRead('Sales'),
+          canSeeExpenses ? apiRead('Expenses') : Promise.resolve(null)
+        ]);
+        const salesResult = await salesResponse.json();
+        if (salesResult.status !== 'success' || !salesResult.data) throw new Error(salesResult.message || 'تعذر تحميل بيانات النقدية');
+
+        let expensesData = [];
+        if (canSeeExpenses && expensesResponse) {
+          const expensesResult = await expensesResponse.json();
+          if (expensesResult.status === 'success' && expensesResult.data) expensesData = expensesResult.data;
+        }
+
+        cashSalesCache = salesResult.data;
+        cashExpensesCache = expensesData;
+        computeCashSummary(salesResult.data, expensesData, from, to);
       } catch(e) {
         console.error('Cash load error', e);
         alert('❌ تعذر تحميل بيانات النقدية، برجاء المحاولة مرة أخرى.');
@@ -2956,9 +3495,11 @@
       }
     }
 
-    function computeCashSummary(salesData, fromDate, toDate) {
-      const fullMethods = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
-      const displayMethods = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+    function computeCashSummary(salesData, expensesData, fromDate, toDate) {
+      const fullSales = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+      const fullExpenses = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+      const displaySales = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+      const displayExpenses = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
       const hasFilter = cashSelectedUsers.length > 0;
 
       const from = new Date(fromDate); from.setHours(0,0,0,0);
@@ -2977,38 +3518,83 @@
         const paid = parseFloat(row['Paid'] || row['المدفوع'] || 0);
 
         if (paid === 0) return;
+        if (!fullSales.hasOwnProperty(method)) return;
 
         // الإجمالي الفعلي لكل الموظفين — يُستخدم دائماً عند الإغلاق بغض النظر عن الفلتر
-        if (method === 'Cash') fullMethods.Cash += paid;
-        else if (method === 'Wallet') fullMethods.Wallet += paid;
-        else if (method === 'InstaPay') fullMethods.InstaPay += paid;
-        else if (method === 'POS') fullMethods.POS += paid;
+        fullSales[method] += paid;
 
         // الإجمالي المعروض في البطاقات — يتأثر بفلتر الموظف لأغراض المراجعة فقط
         const rowUser = (row['User'] || row['المستخدم'] || '').toString().trim();
         if (!hasFilter || cashSelectedUsers.includes(rowUser)) {
-          if (method === 'Cash') displayMethods.Cash += paid;
-          else if (method === 'Wallet') displayMethods.Wallet += paid;
-          else if (method === 'InstaPay') displayMethods.InstaPay += paid;
-          else if (method === 'POS') displayMethods.POS += paid;
+          displaySales[method] += paid;
         }
       });
 
-      cashFullTotals = fullMethods;
+      (expensesData || []).forEach(row => {
+        const expDateStr = (row['Expense Date'] || '').toString().trim();
+        if (!expDateStr) return;
+        const expDate = new Date(expDateStr);
+        if (isNaN(expDate)) return;
+        expDate.setHours(12,0,0,0);
 
-      document.getElementById('cashAmt_Cash').innerText = displayMethods.Cash.toFixed(2);
-      document.getElementById('cashAmt_Wallet').innerText = displayMethods.Wallet.toFixed(2);
-      document.getElementById('cashAmt_InstaPay').innerText = displayMethods.InstaPay.toFixed(2);
-      document.getElementById('cashAmt_POS').innerText = displayMethods.POS.toFixed(2);
+        if (expDate < from || expDate > to) return;
 
-      const grand = displayMethods.Cash + displayMethods.Wallet + displayMethods.InstaPay + displayMethods.POS;
+        const method = (row['Payment Method'] || '').toString().trim();
+        const amount = parseFloat(row['Net Total'] || 0);
+
+        if (amount === 0) return;
+        if (!fullExpenses.hasOwnProperty(method)) return;
+
+        // المصروفات الفعلية لكل الموظفين — تُخصم دائماً من إجمالي الإغلاق
+        fullExpenses[method] += amount;
+
+        // المصروفات المعروضة حسب فلتر الموظف — لأغراض المراجعة فقط
+        const rowUser = (row['User'] || '').toString().trim();
+        if (!hasFilter || cashSelectedUsers.includes(rowUser)) {
+          displayExpenses[method] += amount;
+        }
+      });
+
+      // الصافي الفعلي (مبيعات - مصروفات) لكل الموظفين — يُستخدم دائماً عند الإغلاق
+      cashFullTotals = {
+        Cash: fullSales.Cash - fullExpenses.Cash,
+        Wallet: fullSales.Wallet - fullExpenses.Wallet,
+        InstaPay: fullSales.InstaPay - fullExpenses.InstaPay,
+        POS: fullSales.POS - fullExpenses.POS,
+      };
+
+      // الصافي المعروض في البطاقات حسب فلتر الموظف
+      const displayNet = {
+        Cash: displaySales.Cash - displayExpenses.Cash,
+        Wallet: displaySales.Wallet - displayExpenses.Wallet,
+        InstaPay: displaySales.InstaPay - displayExpenses.InstaPay,
+        POS: displaySales.POS - displayExpenses.POS,
+      };
+
+      ['Cash', 'Wallet', 'InstaPay', 'POS'].forEach(m => {
+        document.getElementById('cashAmt_' + m).innerText = displayNet[m].toFixed(2);
+        const breakEl = document.getElementById('cashBreak_' + m);
+        if (breakEl) {
+          breakEl.innerHTML = displayExpenses[m] > 0
+            ? `مبيعات ${displaySales[m].toFixed(2)} <span class="exp-part">− مصروفات ${displayExpenses[m].toFixed(2)}</span>`
+            : '';
+        }
+      });
+
+      const grand = displayNet.Cash + displayNet.Wallet + displayNet.InstaPay + displayNet.POS;
       document.getElementById('cashGrandTotal').innerText = grand.toFixed(2) + ' ج.م';
+
+      const totalExpDisplay = displayExpenses.Cash + displayExpenses.Wallet + displayExpenses.InstaPay + displayExpenses.POS;
+      const expNoteEl = document.getElementById('cashExpensesDeductedNote');
+      if (expNoteEl) {
+        expNoteEl.innerText = totalExpDisplay > 0 ? ('تم خصم مصروفات بإجمالي ' + totalExpDisplay.toFixed(2) + ' ج.م') : '';
+      }
 
       const noteEl = document.getElementById('cashFilterNote');
       if (noteEl) noteEl.classList.toggle('show', hasFilter);
 
-      // تحديث قائمة الموظفين المتاحين للفلتر بناءً على بيانات الفترة الحالية
-      renderCashUserFilterList(getUsersInRangeFromData(salesData, from, to));
+      // تحديث قائمة الموظفين المتاحين للفلتر بناءً على بيانات الفترة الحالية (مبيعات + مصروفات)
+      renderCashUserFilterList(getUsersInRangeFromData(salesData, expensesData || [], from, to));
     }
 
     function getCashAmounts() {
@@ -3049,6 +3635,7 @@
 
       document.getElementById('closeDaySummaryRows').innerHTML = rowsHtml;
       document.getElementById('closeDayTotal').innerText = grand.toFixed(2) + ' ج.م';
+      document.getElementById('closeDayNotes').value = '';
 
       // التحقق من نطاق التاريخ: اليوم أو أمس فقط بدون باسورد — زي حذف الفواتير
       const today = new Date(); today.setHours(0,0,0,0);
@@ -3076,6 +3663,7 @@
       document.getElementById('closeDayOverlay').classList.remove('active');
       document.getElementById('closeDayPasswordInput').value = '';
       document.getElementById('closeDayPasswordError').style.display = 'none';
+      document.getElementById('closeDayNotes').value = '';
     }
 
     async function confirmCloseDay() {
@@ -3089,6 +3677,7 @@
       const errDiv = document.getElementById('closeDayError');
       const passInput = document.getElementById('closeDayPasswordInput');
       const passError = document.getElementById('closeDayPasswordError');
+      const notes = document.getElementById('closeDayNotes').value.trim();
 
       // لو محتاج باسورد، لازم يتدخل قبل الإرسال
       const enteredPassword = pendingCloseDayNeedsPassword ? passInput.value.trim() : null;
@@ -3114,7 +3703,8 @@
           instaPay: amounts.InstaPay,
           pos: amounts.POS,
           total: grand,
-          user: currentUser
+          user: currentUser,
+          notes: notes
         };
         if (pendingCloseDayNeedsPassword) payload.overridePassword = enteredPassword;
 
