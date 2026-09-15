@@ -1194,6 +1194,30 @@
     </div>
   </div>
 
+  <!-- Modal كلمة المرور الخاصة للتسجيل بتاريخ قديم -->
+  <div id="masterPassOverlay" class="modal-overlay-generic" style="z-index: 20001;">
+    <div class="modal-card-generic" style="max-width:420px;">
+      <h3 style="color:#C5221F;"><i class="fas fa-lock" style="color:#C5221F;"></i> تاريخ خارج النطاق المسموح</h3>
+      <p style="font-size:13px; color:#666; text-align:center; margin-bottom:18px;">
+        لا يمكن التسجيل بتاريخ أقدم من أمس إلا بكلمة المرور الخاصة (Master Password).
+      </p>
+      <div class="modal-fields">
+        <div class="form-group">
+          <label class="section-title" for="masterPassInput">كلمة المرور الخاصة</label>
+          <input type="password" id="masterPassInput" placeholder="أدخل Master Password..."
+            onkeydown="if(event.key==='Enter') confirmMasterPass()">
+        </div>
+        <div id="masterPassError" style="color:#C5221F; font-size:13px; display:none;"></div>
+        <div class="modal-actions-row">
+          <button type="button" class="submit-btn" style="flex:2; background:#C5221F;" onclick="confirmMasterPass()">
+            <i class="fas fa-unlock"></i> متابعة التسجيل
+          </button>
+          <button type="button" class="reset-btn" style="flex:1;" onclick="closeMasterPassModal()">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <span>تطوير وبرمجة: <strong>أحمد ياسر دياب</strong></span>
     <a href="https://wa.me/201091936251" target="_blank" class="whatsapp-btn">
@@ -1203,6 +1227,52 @@
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzC2mn9eMXysDx9z1jHKr3ZwIcmmGS4RhTihFs4TE1pt6_x5kzvQA7oixtIGAe2gr60/exec";
+
+    // ============================================================
+    // التحقق من نطاق التاريخ: اليوم أو أمس فقط بدون Master Password
+    // ============================================================
+    function isDateAllowed(dateStr) {
+      if (!dateStr) return true;
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return true;
+      d.setHours(0,0,0,0);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+      return d >= yesterday && d <= today;
+    }
+
+    let _masterPassCallback = null;
+
+    function openMasterPasswordModal(callback) {
+      _masterPassCallback = callback;
+      document.getElementById('masterPassInput').value = '';
+      document.getElementById('masterPassError').style.display = 'none';
+      document.getElementById('masterPassOverlay').classList.add('active');
+      setTimeout(() => document.getElementById('masterPassInput').focus(), 100);
+    }
+
+    function closeMasterPassModal() {
+      _masterPassCallback = null;
+      document.getElementById('masterPassOverlay').classList.remove('active');
+      document.getElementById('masterPassInput').value = '';
+      document.getElementById('masterPassError').style.display = 'none';
+    }
+
+    function confirmMasterPass() {
+      const pass = document.getElementById('masterPassInput').value.trim();
+      const errEl = document.getElementById('masterPassError');
+      if (!pass) {
+        errEl.innerText = 'يرجى إدخال كلمة المرور.';
+        errEl.style.display = '';
+        return;
+      }
+      const cb = _masterPassCallback;
+      document.getElementById('masterPassOverlay').classList.remove('active');
+      document.getElementById('masterPassInput').value = '';
+      errEl.style.display = 'none';
+      _masterPassCallback = null;
+      if (cb) cb(pass);
+    }
 
     const form = document.getElementById('clinicForm');
     const tableBody = document.getElementById('tableBody');
@@ -1861,22 +1931,38 @@
         }
       };
 
+      // التحقق من التاريخ على مستوى الـ Frontend قبل الإرسال
+      const saleDateOk = isDateAllowed(entryDate);
+      if (!saleDateOk) {
+        openMasterPasswordModal(function(masterPass) {
+          doSubmitSale(payload, masterPass);
+        });
+        return;
+      }
+      doSubmitSale(payload, null);
+    });
+
+    function doSubmitSale(payload, overridePassword) {
+      const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
       submitBtn.innerText = "جاري الحفظ والتسجيل...";
+      const body = {...payload, token: sessionStorage.getItem('yuni_token'), action: 'saveSale'};
+      if (overridePassword) body.overridePassword = overridePassword;
 
       fetch(SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({...payload, token: sessionStorage.getItem('yuni_token'), action: 'saveSale'})
+        body: JSON.stringify(body)
       })
       .then(res => res.json())
       .then(data => {
         submitBtn.disabled = false;
         submitBtn.innerText = "تسجيل وحفظ العملية";
-
         if (data.status === "success") {
           alert("تم حفظ العملية بنجاح!");
           clearAllForm();
+        } else if (data.needsPassword) {
+          openMasterPasswordModal(function(masterPass) { doSubmitSale(payload, masterPass); });
         } else {
           alert("حدث خطأ أثناء الحفظ: " + (data.message || "خطأ غير معروف"));
         }
@@ -1887,7 +1973,7 @@
         submitBtn.innerText = "تسجيل وحفظ العملية";
         alert("تعذر الاتصال بالسيرفر لحفظ العملية!");
       });
-    });
+    }
 
     const collectionForm = document.getElementById('collectionForm');
     const collectionSubmitBtn = document.getElementById('collectionSubmitBtn');
@@ -1943,22 +2029,37 @@
         }
       };
 
+      const collectDateOk = isDateAllowed(collectionDate);
+      if (!collectDateOk) {
+        openMasterPasswordModal(function(masterPass) {
+          doSubmitCollection(payload, masterPass);
+        });
+        return;
+      }
+      doSubmitCollection(payload, null);
+    });
+
+    function doSubmitCollection(payload, overridePassword) {
+      const collectionSubmitBtn = document.getElementById('collectionSubmitBtn');
       collectionSubmitBtn.disabled = true;
       collectionSubmitBtn.innerText = "جاري تسجيل التحصيل...";
+      const body = {...payload, token: sessionStorage.getItem('yuni_token'), action: 'saveCollection'};
+      if (overridePassword) body.overridePassword = overridePassword;
 
       fetch(SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({...payload, token: sessionStorage.getItem('yuni_token'), action: 'saveCollection'})
+        body: JSON.stringify(body)
       })
       .then(res => res.json())
       .then(data => {
         collectionSubmitBtn.disabled = false;
         collectionSubmitBtn.innerText = "تسجيل التحصيل";
-
         if (data.status === "success") {
           alert("تم تسجيل التحصيل بنجاح!");
           clearCollectionForm();
+        } else if (data.needsPassword) {
+          openMasterPasswordModal(function(masterPass) { doSubmitCollection(payload, masterPass); });
         } else {
           alert("حدث خطأ أثناء تسجيل التحصيل: " + (data.message || "خطأ غير معروف"));
         }
@@ -1969,7 +2070,7 @@
         collectionSubmitBtn.innerText = "تسجيل التحصيل";
         alert("تعذر الاتصال بالسيرفر لتسجيل التحصيل!");
       });
-    });
+    }
 
     function calculateCollectionTotal() {
       let total = 0;
@@ -2042,6 +2143,18 @@
         user: currentUser
       };
 
+      const expDateOk = isDateAllowed(expenseDate);
+      if (!expDateOk) {
+        openMasterPasswordModal(function(masterPass) {
+          doSubmitExpense({...payload, overridePassword: masterPass});
+        });
+        return;
+      }
+      doSubmitExpense(payload);
+    });
+
+    function doSubmitExpense(payload) {
+      const expenseSubmitBtn = document.getElementById('expenseSubmitBtn');
       expenseSubmitBtn.disabled = true;
       expenseSubmitBtn.innerText = 'جاري التسجيل...';
 
@@ -2058,6 +2171,10 @@
           alert('✅ تم تسجيل المصروف بنجاح!');
           clearExpenseForm();
           fetchExpensesData();
+        } else if (data.needsPassword) {
+          openMasterPasswordModal(function(masterPass) {
+            doSubmitExpense({...payload, overridePassword: masterPass});
+          });
         } else {
           alert('حدث خطأ أثناء تسجيل المصروف: ' + (data.message || 'خطأ غير معروف'));
         }
@@ -2068,7 +2185,7 @@
         expenseSubmitBtn.innerText = 'تسجيل المصروف';
         alert('تعذر الاتصال بالسيرفر لتسجيل المصروف!');
       });
-    });
+    }
 
     async function fetchExpensesData() {
       if (!can('Expenses', 'view')) return;
