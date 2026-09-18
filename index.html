@@ -621,6 +621,27 @@
             <input type="text" id="collectionNotes" placeholder="أي تفاصيل إضافية عن التحصيل">
           </div>
 
+          <div class="form-group full-width">
+            <label class="section-title">نوع العملية</label>
+            <div style="display: flex; gap: 16px; align-items: center; background: #FAF8F5; border: 1.5px solid var(--border-color); border-radius: 10px; padding: 14px 18px; flex-wrap: wrap;">
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 15px; font-weight: 700; color: var(--primary-green);">
+                <input type="radio" name="collectionType" id="collectionTypeCollect" value="تحصيل" checked
+                       style="width: 18px; height: 18px; accent-color: var(--primary-green); cursor: pointer;">
+                <i class="fas fa-hand-holding-usd" style="color: var(--primary-green);"></i>
+                تحصيل
+              </label>
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 15px; font-weight: 700; color: var(--gold-accent);">
+                <input type="radio" name="collectionType" id="collectionTypeBooking" value="حجز"
+                       style="width: 18px; height: 18px; accent-color: var(--gold-accent); cursor: pointer;">
+                <i class="fas fa-calendar-check" style="color: var(--gold-accent);"></i>
+                حجز
+              </label>
+              <span id="collectionTypeBadge" style="margin-right: auto; font-size: 12px; background: var(--light-green); color: var(--primary-green); padding: 4px 12px; border-radius: 20px; font-weight: 700;">
+                سيُسجَّل كـ: Payment تحصيل
+              </span>
+            </div>
+          </div>
+
           <div class="buttons-wrapper">
             <button type="submit" id="collectionSubmitBtn" class="submit-btn">تسجيل التحصيل</button>
             <button type="button" class="reset-btn" onclick="clearCollectionForm()">تفريغ البيانات</button>
@@ -1978,6 +1999,26 @@
     const collectionForm = document.getElementById('collectionForm');
     const collectionSubmitBtn = document.getElementById('collectionSubmitBtn');
 
+    // تحديث Badge ونص الزرار عند تغيير نوع العملية
+    document.querySelectorAll('input[name="collectionType"]').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        const selectedType = document.querySelector('input[name="collectionType"]:checked').value;
+        const badge = document.getElementById('collectionTypeBadge');
+        const submitBtn = document.getElementById('collectionSubmitBtn');
+        if (selectedType === 'حجز') {
+          badge.style.background = '#FDF5E6';
+          badge.style.color = 'var(--gold-accent)';
+          badge.innerText = 'سيُسجَّل كـ: Payment حجز';
+          submitBtn.innerText = 'تسجيل الحجز';
+        } else {
+          badge.style.background = 'var(--light-green)';
+          badge.style.color = 'var(--primary-green)';
+          badge.innerText = 'سيُسجَّل كـ: Payment تحصيل';
+          submitBtn.innerText = 'تسجيل التحصيل';
+        }
+      });
+    });
+
     collectionForm.addEventListener('submit', function(e) {
       e.preventDefault();
       if (!can('Collect', 'add')) return;
@@ -1985,6 +2026,7 @@
       const clientName = document.getElementById('collectionsClientNameHidden').value.trim();
       const collectionDate = document.getElementById('collectionDate').value;
       const currentUser = sessionStorage.getItem('yuni_user') || 'عام';
+      const selectedCollectionType = document.querySelector('input[name="collectionType"]:checked').value;
 
       if (!clientName) {
         alert('يرجى اختيار العميلة من القائمة، أو إضافتها كعميلة جديدة أولاً.');
@@ -2025,7 +2067,7 @@
           netTotal: 0,
           credit: -totalCollected,
           user: currentUser,
-          paymentLabel: "Payment Collect"
+          paymentLabel: "Payment " + selectedCollectionType
         }
       };
 
@@ -2041,8 +2083,9 @@
 
     function doSubmitCollection(payload, overridePassword) {
       const collectionSubmitBtn = document.getElementById('collectionSubmitBtn');
+      const opType = (payload.data && payload.data.paymentLabel) ? payload.data.paymentLabel.replace('Payment ', '') : 'التحصيل';
       collectionSubmitBtn.disabled = true;
-      collectionSubmitBtn.innerText = "جاري تسجيل التحصيل...";
+      collectionSubmitBtn.innerText = "جاري تسجيل " + opType + "...";
       const body = {...payload, token: sessionStorage.getItem('yuni_token'), action: 'saveCollection'};
       if (overridePassword) body.overridePassword = overridePassword;
 
@@ -2053,22 +2096,24 @@
       })
       .then(res => res.json())
       .then(data => {
+        const selectedType = document.querySelector('input[name="collectionType"]:checked') ? document.querySelector('input[name="collectionType"]:checked').value : opType;
         collectionSubmitBtn.disabled = false;
-        collectionSubmitBtn.innerText = "تسجيل التحصيل";
+        collectionSubmitBtn.innerText = "تسجيل " + selectedType;
         if (data.status === "success") {
-          alert("تم تسجيل التحصيل بنجاح!");
+          alert("✅ تم تسجيل " + opType + " بنجاح!");
           clearCollectionForm();
         } else if (data.needsPassword) {
           openMasterPasswordModal(function(masterPass) { doSubmitCollection(payload, masterPass); });
         } else {
-          alert("حدث خطأ أثناء تسجيل التحصيل: " + (data.message || "خطأ غير معروف"));
+          alert("حدث خطأ أثناء تسجيل " + opType + ": " + (data.message || "خطأ غير معروف"));
         }
       })
       .catch(err => {
         console.error(err);
+        const selectedType2 = document.querySelector('input[name="collectionType"]:checked') ? document.querySelector('input[name="collectionType"]:checked').value : opType;
         collectionSubmitBtn.disabled = false;
-        collectionSubmitBtn.innerText = "تسجيل التحصيل";
-        alert("تعذر الاتصال بالسيرفر لتسجيل التحصيل!");
+        collectionSubmitBtn.innerText = "تسجيل " + selectedType2;
+        alert("تعذر الاتصال بالسيرفر لتسجيل " + opType + "!");
       });
     }
 
@@ -2085,6 +2130,13 @@
       document.getElementById('collectionsClientIdHidden').value = '';
       document.getElementById('collectionsClientNameHidden').value = '';
       document.getElementById('collectionsClientDropdown').classList.remove('active');
+      // إعادة تعيين نوع العملية إلى "تحصيل"
+      const defaultRadio = document.getElementById('collectionTypeCollect');
+      if (defaultRadio) defaultRadio.checked = true;
+      const badge = document.getElementById('collectionTypeBadge');
+      if (badge) { badge.style.background = 'var(--light-green)'; badge.style.color = 'var(--primary-green)'; badge.innerText = 'سيُسجَّل كـ: Payment تحصيل'; }
+      const submitBtn = document.getElementById('collectionSubmitBtn');
+      if (submitBtn) submitBtn.innerText = 'تسجيل التحصيل';
       setTodayAsDefaultDate();
       calculateCollectionTotal();
     }
