@@ -444,7 +444,10 @@
         <form id="clinicForm" class="form-grid">
           <div class="form-group client-search-wrapper" id="clientSearchWrapper">
             <div class="form-group-label-row">
-              <label class="section-title" for="clientSearchInput">اسم العميلة</label>
+              <label class="section-title" for="clientSearchInput">
+                اسم العميلة
+                <span id="saleClientBalanceBadge" style="display:none; margin-right:10px; font-size:12px; font-weight:700; padding:3px 10px; border-radius:12px; vertical-align:middle;"></span>
+              </label>
               <button type="button" class="add-client-link-btn" onclick="openAddClientModal()"><i class="fas fa-user-plus"></i> عميلة جديدة</button>
             </div>
             <input type="text" id="clientSearchInput" autocomplete="off" required
@@ -1443,6 +1446,12 @@
       document.getElementById(ids.idHidden).value = '';
       document.getElementById(ids.nameHidden).value = '';
 
+      // إخفاء badge الرصيد عند الكتابة اليدوية في فاتورة المبيعات
+      if (target === 'sale') {
+        const balBadge = document.getElementById('saleClientBalanceBadge');
+        if (balBadge) balBadge.style.display = 'none';
+      }
+
       dropdown.innerHTML = '';
 
       if (!query) {
@@ -1489,6 +1498,79 @@
       document.getElementById(ids.idHidden).value = id;
       document.getElementById(ids.nameHidden).value = name;
       document.getElementById(ids.dropdown).classList.remove('active');
+
+      // عرض رصيد العميلة في صفحة الفواتير فقط
+      if (target === 'sale') {
+        showSaleClientBalance(name);
+      }
+    }
+
+    function showSaleClientBalance(clientName) {
+      const badge = document.getElementById('saleClientBalanceBadge');
+      if (!badge) return;
+
+      if (!clientName) {
+        badge.style.display = 'none';
+        return;
+      }
+
+      // حساب الرصيد من salesMasterData لو موجودة
+      if (salesMasterData && salesMasterData.length > 0) {
+        const balance = calcClientBalance(clientName);
+        renderSaleClientBadge(badge, balance);
+      } else {
+        // لو البيانات لسه ما اتحملتش — نظهر loading صغير ونحمل
+        badge.style.display = 'inline-block';
+        badge.style.background = '#F1EFEA';
+        badge.style.color = '#888';
+        badge.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:10px;"></i> جاري حساب الرصيد...';
+
+        apiRead('Sales').then(r => r.json()).then(res => {
+          if (res.status === 'success' && res.data) {
+            salesMasterData = res.data;
+          }
+          const balance = calcClientBalance(clientName);
+          // تأكد إن العميلة اللي اتحملت بيانات لها هي نفس اللي محددة دلوقتي
+          const currentName = document.getElementById('clientNameHidden') ? document.getElementById('clientNameHidden').value.trim() : '';
+          if (currentName === clientName) renderSaleClientBadge(badge, balance);
+        }).catch(() => {
+          badge.style.display = 'none';
+        });
+      }
+    }
+
+    function calcClientBalance(clientName) {
+      let totalSales = 0, totalPaid = 0;
+      (salesMasterData || []).forEach(row => {
+        const name = (row['Client'] || row['اسم العميلة'] || '').toString().trim();
+        if (name !== clientName) return;
+        totalSales += parseFloat(row['Net Total'] || row['صافي الفاتورة'] || 0);
+        totalPaid  += parseFloat(row['Paid']      || row['المدفوع']       || 0);
+      });
+      return totalSales - totalPaid; // موجب = عليها / سالب = رصيد لصالحها
+    }
+
+    function renderSaleClientBadge(badge, balance) {
+      badge.style.display = 'inline-block';
+      if (balance > 0) {
+        // عليها رصيد آجل
+        badge.style.background = '#FDECEC';
+        badge.style.color = '#C5221F';
+        badge.style.border = '1px solid #F5C6CB';
+        badge.innerHTML = `<i class="fas fa-exclamation-circle" style="font-size:10px;"></i> رصيد آجل: ${balance.toFixed(2)} ج.م`;
+      } else if (balance < 0) {
+        // رصيد لصالح العميلة (دفعت زيادة)
+        badge.style.background = 'var(--light-green)';
+        badge.style.color = 'var(--primary-green)';
+        badge.style.border = '1px solid rgba(24,66,50,0.2)';
+        badge.innerHTML = `<i class="fas fa-check-circle" style="font-size:10px;"></i> رصيد لها: ${Math.abs(balance).toFixed(2)} ج.م`;
+      } else {
+        // الرصيد صفر
+        badge.style.background = '#F1EFEA';
+        badge.style.color = '#555';
+        badge.style.border = '1px solid var(--border-color)';
+        badge.innerHTML = `<i class="fas fa-minus-circle" style="font-size:10px;"></i> رصيد: 0.00 ج.م`;
+      }
     }
 
     document.addEventListener('click', function(e) {
@@ -1890,6 +1972,8 @@
       document.getElementById('clientIdHidden').value = '';
       document.getElementById('clientNameHidden').value = '';
       document.getElementById('clientDropdown').classList.remove('active');
+      const balBadge = document.getElementById('saleClientBalanceBadge');
+      if (balBadge) balBadge.style.display = 'none';
     }
 
     function calculateAll() {
@@ -2012,6 +2096,7 @@
         submitBtn.disabled = false;
         submitBtn.innerText = "تسجيل وحفظ العملية";
         if (data.status === "success") {
+          salesMasterData = []; // إعادة تعيين الكاش عشان الرصيد يتحسب من جديد بعد الحفظ
           alert("تم حفظ العملية بنجاح!");
           clearAllForm();
         } else if (data.needsPassword) {
