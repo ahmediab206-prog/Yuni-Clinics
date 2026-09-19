@@ -19,6 +19,11 @@
       --whatsapp-green: #25D366;
     }
 
+    @media print {
+      body > *:not(#invPrintFrame) { display: none !important; }
+      #invPrintFrame { display: block !important; }
+      @page { size: 80mm auto; margin: 3mm 2mm; }
+    }
     * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; margin: 0; padding: 0; }
     body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px 15px; }
     
@@ -73,6 +78,24 @@
     .form-group { display: flex; flex-direction: column; gap: 8px; }
     .form-group.full-width { grid-column: 1 / -1; }
     label.section-title { color: var(--primary-green); font-weight: 700; font-size: 15px; }
+    /* ── Cart جدول الخدمات المختارة ── */
+    .cart-wrapper { background:#FAF8F5; border:1.5px solid var(--border-color); border-radius:12px; overflow:hidden; margin-top:14px; }
+    .cart-empty { text-align:center; padding:22px; color:#aaa; font-size:13px; display:flex; align-items:center; justify-content:center; gap:8px; }
+    .cart-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .cart-table thead tr { background:var(--primary-green); color:#fff; }
+    .cart-table th { padding:9px 10px; font-weight:700; font-size:12px; text-align:right; white-space:nowrap; }
+    .cart-table td { padding:7px 8px; border-bottom:1px solid var(--border-color); vertical-align:middle; background:#fff; }
+    .cart-table tbody tr:last-child td { border-bottom:none; }
+    .cart-table tbody tr:nth-child(even) td { background:#FAFAF7; }
+    .cart-qty-input  { width:54px;  padding:5px 7px; border:1.5px solid var(--border-color); border-radius:7px; font-size:13px; text-align:center; background:#fff; }
+    .cart-adj-input  { width:72px;  padding:5px 7px; border:1.5px solid var(--border-color); border-radius:7px; font-size:13px; text-align:center; background:#fff; }
+    .cart-qty-input:focus, .cart-adj-input:focus { border-color:var(--primary-green); outline:none; }
+    .cart-line-total { font-weight:700; color:var(--primary-green); white-space:nowrap; }
+    .cart-remove-btn { background:none; border:none; cursor:pointer; color:#C5221F; font-size:16px; padding:4px 6px; border-radius:6px; transition:background .15s; }
+    .cart-remove-btn:hover { background:#FDECEC; }
+    .cart-footer { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--light-green); border-top:1.5px solid var(--border-color); flex-wrap:wrap; gap:8px; }
+    .cart-footer-total { font-size:15px; font-weight:900; color:var(--primary-green); }
+
     .section-header-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
     .action-btn-group { display: flex; gap: 8px; }
     .btn-small { padding: 6px 12px; font-size: 12px; font-weight: 700; border-radius: 6px; border: 1px solid var(--border-color); background-color: #FAF8F5; color: var(--primary-green); cursor: pointer; transition: all 0.2s; }
@@ -406,13 +429,16 @@
 
     <div class="nav-tabs">
       <button class="nav-btn active" id="btnPageAdd" onclick="switchPage('pageAdd')">
-        <i class="fas fa-plus-circle"></i> إضافة حركة جديدة
+        <i class="fas fa-plus-circle"></i> إضافة فاتورة
       </button>
       <button class="nav-btn" id="btnPageCollections" onclick="switchPage('pageCollections')">
-        <i class="fas fa-hand-holding-usd"></i> تحصيلات
+        <i class="fas fa-hand-holding-usd"></i> التحصيلات
       </button>
       <button class="nav-btn" id="btnPageExpenses" onclick="switchPage('pageExpenses')">
         <i class="fas fa-file-invoice-dollar"></i> المصروفات
+      </button>
+      <button class="nav-btn" id="btnPageInventory" onclick="switchPage('pageInventory')">
+        <i class="fas fa-receipt"></i> المخزن
       </button>
       <button class="nav-btn" id="btnPageData" onclick="switchPage('pageData')">
         <i class="fas fa-database"></i> استعراض البيانات
@@ -490,6 +516,39 @@
             <div id="tabsContainer">
               <div class="empty-msg">يرجى اختيار طبيب أو أخصائي أولاً لعرض الخدمات المتاحة</div>
             </div>
+
+            <!-- ── Cart جدول الخدمات المختارة ── -->
+            <div id="cartWrapper" class="cart-wrapper" style="display:none; margin-top:16px;">
+              <table class="cart-table">
+                <thead>
+                  <tr>
+                    <th style="width:36px;"></th>
+                    <th>الخدمة</th>
+                    <th style="width:70px; text-align:center;">الكمية</th>
+                    <th style="width:80px; text-align:center;">سعر الوحدة</th>
+                    <th style="width:80px; text-align:center;">خصم</th>
+                    <th style="width:80px; text-align:center;">إضافي</th>
+                    <th style="width:90px; text-align:left;">إجمالي السطر</th>
+                  </tr>
+                </thead>
+                <tbody id="cartBody">
+                </tbody>
+              </table>
+              <div class="cart-footer">
+                <span style="font-size:12px; color:#555;">
+                  <i class="fas fa-info-circle"></i>
+                  الخصم والإضافي لكل صنف يُضاف لإجمالي الفاتورة
+                </span>
+                <span class="cart-footer-total">
+                  إجمالي الأصناف: <span id="cartSubtotal">0.00</span> ج.م
+                </span>
+              </div>
+            </div>
+
+            <div id="cartEmpty" class="cart-empty" style="display:none;">
+              <i class="fas fa-shopping-cart"></i>
+              لم تُختر أي خدمة بعد — اختر من القائمة أعلاه
+            </div>
           </div>
 
           <div class="form-group full-width">
@@ -560,6 +619,102 @@
         </form>
       </div>
     </div>
+
+    <!-- صفحة المخزن (الفواتير) -->
+    <div id="pageInventory" class="view-page">
+      <div class="card">
+        <h2 class="card-title" style="margin-bottom:20px;"><i class="fas fa-receipt"></i> المخزن — عرض وطباعة الفواتير</h2>
+
+        <!-- شريط الفلاتر -->
+        <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:22px;
+                    background:var(--light-green);padding:18px 20px;border-radius:14px;border:1px solid var(--border-color);">
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <label style="font-size:12px;font-weight:700;color:var(--primary-green);"><i class="fas fa-calendar-alt"></i> التاريخ</label>
+            <input type="date" id="invFilterDate" style="padding:10px 12px;border:1.5px solid var(--border-color);border-radius:9px;font-size:13px;background:#fff;min-width:155px;" onchange="invOnDateChange()">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <label style="font-size:12px;font-weight:700;color:var(--primary-green);"><i class="fas fa-user"></i> اسم العميلة</label>
+            <select id="invFilterClient" style="padding:10px 12px;border:1.5px solid var(--border-color);border-radius:9px;font-size:13px;background:#fff;min-width:175px;" onchange="invOnClientChange()">
+              <option value="">-- كل العملاء --</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <label style="font-size:12px;font-weight:700;color:var(--primary-green);"><i class="fas fa-user-tie"></i> الموظفة</label>
+            <select id="invFilterUser" style="padding:10px 12px;border:1.5px solid var(--border-color);border-radius:9px;font-size:13px;background:#fff;min-width:160px;" onchange="invBuildNumList()">
+              <option value="">-- كل الموظفات --</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <label style="font-size:12px;font-weight:700;color:var(--primary-green);"><i class="fas fa-hashtag"></i> رقم الفاتورة</label>
+            <select id="invFilterNum" style="padding:10px 12px;border:1.5px solid var(--border-color);border-radius:9px;font-size:13px;background:#fff;min-width:210px;" onchange="invShowSelected()">
+              <option value="">-- اختر فاتورة --</option>
+            </select>
+          </div>
+          <button onclick="invReset()" style="padding:10px 18px;background:var(--primary-green);color:#fff;border:none;
+                  border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;margin-top:auto;display:flex;align-items:center;gap:6px;">
+            <i class="fas fa-redo"></i> إعادة تعيين
+          </button>
+        </div>
+
+        <!-- Empty state -->
+        <div id="invEmpty" style="text-align:center;padding:70px 20px;color:#bbb;">
+          <i class="fas fa-receipt" style="font-size:52px;margin-bottom:14px;display:block;opacity:.25;"></i>
+          <p style="font-size:14px;">اختر التاريخ ثم اسم العميلة ثم رقم الفاتورة لعرضها</p>
+        </div>
+
+        <!-- منطقة العرض -->
+        <div id="invPreview" style="display:none;">
+          <div style="display:flex;justify-content:center;margin-bottom:18px;">
+            <button onclick="invPrint()" style="padding:11px 30px;background:var(--primary-green);color:#fff;border:none;
+                    border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:9px;
+                    box-shadow:0 4px 14px rgba(24,66,50,0.2);">
+              <i class="fas fa-print"></i> طباعة الفاتورة
+            </button>
+          </div>
+          <div style="display:flex;justify-content:center;">
+            <div id="invCard" style="width:302px;background:#fff;border:1.5px dashed #ccc;border-radius:10px;
+                 padding:20px 16px;font-family:'Tajawal',sans-serif;color:#111;
+                 box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+              <!-- هيدر -->
+              <div style="text-align:center;padding-bottom:12px;border-bottom:1.5px dashed #bbb;margin-bottom:12px;">
+                <div style="font-size:26px;font-weight:900;letter-spacing:3px;color:var(--primary-green);">Yuni</div>
+                <div style="font-size:10px;color:#888;margin-top:2px;">عيادات يوني للتجميل</div>
+              </div>
+              <!-- رقم وتاريخ -->
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:11px;color:#555;">
+                <span>فاتورة رقم: <strong id="invCNum" style="color:var(--primary-green);"></strong></span>
+                <span id="invCDate"></span>
+              </div>
+              <!-- اسم العميل -->
+              <div style="background:var(--light-green);border-radius:7px;padding:7px 10px;margin-bottom:12px;
+                          font-size:13px;font-weight:700;color:var(--primary-green);display:flex;align-items:center;gap:6px;">
+                <i class="fas fa-user" style="font-size:11px;"></i>
+                <span id="invCClient"></span>
+              </div>
+              <!-- رأس جدول الخدمات -->
+              <div style="display:grid;grid-template-columns:1fr 28px 54px 54px;gap:2px;
+                          font-size:10px;font-weight:700;color:#fff;background:var(--primary-green);
+                          padding:5px 6px;border-radius:5px 5px 0 0;margin-bottom:2px;">
+                <span>الخدمة</span>
+                <span style="text-align:center;">كمية</span>
+                <span style="text-align:center;">سعر</span>
+                <span style="text-align:left;">إجمالي</span>
+              </div>
+              <!-- سطور الخدمات -->
+              <div id="invCServices" style="margin-bottom:10px;border:1px solid #eee;border-top:none;border-radius:0 0 5px 5px;overflow:hidden;"></div>
+              <!-- الإجماليات -->
+              <div id="invCTotals" style="border-top:1.5px dashed #bbb;padding-top:10px;margin-bottom:12px;"></div>
+              <!-- تذييل -->
+              <div style="text-align:center;border-top:1px dashed #ccc;padding-top:8px;font-size:9px;color:#aaa;letter-spacing:.5px;">
+                Designed By Ahmed Diab
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- frame الطباعة -->
+    <div id="invPrintFrame" style="display:none;"></div>
 
     <!-- صفحة التحصيلات -->
     <div id="pageCollections" class="view-page">
@@ -1370,6 +1525,9 @@
       } else if (pageId === 'pageExpenses') {
         document.getElementById('btnPageExpenses').classList.add('active');
         fetchExpensesData();
+      } else if (pageId === 'pageInventory') {
+        document.getElementById('btnPageInventory').classList.add('active');
+        invInit();
       } else if (pageId === 'pageData') {
         document.getElementById('btnPageData').classList.add('active');
         fetchLogsFromSheet();
@@ -1671,7 +1829,7 @@
     }
 
     let authUser = null;
-    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageExpenses:'Expenses', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances'};
+    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageExpenses:'Expenses', pageInventory:'Inventory', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances'};
     function can(tab, action) {
       const p = authUser && authUser.permissions[tab];
       return !!(p && p.view === true && p[action] === true);
@@ -1712,7 +1870,7 @@
       document.getElementById('mainHeader').style.display = 'flex';
       document.getElementById('currentUserDisplay').innerText = user.name;
       document.querySelectorAll('.view-page, .nav-btn').forEach(el => el.classList.remove('active'));
-      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageExpenses:'btnPageExpenses',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances'};
+      const buttons = {pageAdd:'btnPageAdd', pageCollections:'btnPageCollections', pageExpenses:'btnPageExpenses', pageInventory:'btnPageInventory', pageData:'btnPageData', pageLogs:'btnPageLogs', pageBalances:'btnPageBalances'};
       Object.keys(PAGE_TABS).forEach(page => {
         const btn = document.getElementById(buttons[page]);
         if (!btn) return;
@@ -1943,8 +2101,126 @@
     }
 
     function attachCalcListeners() {
-      document.querySelectorAll('.service-cb').forEach(cb => cb.addEventListener('change', calculateAll));
+      document.querySelectorAll('.service-cb').forEach(cb => {
+        cb.addEventListener('change', function() {
+          updateCart();
+          calculateAll();
+        });
+      });
       document.querySelectorAll('.calc-input').forEach(input => input.addEventListener('input', calculateAll));
+    }
+
+    // ── Cart logic ──────────────────────────────────────────────────
+    // cartItems: Map  name → { name, price, qty, lineDiscount, lineExtra }
+    const cartItems = new Map();
+
+    function updateCart() {
+      // مزامنة cartItems مع الـ checkboxes
+      document.querySelectorAll('.service-cb').forEach(cb => {
+        const name  = cb.value;
+        const price = parseFloat(cb.getAttribute('data-price')) || 0;
+        if (cb.checked) {
+          if (!cartItems.has(name)) {
+            cartItems.set(name, { name, price, qty: 1, lineDiscount: 0, lineExtra: 0 });
+          }
+        } else {
+          cartItems.delete(name);
+        }
+      });
+      renderCart();
+      calculateAll();
+    }
+
+    function renderCart() {
+      const wrapper = document.getElementById('cartWrapper');
+      const emptyEl = document.getElementById('cartEmpty');
+      const body    = document.getElementById('cartBody');
+
+      if (cartItems.size === 0) {
+        wrapper.style.display = 'none';
+        emptyEl.style.display = 'none';
+        body.innerHTML = '';
+        document.getElementById('cartSubtotal').innerText = '0.00';
+        return;
+      }
+
+      wrapper.style.display = 'block';
+      emptyEl.style.display = 'none';
+
+      let html = '';
+      cartItems.forEach((item, name) => {
+        const lineTotal = (item.price * item.qty) + item.lineExtra - item.lineDiscount;
+        html += `<tr data-name="${escCart(name)}">
+          <td style="text-align:center;">
+            <button type="button" class="cart-remove-btn" onclick="removeCartItem('${escCart(name)}')" title="حذف">
+              <i class="fas fa-times-circle"></i>
+            </button>
+          </td>
+          <td style="font-weight:600;">${escCart(name)}</td>
+          <td style="text-align:center;">
+            <input type="number" class="cart-qty-input" min="1" value="${item.qty}"
+              onchange="updateCartField('${escCart(name)}','qty',this.value)"
+              oninput="updateCartField('${escCart(name)}','qty',this.value)">
+          </td>
+          <td style="text-align:center; color:#555;">${item.price.toFixed(2)}</td>
+          <td style="text-align:center;">
+            <input type="number" class="cart-adj-input" min="0" value="${item.lineDiscount || ''}"
+              placeholder="0"
+              onchange="updateCartField('${escCart(name)}','lineDiscount',this.value)"
+              oninput="updateCartField('${escCart(name)}','lineDiscount',this.value)">
+          </td>
+          <td style="text-align:center;">
+            <input type="number" class="cart-adj-input" min="0" value="${item.lineExtra || ''}"
+              placeholder="0"
+              onchange="updateCartField('${escCart(name)}','lineExtra',this.value)"
+              oninput="updateCartField('${escCart(name)}','lineExtra',this.value)">
+          </td>
+          <td class="cart-line-total">${lineTotal.toFixed(2)} ج.م</td>
+        </tr>`;
+      });
+
+      body.innerHTML = html;
+
+      // تحديث إجمالي الـ cart footer
+      let subtotal = 0;
+      cartItems.forEach(item => {
+        subtotal += (item.price * item.qty) + item.lineExtra - item.lineDiscount;
+      });
+      document.getElementById('cartSubtotal').innerText = subtotal.toFixed(2);
+    }
+
+    function updateCartField(name, field, val) {
+      const item = cartItems.get(name);
+      if (!item) return;
+      const num = parseFloat(val) || 0;
+      if (field === 'qty') item.qty = Math.max(1, Math.round(num));
+      else item[field] = Math.max(0, num);
+      cartItems.set(name, item);
+      // تحديث إجمالي السطر فوري بدون re-render كامل
+      const row = document.querySelector(`#cartBody tr[data-name="${escCart(name)}"]`);
+      if (row) {
+        const lineTotal = (item.price * item.qty) + item.lineExtra - item.lineDiscount;
+        row.querySelector('.cart-line-total').innerText = lineTotal.toFixed(2) + ' ج.م';
+      }
+      // تحديث footer subtotal
+      let subtotal = 0;
+      cartItems.forEach(i => { subtotal += (i.price * i.qty) + i.lineExtra - i.lineDiscount; });
+      document.getElementById('cartSubtotal').innerText = subtotal.toFixed(2);
+      calculateAll();
+    }
+
+    function removeCartItem(name) {
+      cartItems.delete(name);
+      // إلغاء تحديد الـ checkbox المقابل
+      document.querySelectorAll('.service-cb').forEach(cb => {
+        if (cb.value === name) cb.checked = false;
+      });
+      renderCart();
+      calculateAll();
+    }
+
+    function escCart(s) {
+      return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
     }
 
     function switchTab(tabId, e) {
@@ -1974,12 +2250,17 @@
       document.getElementById('clientDropdown').classList.remove('active');
       const balBadge = document.getElementById('saleClientBalanceBadge');
       if (balBadge) balBadge.style.display = 'none';
+      // مسح الـ cart
+      cartItems.clear();
+      renderCart();
+      calculateAll();
     }
 
     function calculateAll() {
+      // حساب إجمالي الخدمات من الـ cart (مع qty وخصم وإضافي لكل صنف)
       let baseServicesTotal = 0;
-      document.querySelectorAll('.service-cb:checked').forEach(cb => {
-        baseServicesTotal += parseFloat(cb.getAttribute('data-price')) || 0;
+      cartItems.forEach(item => {
+        baseServicesTotal += (item.price * item.qty) + item.lineExtra - item.lineDiscount;
       });
 
       const extraFee = parseFloat(document.getElementById('extraFee').value) || 0;
@@ -1988,21 +2269,21 @@
       const totalWithExtra = baseServicesTotal + extraFee;
       const netAmount = Math.max(0, totalWithExtra - discount);
 
-      const cash = parseFloat(document.getElementById('payCash').value) || 0;
+      const cash   = parseFloat(document.getElementById('payCash').value)   || 0;
       const wallet = parseFloat(document.getElementById('payWallet').value) || 0;
-      const insta = parseFloat(document.getElementById('payInsta').value) || 0;
-      const pos = parseFloat(document.getElementById('payPOS').value) || 0;
+      const insta  = parseFloat(document.getElementById('payInsta').value)  || 0;
+      const pos    = parseFloat(document.getElementById('payPOS').value)    || 0;
 
       const totalPaid = cash + wallet + insta + pos;
       const debt = netAmount - totalPaid;
 
-      document.getElementById('sumServicesDisplay').innerText = totalWithExtra.toFixed(2) + ' ج.م';
-      document.getElementById('netAmountDisplay').innerText = netAmount.toFixed(2) + ' ج.م';
-      document.getElementById('totalPaidDisplay').innerText = totalPaid.toFixed(2) + ' ج.م';
+      document.getElementById('sumServicesDisplay').innerText  = totalWithExtra.toFixed(2) + ' ج.م';
+      document.getElementById('netAmountDisplay').innerText    = netAmount.toFixed(2) + ' ج.م';
+      document.getElementById('totalPaidDisplay').innerText    = totalPaid.toFixed(2) + ' ج.م';
 
       const debtElem = document.getElementById('debtDisplay');
-      debtElem.innerText = debt.toFixed(2) + ' ج.م';
-      debtElem.className = debt > 0 ? 'val val-debt' : 'val val-credit';
+      debtElem.innerText   = debt.toFixed(2) + ' ج.م';
+      debtElem.className   = debt > 0 ? 'val val-debt' : 'val val-credit';
     }
 
     form.addEventListener('submit', function(e) {
@@ -2021,10 +2302,17 @@
       const selectedDocs = Array.from(document.querySelectorAll('.doc-cb:checked')).map(cb => cb.value);
       const selectedSpecs = Array.from(document.querySelectorAll('.spec-cb:checked')).map(cb => cb.value);
 
-      const selectedServices = Array.from(document.querySelectorAll('.service-cb:checked')).map(cb => ({
-        name: cb.value,
-        price: parseFloat(cb.getAttribute('data-price')) || 0
-      }));
+      // بناء selectedServices من الـ cart (مع qty وخصم وإضافي لكل صنف)
+      const selectedServices = [];
+      cartItems.forEach(item => {
+        selectedServices.push({
+          name:         item.name,
+          price:        item.price,
+          qty:          item.qty,
+          lineDiscount: item.lineDiscount,
+          lineExtra:    item.lineExtra
+        });
+      });
 
       const extraFee = parseFloat(document.getElementById('extraFee').value) || 0;
       const discount = parseFloat(document.getElementById('discount').value) || 0;
@@ -2047,7 +2335,9 @@
       if (pos > 0) paymentsArr.push({ method: "POS", amount: pos });
 
       const totalPaid = cash + wallet + insta + pos;
-      const netTotal = Math.max(0, (selectedServices.reduce((a, b) => a + b.price, 0) + extraFee) - discount);
+      const cartTotal = selectedServices.reduce((s, item) =>
+        s + (item.price * item.qty) + item.lineExtra - item.lineDiscount, 0);
+      const netTotal = Math.max(0, cartTotal + extraFee - discount);
       const credit = netTotal - totalPaid;
 
       const payload = {
@@ -4165,6 +4455,218 @@
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-lock"></i> تأكيد الإغلاق';
       }
+    }
+
+    // ================================================================
+    //  صفحة المخزن — عرض وطباعة الفواتير (80mm كاشير)
+    // ================================================================
+    let invData  = [];
+    let invReady = false;
+
+    function invInit() {
+      if (invReady && invData.length) { invBuildDateUI(); return; }
+      document.getElementById('invEmpty').innerHTML =
+        '<i class="fas fa-spinner fa-spin" style="font-size:36px;color:var(--primary-green);display:block;margin-bottom:12px;"></i>' +
+        '<p style="font-size:13px;color:#666;">جاري تحميل بيانات الفواتير...</p>';
+      document.getElementById('invPreview').style.display = 'none';
+      apiRead('Sales').then(r => r.json()).then(res => {
+        invData  = (res.status === 'success' && res.data) ? res.data : (salesMasterData || []);
+        if (!salesMasterData || !salesMasterData.length) salesMasterData = invData;
+        invReady = true;
+        invBuildDateUI();
+      }).catch(() => { invData = salesMasterData || []; invReady = true; invBuildDateUI(); });
+    }
+
+    function invBuildDateUI() {
+      document.getElementById('invFilterDate').value = new Date().toISOString().slice(0,10);
+      invOnDateChange();
+      invResetMsg();
+    }
+
+    function invResetMsg() {
+      document.getElementById('invEmpty').innerHTML =
+        '<i class="fas fa-receipt" style="font-size:52px;display:block;margin-bottom:14px;opacity:.25;"></i>' +
+        '<p style="font-size:14px;">اختر التاريخ ثم اسم العميلة ثم رقم الفاتورة لعرضها</p>';
+    }
+
+    function invOnDateChange() {
+      const date = document.getElementById('invFilterDate').value;
+      const rows = date ? invData.filter(r => invF(r,'trxDate') === date) : invData;
+
+      const clients = [...new Set(rows.map(r => invF(r,'client')).filter(Boolean))].sort();
+      const selC = document.getElementById('invFilterClient');
+      selC.innerHTML = '<option value="">-- كل العملاء --</option>' +
+        clients.map(c => `<option value="${iesc(c)}">${iesc(c)}</option>`).join('');
+      selC.value = '';
+
+      const users = [...new Set(rows.map(r => invF(r,'user')).filter(Boolean))].sort();
+      const selU = document.getElementById('invFilterUser');
+      selU.innerHTML = '<option value="">-- كل الموظفات --</option>' +
+        users.map(u => `<option value="${iesc(u)}">${iesc(u)}</option>`).join('');
+      selU.value = '';
+
+      invBuildNumList();
+    }
+
+    function invOnClientChange() { invBuildNumList(); }
+
+    function invBuildNumList() {
+      const date   = document.getElementById('invFilterDate').value;
+      const client = document.getElementById('invFilterClient').value;
+      const user   = document.getElementById('invFilterUser').value;
+
+      let rows = invData;
+      if (date)   rows = rows.filter(r => invF(r,'trxDate') === date);
+      if (client) rows = rows.filter(r => invF(r,'client')  === client);
+      if (user)   rows = rows.filter(r => invF(r,'user')    === user);
+
+      const numMap = {};
+      rows.forEach(r => { const n = invF(r,'num'); if (n) numMap[n] = invF(r,'client'); });
+      const nums = Object.keys(numMap).sort((a,b) => parseInt(b)-parseInt(a));
+
+      const selN = document.getElementById('invFilterNum');
+      selN.innerHTML = '<option value="">-- اختر فاتورة --</option>' +
+        nums.map(n => `<option value="${iesc(n)}">فاتورة #${n}  —  ${iesc(numMap[n])}</option>`).join('');
+      selN.value = '';
+      document.getElementById('invPreview').style.display = 'none';
+      document.getElementById('invEmpty').style.display   = 'block';
+    }
+
+    function invShowSelected() {
+      const num = document.getElementById('invFilterNum').value;
+      if (!num) {
+        document.getElementById('invPreview').style.display = 'none';
+        document.getElementById('invEmpty').style.display   = 'block';
+        return;
+      }
+      invRender(num);
+    }
+
+    function invRender(num) {
+      const rows = invData.filter(r => invF(r,'num') === num);
+      if (!rows.length) return;
+      const first = rows[0];
+
+      // سطور الخدمات الحقيقية فقط (مش تعديل ومش Payment)
+      const svcRows = rows.filter(r => {
+        const s = invF(r,'service');
+        return s && s !== 'تعديل' && !s.startsWith('Payment');
+      });
+      // سطر التعديل لو موجود
+      const adjRow = rows.find(r => invF(r,'service') === 'تعديل') || null;
+
+      // حساب الأرقام الصح
+      const servicesTotal = svcRows.reduce((s,r) => {
+        const qty   = parseFloat(r['Qty']  || 1);
+        const price = parseFloat(r['Price']|| r['السعر'] || 0);
+        const ld    = parseFloat(r['Discount'] || 0);
+        const le    = parseFloat(r['Extra']    || 0);
+        return s + (price * qty) + le - ld;
+      }, 0);
+
+      const adjExtra    = adjRow ? parseFloat(adjRow['Extra']   || 0) : 0;
+      const adjDiscount = adjRow ? parseFloat(adjRow['Discount']|| 0) : 0;
+      const adjNet      = adjExtra - adjDiscount;
+
+      const invoiceNet = servicesTotal + adjNet;
+      const totalPaid  = rows.reduce((s,r) => s + parseFloat(r['Paid']||0), 0);
+      const remaining  = invoiceNet - totalPaid;
+
+      document.getElementById('invCNum').innerText    = num;
+      document.getElementById('invCDate').innerText   = invF(first,'trxDate');
+      document.getElementById('invCClient').innerText = invF(first,'client');
+
+      const svcEl = document.getElementById('invCServices');
+      if (!svcRows.length) {
+        svcEl.innerHTML = '<div style="text-align:center;padding:10px;font-size:11px;color:#aaa;">لا توجد خدمات</div>';
+      } else {
+        svcEl.innerHTML = svcRows.map((r,i) => {
+          const svc   = invF(r,'service');
+          const qty   = parseFloat(r['Qty']  || 1);
+          const price = parseFloat(r['Price']|| r['السعر'] || 0);
+          const ld    = parseFloat(r['Discount'] || 0);
+          const le    = parseFloat(r['Extra']    || 0);
+          const line  = (price * qty) + le - ld;
+          return `<div style="display:grid;grid-template-columns:1fr 28px 54px 54px;gap:2px;
+                              padding:7px 6px;background:${i%2===0?'#fff':'#FAFAF7'};font-size:11px;
+                              align-items:center;border-bottom:1px dotted #eee;">
+            <span style="word-break:break-word;">${iesc(svc)}</span>
+            <span style="text-align:center;color:#666;">${qty%1===0?qty.toFixed(0):qty}</span>
+            <span style="text-align:center;color:#666;">${price.toFixed(2)}</span>
+            <span style="text-align:left;font-weight:700;">${line.toFixed(2)}</span>
+          </div>`;
+        }).join('');
+      }
+
+      const remColor = remaining > 0.005 ? '#C5221F' : remaining < -0.005 ? 'var(--primary-green)' : '#444';
+      const remLabel = remaining > 0.005 ? 'متبقي' : remaining < -0.005 ? 'رصيد لها' : 'مسدد بالكامل';
+
+      let totHtml = `
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+          <span style="color:#555;">إجمالي الخدمات</span><strong>${servicesTotal.toFixed(2)} ج.م</strong>
+        </div>`;
+      if (adjNet !== 0) {
+        const aColor = adjNet < 0 ? '#C5221F' : 'var(--primary-green)';
+        const aLabel = adjNet < 0 ? 'خصم' : 'إضافي';
+        totHtml += `<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+          <span style="color:${aColor};">${aLabel}</span>
+          <strong style="color:${aColor};">${adjNet<0?'-':'+'}${Math.abs(adjNet).toFixed(2)} ج.م</strong>
+        </div>`;
+      }
+      totHtml += `
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;
+                    border-top:1px solid #eee;padding-top:5px;">
+          <span style="color:#555;">صافي الفاتورة</span><strong>${invoiceNet.toFixed(2)} ج.م</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+          <span style="color:#555;">المدفوع</span>
+          <strong style="color:var(--primary-green);">${totalPaid.toFixed(2)} ج.م</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:900;
+                    border-top:1px dashed #ccc;padding-top:6px;">
+          <span style="color:${remColor};">${remLabel}</span>
+          <strong style="color:${remColor};">${Math.abs(remaining).toFixed(2)} ج.م</strong>
+        </div>`;
+      document.getElementById('invCTotals').innerHTML = totHtml;
+
+      document.getElementById('invPreview').style.display = 'block';
+      document.getElementById('invEmpty').style.display   = 'none';
+    }
+
+    function invReset() {
+      document.getElementById('invFilterDate').value = '';
+      ['invFilterClient','invFilterUser','invFilterNum'].forEach(id => {
+        document.getElementById(id).innerHTML = '<option value="">--</option>';
+      });
+      document.getElementById('invPreview').style.display = 'none';
+      document.getElementById('invEmpty').style.display   = 'block';
+      invResetMsg();
+    }
+
+    function invPrint() {
+      const card = document.getElementById('invCard');
+      if (!card) return;
+      const frame = document.getElementById('invPrintFrame');
+      frame.innerHTML = `<div style="width:80mm;font-family:'Tajawal',sans-serif;font-size:12px;color:#000;padding:4mm 3mm;margin:0 auto;">${card.innerHTML}</div>`;
+      frame.style.display = 'block';
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => { frame.style.display='none'; frame.innerHTML=''; }, 600);
+      }, 120);
+    }
+
+    function invF(r, key) {
+      const map = {
+        num:     ['Num','رقم الفاتورة'],
+        client:  ['Client','اسم العميلة'],
+        trxDate: ['Trx Date','تاريخ الفاتورة'],
+        user:    ['User','المستخدم'],
+        service: ['Service','الخدمة']
+      };
+      return (map[key]||[]).reduce((v,k) => v||(r[k]||'').toString().trim(), '');
+    }
+    function iesc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
   </script>
