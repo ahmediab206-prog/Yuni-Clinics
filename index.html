@@ -886,6 +886,8 @@
                 <th><div class="th-content" onclick="openColumnFilter('doctor', event)"><span>Doctor</span><i class="fas fa-filter filter-icon" id="icon_doctor"></i></div></th>
                 <th><div class="th-content" onclick="openColumnFilter('specialist', event)"><span>Specialist</span><i class="fas fa-filter filter-icon" id="icon_specialist"></i></div></th>
                 <th><div class="th-content" onclick="openColumnFilter('notes', event)"><span>Notes</span><i class="fas fa-filter filter-icon" id="icon_notes"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('speciality', event)"><span>Speciality</span><i class="fas fa-filter filter-icon" id="icon_speciality"></i></div></th>
+                <th><div class="th-content" onclick="openColumnFilter('category', event)"><span>Category</span><i class="fas fa-filter filter-icon" id="icon_category"></i></div></th>
                 <th><div class="th-content" onclick="openColumnFilter('user', event)"><span>User</span><i class="fas fa-filter filter-icon" id="icon_user"></i></div></th>
               </tr>
             </thead>
@@ -908,6 +910,8 @@
                 <td id="foot_doctor">-</td>
                 <td id="foot_specialist">-</td>
                 <td id="foot_notes">-</td>
+                <td id="foot_speciality">-</td>
+                <td id="foot_category">-</td>
                 <td id="foot_user">-</td>
               </tr>
             </tfoot>
@@ -1943,13 +1947,14 @@
 
       globalData.forEach(item => {
         let itemSpeciality = "";
+        let itemSpecialityRaw = "";
         let cat = "خدمات عامة";
         let name = "";
         let price = 0;
 
         Object.keys(item).forEach(k => {
           const ck = k.trim();
-          if (ck === 'Item/Service Speciality') itemSpeciality = item[k].toString().trim().toLowerCase();
+          if (ck === 'Item/Service Speciality') { itemSpecialityRaw = item[k].toString().trim(); itemSpeciality = itemSpecialityRaw.toLowerCase(); }
           if (ck === 'Item/Service Category' || ck === 'التصنيف') cat = item[k];
           if (ck === 'Item/Service' || ck === 'اسم الخدمة') name = item[k];
           if (ck === 'Item/Service Price' || ck === 'السعر') price = parseFloat(item[k]) || 0;
@@ -1960,7 +1965,7 @@
         if (itemSpeciality === target || itemSpeciality.includes(target) || (target.includes('laser') && itemSpeciality.includes('laser'))) {
           if (name) {
             if (!categories[cat]) categories[cat] = [];
-            categories[cat].push({ name, price });
+            categories[cat].push({ name, price, speciality: itemSpecialityRaw, category: cat });
           }
         }
       });
@@ -1998,7 +2003,7 @@
           contentDiv.innerHTML += `
             <label class="checkbox-item">
               <div>
-                <input type="checkbox" class="service-cb" value="${srv.name}" data-price="${srv.price}">
+                <input type="checkbox" class="service-cb" value="${srv.name}" data-price="${srv.price}" data-speciality="${srv.speciality || ''}" data-category="${srv.category || ''}">
                 <span>${srv.name}</span>
               </div>
               <span class="price-tag">${srv.price} ج.م</span>
@@ -2094,8 +2099,10 @@
 
     function updateCart() {
       document.querySelectorAll('.service-cb').forEach(cb => {
-        const name  = cb.value;
-        const price = parseFloat(cb.getAttribute('data-price')) || 0;
+        const name       = cb.value;
+        const price      = parseFloat(cb.getAttribute('data-price')) || 0;
+        const speciality = cb.getAttribute('data-speciality') || '';
+        const category   = cb.getAttribute('data-category')   || '';
         if (cb.checked) {
           if (!cartItems.has(name)) {
             // تحديد الموظف الافتراضي — أول موظف محدد في الـ tabs
@@ -2105,7 +2112,7 @@
             let defType  = '';
             if (checkedDoc)  { defStaff = checkedDoc.value;  defType = 'doctor'; }
             else if (checkedSpec) { defStaff = checkedSpec.value; defType = 'specialist'; }
-            cartItems.set(name, { name, price, qty: 1, lineDiscount: 0, lineExtra: 0, staffName: defStaff, staffType: defType });
+            cartItems.set(name, { name, price, qty: 1, lineDiscount: 0, lineExtra: 0, staffName: defStaff, staffType: defType, speciality, category });
           }
         } else {
           cartItems.delete(name);
@@ -2317,7 +2324,9 @@
           lineDiscount: item.lineDiscount,
           lineExtra:    item.lineExtra,
           staffName:    item.staffName || '',
-          staffType:    isDoc ? 'doctor' : isSpec ? 'specialist' : ''
+          staffType:    isDoc ? 'doctor' : isSpec ? 'specialist' : '',
+          speciality:   item.speciality || '',
+          category:     item.category   || ''
         });
       });
 
@@ -2976,7 +2985,7 @@
       if (!can('Transactions','view')) return;
       if (!SCRIPT_URL) return;
 
-      tableBody.innerHTML = '<tr><td colspan="16" style="text-align:center;">جاري تحميل سجلات المبيعات...</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="18" style="text-align:center;">جاري تحميل سجلات المبيعات...</td></tr>';
 
       apiRead('Sales')
         .then(res => res.json())
@@ -2985,14 +2994,14 @@
             salesMasterData = response.data;
             applyTableFilters();
           } else {
-            tableBody.innerHTML = '<tr><td colspan="16" style="text-align:center;">لا توجد سجلات متاحة حالياً</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="18" style="text-align:center;">لا توجد سجلات متاحة حالياً</td></tr>';
             recordCount.innerText = "0 عمليات";
             resetFooterTotals();
           }
         })
         .catch(err => {
           console.error(err);
-          tableBody.innerHTML = '<tr><td colspan="16" style="text-align:center; color:red;">تعذر تحميل السجلات</td></tr>';
+          tableBody.innerHTML = '<tr><td colspan="18" style="text-align:center; color:red;">تعذر تحميل السجلات</td></tr>';
           resetFooterTotals();
         });
     }
@@ -3255,6 +3264,8 @@
           doctor: (row['Doctor'] || row['الطبيب'] || '').toString(),
           specialist: (row['Specialist'] || row['الأخصائي'] || '').toString(),
           notes: (row['Notes'] || row['ملاحظات'] || '').toString(),
+          speciality: (row['Item/Service Speciality'] || '').toString(),
+          category: (row['Item/Service Category'] || '').toString(),
           user: (row['User'] || row['المستخدم'] || '').toString()
         };
       });
@@ -3350,7 +3361,7 @@
 
       // إظهار/إخفاء عمود الحذف بناءً على صلاحية delete في Transactions
       const canDelete = can('Transactions', 'delete');
-      const colCount = canDelete ? 17 : 16;
+      const colCount = canDelete ? 19 : 18;
       document.getElementById('deleteColHeader').style.display = canDelete ? '' : 'none';
       document.getElementById('foot_del').style.display = canDelete ? '' : 'none';
 
@@ -3419,6 +3430,8 @@
           <td>${row.doctor !== '-' && row.doctor !== '' ? `<span class="staff-tag">${row.doctor}</span>` : '-'}</td>
           <td>${row.specialist !== '-' && row.specialist !== '' ? `<span class="staff-tag">${row.specialist}</span>` : '-'}</td>
           <td>${row.notes}</td>
+          <td>${row.speciality ? `<span class="tag" style="background:#E8E2CE;">${row.speciality}</span>` : '-'}</td>
+          <td>${row.category ? `<span class="tag">${row.category}</span>` : '-'}</td>
           <td>${row.user}</td>
         `;
         tableBody.appendChild(tr);
@@ -3437,7 +3450,7 @@
       if (numEl) numEl.innerHTML = `<span style="font-size:11px; color:#555;">${uniqueInvoiceCount} فاتورة</span>`;
 
       // الأعمدة غير الرقمية الأخرى تعرض العدد
-      ['actionDate', 'trxDate', 'client', 'service', 'method', 'doctor', 'specialist', 'notes', 'user'].forEach(col => {
+      ['actionDate', 'trxDate', 'client', 'service', 'method', 'doctor', 'specialist', 'notes', 'speciality', 'category', 'user'].forEach(col => {
         const el = document.getElementById(`foot_${col}`);
         if (el) el.innerHTML = `<span style="font-size:11px; color:#555;">${countText}</span>`;
       });
@@ -3455,7 +3468,7 @@
     function resetFooterTotals() {
       const numEl2 = document.getElementById('foot_num');
       if (numEl2) numEl2.innerHTML = `<span style="font-size:11px; color:#555;">0 فاتورة</span>`;
-      ['actionDate', 'trxDate', 'client', 'service', 'method', 'doctor', 'specialist', 'notes', 'user'].forEach(col => {
+      ['actionDate', 'trxDate', 'client', 'service', 'method', 'doctor', 'specialist', 'notes', 'speciality', 'category', 'user'].forEach(col => {
         const el = document.getElementById(`foot_${col}`);
         if (el) el.innerHTML = `<span style="font-size:11px; color:#555;">0 سجل</span>`;
       });
