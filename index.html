@@ -392,6 +392,45 @@
   .btn-confirm-delete:disabled { background: #999; cursor: not-allowed; }
   .btn-cancel-delete { flex: 1; padding: 13px; background: #FAF8F5; color: #555; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
   .btn-cancel-delete:hover { background: #E8E2CE; }
+
+  /* ── موديل تعديل الفاتورة ── */
+  .edit-invoice-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(24, 66, 50, 0.6); backdrop-filter: blur(6px);
+    display: none; justify-content: center; align-items: flex-start;
+    z-index: 25000; padding: 20px; overflow-y: auto;
+  }
+  .edit-invoice-overlay.active { display: flex; }
+  .edit-invoice-card {
+    background: #FFFFFF; border-radius: 20px; padding: 30px;
+    width: 100%; max-width: 800px; margin: auto;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3); border: 1px solid var(--border-color);
+  }
+  .edit-invoice-card h3 {
+    color: var(--primary-green); font-size: 20px; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 2px solid var(--border-color); padding-bottom: 12px;
+  }
+  tr.invoice-editable-row { cursor: pointer; }
+  tr.invoice-editable-row:hover td { background-color: #F0F7F4 !important; }
+
+  /* ── لوحة إضافة خدمة داخل موديل التعديل ── */
+  .edit-svc-picker-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+    display: none; justify-content: center; align-items: center;
+    z-index: 30001; padding: 20px;
+  }
+  .edit-svc-picker-overlay.active { display: flex; }
+  .edit-svc-picker-card {
+    background: #FFFFFF; border-radius: 18px; padding: 24px;
+    width: 100%; max-width: 720px; max-height: 88vh; overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35); border: 1px solid var(--border-color);
+  }
+  .edit-svc-picker-card h4 {
+    color: var(--primary-green); font-size: 17px; margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
   </style>
 </head>
 <body>
@@ -1063,7 +1102,12 @@
             </div>
             <div class="cash-filter-field">
               <label>&nbsp;</label>
-              <button class="btn-small" onclick="loadCashSummary()" style="padding:10px 16px; font-size:13px;"><i class="fas fa-search"></i> عرض</button>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <button class="btn-small" onclick="loadCashSummary()" style="padding:10px 16px; font-size:13px;"><i class="fas fa-search"></i> عرض</button>
+                <button class="btn-small" id="btnCopyClosingMsg" onclick="copyClosingMessage()" style="padding:10px 16px; font-size:13px; background:var(--light-green); border-color:var(--primary-green); color:var(--primary-green);" title="نسخ رسالة التقفيل للواتساب">
+                  <i class="fas fa-copy"></i> نسخ رسالة التقفيل
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1318,7 +1362,7 @@
   </div>
 
   <!-- Modal كلمة المرور الخاصة للتسجيل بتاريخ قديم -->
-  <div id="masterPassOverlay" class="modal-overlay-generic" style="z-index: 20001;">
+  <div id="masterPassOverlay" class="modal-overlay-generic" style="z-index: 30000;">
     <div class="modal-card-generic" style="max-width:420px;">
       <h3 style="color:#C5221F;"><i class="fas fa-lock" style="color:#C5221F;"></i> تاريخ خارج النطاق المسموح</h3>
       <p style="font-size:13px; color:#666; text-align:center; margin-bottom:18px;">
@@ -1337,6 +1381,165 @@
           </button>
           <button type="button" class="reset-btn" style="flex:1;" onclick="closeMasterPassModal()">إلغاء</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- لوحة اختيار الخدمة داخل التعديل                             -->
+  <!-- ============================================================ -->
+  <div id="editSvcPickerOverlay" class="edit-svc-picker-overlay" onclick="closeEditSvcPickerOnOutside(event)">
+    <div class="edit-svc-picker-card">
+      <h4>
+        <span><i class="fas fa-concierge-bell" style="color:var(--gold-accent);"></i> اختر خدمة لإضافتها</span>
+        <button type="button" class="reset-btn" style="padding:6px 14px; font-size:13px;" onclick="closeEditSvcPicker()">
+          <i class="fas fa-times"></i> إغلاق
+        </button>
+      </h4>
+
+      <!-- بحث سريع -->
+      <div style="margin-bottom:12px;">
+        <input type="text" id="editSvcSearchInput" placeholder="ابحث عن خدمة..."
+          oninput="filterEditSvcPicker()"
+          style="width:100%; padding:10px 14px; border:1.5px solid var(--border-color); border-radius:10px; font-size:14px; background:#FAF8F5;">
+      </div>
+
+      <!-- Tabs التصنيفات -->
+      <div class="tabs-header" id="editSvcTabsHeader" style="margin-bottom:10px;"></div>
+
+      <!-- محتوى الخدمات -->
+      <div id="editSvcTabsContainer"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- Modal تعديل الفاتورة                                        -->
+  <!-- ============================================================ -->
+  <div id="editInvoiceOverlay" class="edit-invoice-overlay" onclick="closeEditInvoiceOnOutside(event)">
+    <div class="edit-invoice-card">
+      <h3>
+        <i class="fas fa-edit" style="color:var(--gold-accent);"></i>
+        تعديل فاتورة رقم: <span id="editInvoiceNumDisplay" style="color:var(--gold-accent);">-</span>
+      </h3>
+
+      <!-- العميلة والتاريخ -->
+      <div class="form-grid" style="margin-bottom:20px;">
+        <div class="form-group">
+          <label class="section-title">العميلة</label>
+          <input type="text" id="editClientDisplay" disabled
+            style="background:#f0f7f4; font-weight:700; color:var(--primary-green); opacity:1;">
+        </div>
+        <div class="form-group">
+          <label class="section-title">تاريخ الفاتورة</label>
+          <input type="date" id="editTrxDate">
+        </div>
+      </div>
+
+      <!-- جدول الخدمات -->
+      <div style="margin-bottom:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <label class="section-title"><i class="fas fa-list"></i> الخدمات</label>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn-small" onclick="openEditServicePicker()" style="background:var(--primary-green); color:#fff; border-color:var(--primary-green);">
+              <i class="fas fa-th-list"></i> إضافة من القائمة
+            </button>
+            <button type="button" class="btn-small" onclick="editAddManualRow()" title="إضافة صف يدوي فارغ">
+              <i class="fas fa-keyboard"></i> يدوي
+            </button>
+          </div>
+        </div>
+        <div class="cart-wrapper">
+          <table class="cart-table" id="editServicesTable">
+            <thead>
+              <tr>
+                <th>اسم الخدمة</th>
+                <th style="width:62px;">الكمية</th>
+                <th style="width:82px;">السعر</th>
+                <th style="width:76px;">خصم</th>
+                <th style="width:76px;">إضافي</th>
+                <th style="width:82px;">الإجمالي</th>
+                <th style="width:36px;"></th>
+              </tr>
+            </thead>
+            <tbody id="editServicesBody">
+              <tr><td colspan="7" style="text-align:center; color:#aaa; padding:16px;">لا توجد خدمات</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- الإضافات والتخفيضات -->
+      <div class="form-group full-width" style="margin-bottom:18px;">
+        <label class="section-title">إضافات وتخفيضات الحساب</label>
+        <div class="extras-grid">
+          <div class="payment-field">
+            <label>خدمة أخرى / إضافية <span class="sub-note">(Extra)</span></label>
+            <input type="number" id="editExtraFee" min="0" placeholder="0" value="0" oninput="recalcEditSummary()">
+          </div>
+          <div class="payment-field">
+            <label>قيمة الخصم <span class="sub-note">(Discount)</span></label>
+            <input type="number" id="editDiscount" min="0" placeholder="0" value="0" oninput="recalcEditSummary()">
+          </div>
+          <div class="payment-field">
+            <label>الملاحظات (Notes)</label>
+            <input type="text" id="editNotes" placeholder="ملاحظات اختيارية">
+          </div>
+        </div>
+      </div>
+
+      <!-- طرق الدفع -->
+      <div class="form-group full-width" style="margin-bottom:18px;">
+        <label class="section-title">طرق الدفع والمسدد</label>
+        <div class="payment-grid">
+          <div class="payment-field">
+            <label>نقدي (Cash)</label>
+            <input type="number" id="editPayCash" min="0" placeholder="0" value="0" oninput="recalcEditSummary()">
+          </div>
+          <div class="payment-field">
+            <label>محفظة إلكترونية (Wallet)</label>
+            <input type="number" id="editPayWallet" min="0" placeholder="0" value="0" oninput="recalcEditSummary()">
+          </div>
+          <div class="payment-field">
+            <label>انستاباي (InstaPay)</label>
+            <input type="number" id="editPayInsta" min="0" placeholder="0" value="0" oninput="recalcEditSummary()">
+          </div>
+          <div class="payment-field">
+            <label>POS (فيزا / ماكينة)</label>
+            <input type="number" id="editPayPOS" min="0" placeholder="0" value="0" oninput="recalcEditSummary()">
+          </div>
+        </div>
+      </div>
+
+      <!-- الملخص -->
+      <div class="summary-box" style="margin-bottom:20px;">
+        <div class="summary-item">
+          <span class="title">صافي الفاتورة (Net Total)</span>
+          <span class="val" id="editNetDisplay">0.00 ج.م</span>
+        </div>
+        <div class="summary-item">
+          <span class="title">إجمالي المدفوع (Paid)</span>
+          <span class="val" id="editPaidDisplay">0.00 ج.م</span>
+        </div>
+        <div class="summary-item">
+          <span class="title">المتبقي الآجل (Credit)</span>
+          <span class="val" id="editCreditDisplay">0.00 ج.م</span>
+        </div>
+      </div>
+
+      <!-- رسالة الخطأ -->
+      <div id="editInvoiceError"
+        style="color:#C5221F; font-size:13px; display:none; margin-bottom:14px;
+               padding:10px 14px; background:#FFF5F5; border-radius:8px; border:1px solid #F5C6CB;">
+      </div>
+
+      <!-- أزرار الحفظ والإلغاء -->
+      <div style="display:flex; gap:12px;">
+        <button type="button" class="submit-btn" style="flex:2;" id="saveEditInvoiceBtn" onclick="submitEditInvoice()">
+          <i class="fas fa-save"></i> حفظ التعديلات
+        </button>
+        <button type="button" class="reset-btn" style="flex:1;" onclick="closeEditInvoiceModal()">
+          <i class="fas fa-times"></i> إلغاء
+        </button>
       </div>
     </div>
   </div>
@@ -3392,6 +3595,15 @@
 
         const tr = document.createElement('tr');
 
+        // دابل كليك على أول صف من كل فاتورة لفتح موديل التعديل
+        if (isFirstRowOfInvoice && invoiceNum !== '' && can('Transactions', 'edit')) {
+          tr.classList.add('invoice-editable-row');
+          tr.title = 'دابل كليك لتعديل الفاتورة رقم ' + invoiceNum;
+          tr.ondblclick = (function(num) {
+            return function() { openEditInvoiceModal(num); };
+          })(invoiceNum);
+        }
+
         let deleteCell = '';
         if (canDelete) {
           if (isFirstRowOfInvoice) {
@@ -4033,7 +4245,9 @@
     let cashExpensesCache = null;
     let cashSelectedUsers = []; // فارغة = كل الموظفين
     let cashAllUsersList = [];
-    let cashFullTotals = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 }; // الصافي الفعلي (مبيعات - مصروفات) لكل الموظفين — يُستخدم دائماً في الإغلاق
+    let cashFullTotals   = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 }; // الصافي الفعلي (مبيعات - مصروفات) لكل الموظفين — يُستخدم دائماً في الإغلاق
+    let cashFullSales    = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 }; // إجمالي المبيعات لكل طريقة دفع
+    let cashFullExpenses = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 }; // إجمالي المصروفات لكل طريقة دفع
 
     function switchBalTab(tab) {
       document.querySelectorAll('.bal-tab-btn').forEach(b => b.classList.remove('active'));
@@ -4306,6 +4520,9 @@
         InstaPay: fullSales.InstaPay - fullExpenses.InstaPay,
         POS: fullSales.POS - fullExpenses.POS,
       };
+      // حفظ المبيعات والمصروفات الخام لاستخدامها في رسالة التقفيل
+      cashFullSales    = { ...fullSales };
+      cashFullExpenses = { ...fullExpenses };
 
       // الصافي المعروض في البطاقات حسب فلتر الموظف
       const displayNet = {
@@ -4410,6 +4627,277 @@
       document.getElementById('closeDayNotes').value = '';
     }
 
+    // ============================================================
+    // رسالة التقفيل — نسخ ملخص يوم موظف واحد
+    // ============================================================
+    async function copyClosingMessage() {
+      if (isCashLoading) {
+        alert('لسه جاري تحميل الأرقام، انتظر لحظة ثم حاول مرة أخرى.');
+        return;
+      }
+
+      const from = document.getElementById('cashDateFrom').value;
+      if (!from) {
+        alert('يرجى تحديد اليوم أولاً.');
+        return;
+      }
+
+      // يجب أن يكون المحدد موظف واحد فقط (أو "كل الموظفين" كـ default عند استخدام يوم واحد)
+      const isDay = cashPeriodMode === 'day';
+      if (!isDay) {
+        alert('رسالة التقفيل تعمل فقط عند اختيار يوم واحد.');
+        return;
+      }
+
+      // تحديد اسم الموظف
+      let employeeName = '';
+      if (cashSelectedUsers.length === 1) {
+        employeeName = cashSelectedUsers[0];
+      } else if (cashSelectedUsers.length === 0) {
+        // كل الموظفين — نطلب من المستخدم يختار موظف واحد
+        alert('يرجى تحديد موظف واحد فقط من فلتر الموظف لإنشاء رسالة التقفيل.');
+        return;
+      } else {
+        alert('رسالة التقفيل تعمل لموظف واحد فقط — يرجى تحديد موظف واحد من الفلتر.');
+        return;
+      }
+
+      if (!cashSalesCache) {
+        alert('يرجى الضغط على "عرض" أولاً لتحميل البيانات.');
+        return;
+      }
+
+      // تنسيق التاريخ للعرض
+      const [yr, mo, dy] = from.split('-');
+      const dateDisplay = `${dy}-${mo}-${yr}`;
+
+      // فلترة مبيعات الموظف في هذا اليوم
+      const fromD = new Date(from); fromD.setHours(0,0,0,0);
+      const toD   = new Date(from); toD.setHours(23,59,59,999);
+
+      const daySales = (cashSalesCache || []).filter(row => {
+        const trxDateStr = (row['Trx Date'] || row['تاريخ الفاتورة'] || '').toString().trim();
+        if (!trxDateStr) return false;
+        const d = new Date(trxDateStr); d.setHours(12,0,0,0);
+        if (isNaN(d) || d < fromD || d > toD) return false;
+        const rowUser = (row['User'] || row['المستخدم'] || '').toString().trim();
+        return rowUser === employeeName;
+      });
+
+      // تجميع البيانات حسب رقم الفاتورة
+      const invoiceMap = {};       // رقم الفاتورة → { client, netTotal, paid, credit, services[], type }
+      const collectEntries = [];   // تحصيلات
+      const bookingEntries = [];   // حجوزات
+
+      const paymentLabels = ['Payment تحصيل', 'Payment Collect', 'Payment حجز'];
+      const paymentMethods = ['Cash','Wallet','InstaPay','POS'];
+
+      const paidByMethod = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+      const salesPaidByMethod = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+
+      daySales.forEach(row => {
+        const invoiceNum = (row['Num'] || row['رقم الفاتورة'] || '').toString().trim();
+        const client     = (row['Client'] || row['اسم العميلة'] || '').toString().trim();
+        const service    = (row['Service'] || row['الخدمة'] || '').toString().trim();
+        const netTotal   = parseFloat(row['Net Total'] || row['صافي الفاتورة'] || 0);
+        const paid       = parseFloat(row['Paid'] || row['المدفوع'] || 0);
+        const credit     = parseFloat(row['Credit'] || row['المتبقي'] || 0);
+        const method     = (row['Payment Method'] || row['Method'] || '').toString().trim();
+        const payLabel   = service; // خانة الخدمة بتحتوي على نوع الدفع للتحصيلات
+
+        // تراكم المدفوع حسب طريقة الدفع
+        if (paymentMethods.includes(method) && paid > 0) {
+          paidByMethod[method] += paid;
+        }
+
+        // هل هي تحصيل/حجز؟
+        const isCollect  = payLabel === 'Payment تحصيل' || payLabel === 'Payment Collect';
+        const isBooking  = payLabel === 'Payment حجز';
+
+        if (isCollect) {
+          collectEntries.push({ client, paid, method });
+          return;
+        }
+        if (isBooking) {
+          bookingEntries.push({ client, paid, method });
+          return;
+        }
+
+        // فاتورة عادية أو صف خدمة
+        if (!invoiceNum) return;
+        if (!invoiceMap[invoiceNum]) {
+          invoiceMap[invoiceNum] = { num: invoiceNum, client, netTotal: 0, paid: 0, credit: 0, services: [] };
+        }
+        invoiceMap[invoiceNum].netTotal += netTotal;
+        invoiceMap[invoiceNum].paid     += paid;
+        invoiceMap[invoiceNum].credit   += credit;
+        if (service && service !== 'تعديل' && !paymentLabels.includes(service)) {
+          invoiceMap[invoiceNum].services.push(service);
+          if (paymentMethods.includes(method) && paid > 0) {
+            salesPaidByMethod[method] += paid;
+          }
+        }
+      });
+
+      const invoiceList = Object.values(invoiceMap).filter(inv => inv.services.length > 0 || inv.netTotal > 0);
+
+      // إجماليات الفواتير العادية فقط
+      const totalInvoices   = invoiceList.length;
+      const totalNetSales   = invoiceList.reduce((s, inv) => s + inv.netTotal, 0);
+      const totalPaidSales  = invoiceList.reduce((s, inv) => s + inv.paid, 0);
+      const totalCreditSales= invoiceList.reduce((s, inv) => s + inv.credit, 0);
+
+      // إجمالي التحصيلات والحجوزات
+      const totalCollect   = collectEntries.reduce((s, e) => s + e.paid, 0);
+      const totalBooking   = bookingEntries.reduce((s, e) => s + e.paid, 0);
+
+      // إجمالي المسدد الكلي (فواتير + تحصيلات + حجوزات)
+      const grandPaid = totalPaidSales + totalCollect + totalBooking;
+
+      // مصروفات الموظف في نفس اليوم
+      const dayExpenses = (cashExpensesCache || []).filter(row => {
+        const expDateStr = (row['Expense Date'] || '').toString().trim();
+        if (!expDateStr) return false;
+        const d = new Date(expDateStr); d.setHours(12,0,0,0);
+        if (isNaN(d) || d < fromD || d > toD) return false;
+        const rowUser = (row['User'] || '').toString().trim();
+        return rowUser === employeeName;
+      });
+      const totalExpenses = dayExpenses.reduce((s, row) => s + parseFloat(row['Net Total'] || 0), 0);
+
+      // بناء الرسالة
+      const fmt = n => Number(n).toLocaleString('ar-EG', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+      let msg = '';
+      msg += `📊 تقفيل ${employeeName} | ${dateDisplay}\n`;
+      msg += `${'─'.repeat(30)}\n`;
+      msg += `📋 إجمالي عدد الفواتير: ${totalInvoices}\n`;
+      msg += `💰 إجمالي المبيعات: ${fmt(totalNetSales)} ج.م\n`;
+      msg += `✅ إجمالي المسدد: ${fmt(grandPaid)} ج.م\n`;
+
+      // تفاصيل المسدد حسب طريقة الدفع
+      const methodAr = { Cash: 'نقدي', Wallet: 'محفظة', InstaPay: 'انستاباي', POS: 'POS' };
+      const methodLines = paymentMethods.filter(m => paidByMethod[m] > 0)
+        .map((m, i, arr) => `   ${i === arr.length-1 ? '└' : '├'} ${methodAr[m]}: ${fmt(paidByMethod[m])}`);
+      if (methodLines.length) msg += methodLines.join('\n') + '\n';
+
+      msg += `⏳ إجمالي المتبقي: ${fmt(totalCreditSales)} ج.م\n`;
+
+      // حساب مبيعات الموظفة فقط حسب طريقة الدفع من daySales
+      const empSalesByMethod = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+      daySales.forEach(row => {
+        const method = (row['Payment Method'] || row['Method'] || '').toString().trim();
+        const paid   = parseFloat(row['Paid'] || row['المدفوع'] || 0);
+        if (paid > 0 && empSalesByMethod.hasOwnProperty(method)) {
+          empSalesByMethod[method] += paid;
+        }
+      });
+
+      // مصروفات الموظفة حسب طريقة الدفع
+      const empExpByMethod = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+      dayExpenses.forEach(row => {
+        const method = (row['Payment Method'] || '').toString().trim();
+        const amount = parseFloat(row['Net Total'] || 0);
+        if (amount > 0 && empExpByMethod.hasOwnProperty(method)) {
+          empExpByMethod[method] += amount;
+        }
+      });
+
+      // صافي كل طريقة (مبيعات - مصروفات)
+      const empNetByMethod = {
+        Cash:     empSalesByMethod.Cash     - empExpByMethod.Cash,
+        Wallet:   empSalesByMethod.Wallet   - empExpByMethod.Wallet,
+        InstaPay: empSalesByMethod.InstaPay - empExpByMethod.InstaPay,
+        POS:      empSalesByMethod.POS      - empExpByMethod.POS,
+      };
+      const grandNet = Object.values(empNetByMethod).reduce((s, v) => s + v, 0);
+
+      msg += `${'─'.repeat(30)}\n`;
+
+      // 1) تقفيل اليوم (صافي كل طريقة)
+      msg += `🔒 تقفيل اليوم:\n`;
+      paymentMethods.filter(m => empSalesByMethod[m] > 0 || empNetByMethod[m] !== 0).forEach((m, i, arr) => {
+        const prefix = i === arr.length - 1 ? '└' : '├';
+        msg += `   ${prefix} ${methodAr[m]}: ${fmt(empNetByMethod[m])} ج.م\n`;
+      });
+      msg += `💼 صافي تقفيل اليوم: ${fmt(grandNet)} ج.م\n`;
+
+      // 2) المصروفات
+      if (totalExpenses > 0) {
+        msg += `${'─'.repeat(30)}\n`;
+        msg += `🧾 المصروفات:\n`;
+        paymentMethods.filter(m => empExpByMethod[m] > 0).forEach((m, i, arr) => {
+          const prefix = i === arr.length - 1 ? '└' : '├';
+          msg += `   ${prefix} ${methodAr[m]}: ${fmt(empExpByMethod[m])} ج.م\n`;
+        });
+        msg += `📌 إجمالي المصروفات: ${fmt(totalExpenses)} ج.م\n`;
+      }
+
+      // 3) المبيعات حسب طريقة الدفع
+      msg += `${'─'.repeat(30)}\n`;
+      msg += `💰 المبيعات:\n`;
+      paymentMethods.filter(m => empSalesByMethod[m] > 0).forEach((m, i, arr) => {
+        const prefix = i === arr.length - 1 ? '└' : '├';
+        msg += `   ${prefix} ${methodAr[m]}: ${fmt(empSalesByMethod[m])} ج.م\n`;
+      });
+
+      // تفاصيل الفواتير
+      if (invoiceList.length > 0) {
+        msg += `\n📝 تفاصيل الفواتير:\n`;
+        invoiceList.forEach(inv => {
+          const svcStr = inv.services.length > 0 ? inv.services.join('، ') : 'خدمة';
+          msg += `• ف#${inv.num} | ${inv.client} | ${svcStr}\n`;
+          msg += `  إجمالي: ${fmt(inv.netTotal)} | مسدد: ${fmt(inv.paid)} | باقي: ${fmt(inv.credit)}\n`;
+        });
+      }
+
+      // الحجوزات
+      if (bookingEntries.length > 0) {
+        msg += `\n🔖 الحجوزات:\n`;
+        bookingEntries.forEach(e => {
+          msg += `• حجز للعميلة ${e.client} بمبلغ ${fmt(e.paid)} ج.م\n`;
+        });
+      }
+
+      // التحصيلات
+      if (collectEntries.length > 0) {
+        msg += `\n💳 التحصيلات:\n`;
+        collectEntries.forEach(e => {
+          msg += `• تحصيل من العميلة ${e.client} مبلغ ${fmt(e.paid)} ج.م\n`;
+        });
+      }
+
+      msg += `${'─'.repeat(30)}\n`;
+      msg += `✨ تم بنجاح — نظام Yuni`;
+
+      // نسخ للكليب بورد
+      try {
+        await navigator.clipboard.writeText(msg);
+        const btn = document.getElementById('btnCopyClosingMsg');
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> تم النسخ!';
+        btn.style.background = '#d4edda';
+        btn.style.borderColor = '#28a745';
+        btn.style.color = '#155724';
+        setTimeout(() => {
+          btn.innerHTML = origHtml;
+          btn.style.background = '';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }, 2500);
+      } catch (err) {
+        // fallback لو الكليب بورد مش شغال
+        const ta = document.createElement('textarea');
+        ta.value = msg;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        alert('✅ تم نسخ رسالة التقفيل!');
+      }
+    }
+
     async function confirmCloseDay() {
       if (!can('Balances', 'add')) return;
       const from = document.getElementById('cashDateFrom').value;
@@ -4474,6 +4962,433 @@
         }
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-lock"></i> تأكيد الإغلاق';
+      }
+    }
+
+
+    // ============================================================
+    // تعديل الفاتورة — دابل كليك على الصف في استعراض البيانات
+    // ============================================================
+    let editingInvoiceNum    = null;
+    let editingInvoiceClient = null;
+    let editServiceRows      = [];
+    // paymentLabel المخزن في dataset للـ overlay
+
+    function openEditInvoiceModal(invoiceNum) {
+      if (!can('Transactions', 'edit')) return;
+
+      // جمع كل صفوف هذه الفاتورة من salesMasterData
+      const rows = salesMasterData.filter(r => {
+        const num = (r['Num'] || r['رقم الفاتورة'] || '').toString().trim();
+        return num === invoiceNum.toString();
+      });
+      if (rows.length === 0) { alert('لم يتم العثور على بيانات الفاتورة.'); return; }
+
+      editingInvoiceNum    = invoiceNum;
+      editingInvoiceClient = (rows[0]['Client'] || rows[0]['اسم العميلة'] || '').toString();
+
+      document.getElementById('editInvoiceNumDisplay').innerText = invoiceNum;
+      document.getElementById('editClientDisplay').value         = editingInvoiceClient;
+      document.getElementById('editTrxDate').value = (rows[0]['Trx Date'] || rows[0]['تاريخ الفاتورة'] || '').toString().substring(0, 10);
+
+      // إعادة بناء الخدمات من الصفوف
+      editServiceRows = [];
+      let extraFeeTotal = 0, discountTotal = 0;
+      let cashPaidEdit = 0, walletPaidEdit = 0, instaPaidEdit = 0, posPaidEdit = 0;
+      let notesValEdit = '';
+      let paymentLabelEdit = 'Payment method';
+
+      rows.forEach(r => {
+        const svc      = (r['Service']        || r['الخدمة']          || '').toString();
+        const method   = (r['Payment Method'] || r['Method']           || '').toString();
+        const paid     = parseFloat(r['Paid'] || r['المدفوع']         || 0);
+        const price    = parseFloat(r['Price']|| r['السعر']            || 0);
+        const qty      = parseFloat(r['Qty']  || 1);
+        const disc     = parseFloat(r['Discount']   || r['الخصم']      || 0);
+        const extra    = parseFloat(r['Extra']      || r['الإضافي']    || 0);
+        const doctor   = (r['Doctor']     || r['الطبيب']     || '').toString();
+        const spec     = (r['Specialist'] || r['الأخصائي']  || '').toString();
+        const speciality = (r['Item/Service Speciality'] || '').toString();
+        const category   = (r['Item/Service Category']   || '').toString();
+        const notes    = (r['Notes'] || r['ملاحظات'] || '').toString();
+
+        if (notes) notesValEdit = notes;
+
+        const isPaymentRow = svc.includes('Payment');
+        const isAdjRow     = svc === 'تعديل';
+
+        if (!isPaymentRow && !isAdjRow && svc) {
+          editServiceRows.push({
+            name: svc, qty: qty, price: price,
+            lineDiscount: disc, lineExtra: extra,
+            staffType: doctor ? 'doctor' : (spec ? 'specialist' : ''),
+            staffName: doctor || spec || '',
+            speciality: speciality, category: category
+          });
+        }
+
+        if (isAdjRow) {
+          extraFeeTotal += extra;
+          discountTotal += disc;
+        }
+
+        if (isPaymentRow) paymentLabelEdit = svc;
+
+        // تجميع المدفوعات حسب طريقة الدفع
+        if (paid > 0) {
+          if (method === 'Cash')     cashPaidEdit   += paid;
+          else if (method === 'Wallet')   walletPaidEdit += paid;
+          else if (method === 'InstaPay') instaPaidEdit  += paid;
+          else if (method === 'POS')      posPaidEdit    += paid;
+        }
+      });
+
+      document.getElementById('editExtraFee').value  = extraFeeTotal  || 0;
+      document.getElementById('editDiscount').value   = discountTotal  || 0;
+      document.getElementById('editNotes').value      = notesValEdit;
+      document.getElementById('editPayCash').value    = cashPaidEdit   || 0;
+      document.getElementById('editPayWallet').value  = walletPaidEdit || 0;
+      document.getElementById('editPayInsta').value   = instaPaidEdit  || 0;
+      document.getElementById('editPayPOS').value     = posPaidEdit    || 0;
+
+      document.getElementById('editInvoiceOverlay').dataset.paymentLabel = paymentLabelEdit;
+
+      renderEditServicesTable();
+      recalcEditSummary();
+
+      document.getElementById('editInvoiceError').style.display = 'none';
+      const saveBtn = document.getElementById('saveEditInvoiceBtn');
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fas fa-save"></i> حفظ التعديلات';
+      document.getElementById('editInvoiceOverlay').classList.add('active');
+    }
+
+    function renderEditServicesTable() {
+      const tbody = document.getElementById('editServicesBody');
+      tbody.innerHTML = '';
+      if (editServiceRows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#aaa; padding:16px;">لا توجد خدمات — اضغط "إضافة خدمة" لإضافة خدمة جديدة</td></tr>';
+        return;
+      }
+      editServiceRows.forEach((row, idx) => {
+        const lineTotal = ((parseFloat(row.price)||0) * (parseFloat(row.qty)||1)) + (parseFloat(row.lineExtra)||0) - (parseFloat(row.lineDiscount)||0);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <input type="text" value="${(row.name||'').replace(/"/g,'&quot;')}"
+              style="width:100%; border:1.5px solid var(--border-color); border-radius:6px; padding:5px 8px; font-size:13px; background:#fff;"
+              oninput="editServiceRows[${idx}].name = this.value;">
+          </td>
+          <td>
+            <input type="number" class="cart-qty-input" value="${row.qty}" min="0.01" step="0.01"
+              oninput="editServiceRows[${idx}].qty = parseFloat(this.value)||1; recalcEditSummary(); updateEditRowTotal(this.closest('tr'), ${idx});">
+          </td>
+          <td>
+            <input type="number" class="cart-adj-input" value="${row.price}" min="0"
+              oninput="editServiceRows[${idx}].price = parseFloat(this.value)||0; recalcEditSummary(); updateEditRowTotal(this.closest('tr'), ${idx});">
+          </td>
+          <td>
+            <input type="number" class="cart-adj-input" value="${row.lineDiscount}" min="0"
+              oninput="editServiceRows[${idx}].lineDiscount = parseFloat(this.value)||0; recalcEditSummary(); updateEditRowTotal(this.closest('tr'), ${idx});">
+          </td>
+          <td>
+            <input type="number" class="cart-adj-input" value="${row.lineExtra}" min="0"
+              oninput="editServiceRows[${idx}].lineExtra = parseFloat(this.value)||0; recalcEditSummary(); updateEditRowTotal(this.closest('tr'), ${idx});">
+          </td>
+          <td class="cart-line-total" data-edit-row-total="${idx}">${lineTotal.toFixed(2)}</td>
+          <td>
+            <button type="button" class="cart-remove-btn" onclick="editRemoveServiceRow(${idx})">
+              <i class="fas fa-times"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateEditRowTotal(trEl, idx) {
+      const row = editServiceRows[idx];
+      const lineTotal = ((parseFloat(row.price)||0) * (parseFloat(row.qty)||1)) + (parseFloat(row.lineExtra)||0) - (parseFloat(row.lineDiscount)||0);
+      const cell = trEl ? trEl.querySelector(`[data-edit-row-total="${idx}"]`) : null;
+      if (cell) cell.innerText = lineTotal.toFixed(2);
+    }
+
+    function editRemoveServiceRow(idx) {
+      editServiceRows.splice(idx, 1);
+      renderEditServicesTable();
+      recalcEditSummary();
+    }
+
+    // إضافة صف يدوي فارغ (بدون قائمة)
+    function editAddManualRow() {
+      editServiceRows.push({ name: '', qty: 1, price: 0, lineDiscount: 0, lineExtra: 0, staffType: '', staffName: '', speciality: '', category: '' });
+      renderEditServicesTable();
+      recalcEditSummary();
+      const inputs = document.querySelectorAll('#editServicesBody tr:last-child input[type="text"]');
+      if (inputs[0]) setTimeout(() => inputs[0].focus(), 50);
+    }
+
+    // ── لوحة اختيار الخدمة من قائمة globalData ──
+
+    let _editSvcAllItems  = [];   // كل الأصناف المبنية من globalData
+    let _editSvcCatKeys   = [];   // أسماء التصنيفات بالترتيب
+    let _editSvcBycat     = {};   // { catName: [ {name,price,speciality,category} ] }
+    let _editSvcActiveCat = '';   // التصنيف المفتوح حالياً
+
+    function openEditServicePicker() {
+      // بناء قائمة الخدمات من globalData (نفس البيانات اللي بتحمّلها الفاتورة الأصلية)
+      if (!globalData || globalData.length === 0) {
+        alert('لم يتم تحميل بيانات الخدمات بعد. يرجى المحاولة مرة أخرى.');
+        return;
+      }
+
+      _editSvcBycat = {};
+      globalData.forEach(item => {
+        let name = '', price = 0, speciality = '', category = 'خدمات عامة';
+        Object.keys(item).forEach(k => {
+          const ck = k.trim();
+          if (ck === 'Item/Service' || ck === 'اسم الخدمة')              name       = item[k];
+          if (ck === 'Item/Service Price' || ck === 'السعر')              price      = parseFloat(item[k]) || 0;
+          if (ck === 'Item/Service Speciality')                           speciality = item[k].toString().trim();
+          if (ck === 'Item/Service Category' || ck === 'التصنيف')        category   = item[k];
+        });
+        if (!name) return;
+        if (!_editSvcBycat[category]) _editSvcBycat[category] = [];
+        _editSvcBycat[category].push({ name, price, speciality, category });
+      });
+
+      _editSvcCatKeys = Object.keys(_editSvcBycat).sort((a, b) => a.localeCompare(b, 'ar'));
+      _editSvcCatKeys.forEach(cat => {
+        _editSvcBycat[cat].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+      });
+      _editSvcAllItems = [];
+      _editSvcCatKeys.forEach(cat => _editSvcAllItems.push(..._editSvcBycat[cat]));
+
+      document.getElementById('editSvcSearchInput').value = '';
+      _editSvcActiveCat = _editSvcCatKeys[0] || '';
+
+      renderEditSvcTabs(_editSvcCatKeys);
+      renderEditSvcItems(_editSvcActiveCat);
+      document.getElementById('editSvcPickerOverlay').classList.add('active');
+      setTimeout(() => document.getElementById('editSvcSearchInput').focus(), 80);
+    }
+
+    function renderEditSvcTabs(catKeys) {
+      const header = document.getElementById('editSvcTabsHeader');
+      header.innerHTML = '';
+      catKeys.forEach((cat, i) => {
+        const btn = document.createElement('button');
+        btn.type      = 'button';
+        btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+        btn.innerText = `${cat} (${_editSvcBycat[cat].length})`;
+        btn.onclick   = () => {
+          document.querySelectorAll('#editSvcTabsHeader .tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          _editSvcActiveCat = cat;
+          renderEditSvcItems(cat);
+          document.getElementById('editSvcSearchInput').value = '';
+        };
+        header.appendChild(btn);
+      });
+    }
+
+    function renderEditSvcItems(catName) {
+      const container = document.getElementById('editSvcTabsContainer');
+      const items = (_editSvcBycat[catName] || []);
+      if (items.length === 0) {
+        container.innerHTML = '<div class="empty-msg">لا توجد خدمات في هذا التصنيف</div>';
+        return;
+      }
+      container.innerHTML = `
+        <div class="custom-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px;
+             background:#FAF8F5; padding:14px; border-radius:12px; border:1.5px solid var(--border-color);
+             max-height:380px; overflow-y:auto;">
+          ${items.map((item, i) => `
+            <div class="checkbox-item" onclick="editPickService(${JSON.stringify(item.name).replace(/</g,'\\u003c')}, ${item.price}, '${item.speciality.replace(/'/g,"\\'")}', '${item.category.replace(/'/g,"\\'")}')">
+              <div>
+                <i class="fas fa-plus-circle" style="color:var(--primary-green); font-size:14px;"></i>
+                <span>${item.name}</span>
+              </div>
+              <span class="price-tag">${item.price.toFixed(2)} ج.م</span>
+            </div>
+          `).join('')}
+        </div>`;
+    }
+
+    function filterEditSvcPicker() {
+      const query = document.getElementById('editSvcSearchInput').value.trim().toLowerCase();
+      if (!query) {
+        // رجوع للتاب الأول
+        renderEditSvcTabs(_editSvcCatKeys);
+        renderEditSvcItems(_editSvcActiveCat);
+        return;
+      }
+      // إخفاء التابز وعرض كل النتائج المطابقة
+      document.getElementById('editSvcTabsHeader').innerHTML = '';
+      const matches = _editSvcAllItems.filter(it => it.name.toLowerCase().includes(query));
+      const container = document.getElementById('editSvcTabsContainer');
+      if (matches.length === 0) {
+        container.innerHTML = '<div class="empty-msg">لا توجد نتائج مطابقة</div>';
+        return;
+      }
+      container.innerHTML = `
+        <div class="custom-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px;
+             background:#FAF8F5; padding:14px; border-radius:12px; border:1.5px solid var(--border-color);
+             max-height:420px; overflow-y:auto;">
+          ${matches.map(item => `
+            <div class="checkbox-item" onclick="editPickService(${JSON.stringify(item.name).replace(/</g,'\\u003c')}, ${item.price}, '${item.speciality.replace(/'/g,"\\'")}', '${item.category.replace(/'/g,"\\'")}')">
+              <div>
+                <i class="fas fa-plus-circle" style="color:var(--primary-green); font-size:14px;"></i>
+                <span>${item.name}</span>
+              </div>
+              <span class="price-tag">${item.price.toFixed(2)} ج.م</span>
+            </div>
+          `).join('')}
+        </div>`;
+    }
+
+    function editPickService(name, price, speciality, category) {
+      // لو الخدمة موجودة بالفعل نزود الكمية
+      const existing = editServiceRows.find(r => r.name === name && r.speciality === speciality);
+      if (existing) {
+        existing.qty = (parseFloat(existing.qty) || 1) + 1;
+      } else {
+        editServiceRows.push({ name, qty: 1, price, lineDiscount: 0, lineExtra: 0, staffType: '', staffName: '', speciality, category });
+      }
+      renderEditServicesTable();
+      recalcEditSummary();
+
+      // فلاش بصري على الخدمة المُضافة
+      const clickedEl = event && event.currentTarget;
+      if (clickedEl) {
+        clickedEl.style.background = '#d4edda';
+        setTimeout(() => { clickedEl.style.background = ''; }, 600);
+      }
+    }
+
+    function closeEditSvcPicker() {
+      document.getElementById('editSvcPickerOverlay').classList.remove('active');
+    }
+
+    function closeEditSvcPickerOnOutside(e) {
+      if (e.target === document.getElementById('editSvcPickerOverlay')) closeEditSvcPicker();
+    }
+
+    function recalcEditSummary() {
+      let servicesTotal = 0;
+      editServiceRows.forEach(r => {
+        servicesTotal += ((parseFloat(r.price)||0) * (parseFloat(r.qty)||1)) + (parseFloat(r.lineExtra)||0) - (parseFloat(r.lineDiscount)||0);
+      });
+      const extra    = parseFloat(document.getElementById('editExtraFee').value)  || 0;
+      const disc     = parseFloat(document.getElementById('editDiscount').value)   || 0;
+      const netTotal = servicesTotal + extra - disc;
+
+      const cash   = parseFloat(document.getElementById('editPayCash').value)   || 0;
+      const wallet = parseFloat(document.getElementById('editPayWallet').value) || 0;
+      const insta  = parseFloat(document.getElementById('editPayInsta').value)  || 0;
+      const pos    = parseFloat(document.getElementById('editPayPOS').value)    || 0;
+      const totalPaid = cash + wallet + insta + pos;
+      const credit    = netTotal - totalPaid;
+
+      document.getElementById('editNetDisplay').innerText    = netTotal.toFixed(2)  + ' ج.م';
+      document.getElementById('editPaidDisplay').innerText   = totalPaid.toFixed(2) + ' ج.م';
+      document.getElementById('editCreditDisplay').innerText = credit.toFixed(2)    + ' ج.م';
+      document.getElementById('editCreditDisplay').style.color = credit > 0 ? '#C5221F' : 'inherit';
+    }
+
+    function closeEditInvoiceModal() {
+      document.getElementById('editInvoiceOverlay').classList.remove('active');
+      editingInvoiceNum    = null;
+      editingInvoiceClient = null;
+      editServiceRows      = [];
+    }
+
+    function closeEditInvoiceOnOutside(event) {
+      if (event.target === document.getElementById('editInvoiceOverlay')) closeEditInvoiceModal();
+    }
+
+    function showEditError(msg) {
+      const el = document.getElementById('editInvoiceError');
+      el.innerText = msg;
+      el.style.display = '';
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    async function submitEditInvoice() {
+      if (!editingInvoiceNum) return;
+
+      const trxDate = document.getElementById('editTrxDate').value;
+      if (!trxDate)                      { showEditError('يرجى تحديد تاريخ الفاتورة.');                        return; }
+      if (editServiceRows.length === 0)  { showEditError('يرجى إضافة خدمة واحدة على الأقل.');                 return; }
+      if (editServiceRows.some(r => !r.name.trim())) { showEditError('يوجد خدمة بدون اسم، يرجى المراجعة.'); return; }
+
+      const cash   = parseFloat(document.getElementById('editPayCash').value)   || 0;
+      const wallet = parseFloat(document.getElementById('editPayWallet').value) || 0;
+      const insta  = parseFloat(document.getElementById('editPayInsta').value)  || 0;
+      const pos    = parseFloat(document.getElementById('editPayPOS').value)    || 0;
+
+      const payments = [];
+      if (cash   > 0) payments.push({ method: 'Cash',     amount: cash   });
+      if (wallet > 0) payments.push({ method: 'Wallet',   amount: wallet });
+      if (insta  > 0) payments.push({ method: 'InstaPay', amount: insta  });
+      if (pos    > 0) payments.push({ method: 'POS',      amount: pos    });
+
+      const paymentLabel = document.getElementById('editInvoiceOverlay').dataset.paymentLabel || 'Payment method';
+
+      const payload = {
+        action:     'editInvoice',
+        token:      sessionStorage.getItem('yuni_token'),
+        invoiceNum: editingInvoiceNum,
+        data: {
+          trxDate:      trxDate,
+          client:       editingInvoiceClient,
+          services:     editServiceRows,
+          payments:     payments,
+          paymentLabel: paymentLabel,
+          discount:     parseFloat(document.getElementById('editDiscount').value)  || 0,
+          extra:        parseFloat(document.getElementById('editExtraFee').value)  || 0,
+          notes:        document.getElementById('editNotes').value.trim()
+        }
+      };
+
+      const dateOk = isDateAllowed(trxDate);
+      if (!dateOk) {
+        openMasterPasswordModal(function(masterPass) {
+          doSubmitEditInvoice({ ...payload, overridePassword: masterPass });
+        });
+        return;
+      }
+      doSubmitEditInvoice(payload);
+    }
+
+    async function doSubmitEditInvoice(payload) {
+      const btn  = document.getElementById('saveEditInvoiceBtn');
+      const errEl = document.getElementById('editInvoiceError');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+      errEl.style.display = 'none';
+
+      try {
+        const res    = await apiPost(payload);
+        const result = await res.json();
+
+        if (result.status === 'error' && result.needsPassword) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-save"></i> حفظ التعديلات';
+          openMasterPasswordModal(function(masterPass) {
+            doSubmitEditInvoice({ ...payload, overridePassword: masterPass });
+          });
+          return;
+        }
+        if (result.status !== 'success') throw new Error(result.message);
+
+        closeEditInvoiceModal();
+        fetchLogsFromSheet();   // تحديث جدول البيانات
+        alert(`✅ تم تعديل فاتورة رقم ${payload.invoiceNum} بنجاح!`);
+      } catch (err) {
+        showEditError('❌ ' + (err.message || 'تعذر حفظ التعديلات، يرجى المحاولة مرة أخرى.'));
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> حفظ التعديلات';
       }
     }
 
