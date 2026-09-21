@@ -398,14 +398,26 @@
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(24, 66, 50, 0.6); backdrop-filter: blur(6px);
     display: none; justify-content: center; align-items: flex-start;
-    z-index: 25000; padding: 20px; overflow-y: auto;
+    z-index: 25000; padding: 10px; overflow-y: auto;
   }
   .edit-invoice-overlay.active { display: flex; }
   .edit-invoice-card {
-    background: #FFFFFF; border-radius: 20px; padding: 30px;
-    width: 100%; max-width: 800px; margin: auto;
+    background: #FFFFFF; border-radius: 16px; padding: 20px;
+    width: 100%; max-width: 900px; margin: auto;
     box-shadow: 0 20px 50px rgba(0,0,0,0.3); border: 1px solid var(--border-color);
   }
+  @media (max-width: 600px) {
+    .edit-invoice-card { padding: 14px; border-radius: 12px; }
+    .edit-invoice-card h3 { font-size: 16px !important; margin-bottom: 14px !important; }
+  }
+  .edit-invoice-card .cart-qty-input { width: 60px !important; font-size: 13px !important; padding: 5px 6px !important; }
+  .edit-invoice-card .cart-adj-input { width: 75px !important; font-size: 13px !important; padding: 5px 6px !important; }
+  .edit-invoice-card .cart-table { font-size: 13px !important; }
+  .edit-invoice-card .cart-table th { font-size: 12px !important; padding: 8px 6px !important; }
+  .edit-invoice-card .cart-table td { padding: 7px 5px !important; }
+  /* جدول الخدمات داخل التعديل يتسكرول أفقياً على الموبايل */
+  .edit-invoice-card .cart-wrapper { overflow-x: auto; }
+  .edit-invoice-card #editServicesTable { min-width: 640px; }
   .edit-invoice-card h3 {
     color: var(--primary-green); font-size: 20px; margin-bottom: 20px;
     display: flex; align-items: center; gap: 10px;
@@ -423,9 +435,12 @@
   }
   .edit-svc-picker-overlay.active { display: flex; }
   .edit-svc-picker-card {
-    background: #FFFFFF; border-radius: 18px; padding: 24px;
-    width: 100%; max-width: 720px; max-height: 88vh; overflow-y: auto;
+    background: #FFFFFF; border-radius: 18px; padding: 18px;
+    width: 100%; max-width: 720px; max-height: 90vh; overflow-y: auto;
     box-shadow: 0 20px 50px rgba(0,0,0,0.35); border: 1px solid var(--border-color);
+  }
+  @media (max-width: 600px) {
+    .edit-svc-picker-card { padding: 12px; border-radius: 12px; }
   }
   .edit-svc-picker-card h4 {
     color: var(--primary-green); font-size: 17px; margin-bottom: 14px;
@@ -1397,6 +1412,18 @@
         </button>
       </h4>
 
+      <!-- فلتر الموظف -->
+      <div style="margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+        <label id="editPickerStaffLabel" style="font-size:13px; font-weight:600; color:var(--primary-green); white-space:nowrap;">
+          <i class="fas fa-user-md"></i> <span id="editPickerStaffLabelText">الموظف</span>
+        </label>
+        <select id="editPickerStaffSelect" onchange="onEditPickerStaffChange()"
+          style="flex:1; padding:8px 10px; border:1.5px solid var(--border-color);
+                 border-radius:10px; font-size:13px; background:#FAF8F5; color:var(--text-color);">
+          <option value="">-- الكل --</option>
+        </select>
+      </div>
+
       <!-- بحث سريع -->
       <div style="margin-bottom:12px;">
         <input type="text" id="editSvcSearchInput" placeholder="ابحث عن خدمة..."
@@ -1443,9 +1470,6 @@
             <button type="button" class="btn-small" onclick="openEditServicePicker()" style="background:var(--primary-green); color:#fff; border-color:var(--primary-green);">
               <i class="fas fa-th-list"></i> إضافة من القائمة
             </button>
-            <button type="button" class="btn-small" onclick="editAddManualRow()" title="إضافة صف يدوي فارغ">
-              <i class="fas fa-keyboard"></i> يدوي
-            </button>
           </div>
         </div>
         <div class="cart-wrapper">
@@ -1453,6 +1477,7 @@
             <thead>
               <tr>
                 <th>اسم الخدمة</th>
+                <th style="width:110px;">الموظف / الطبيب</th>
                 <th style="width:62px;">الكمية</th>
                 <th style="width:82px;">السعر</th>
                 <th style="width:76px;">خصم</th>
@@ -2354,7 +2379,7 @@
           <td style="font-weight:600;">${escCart(name)}</td>
           <td>
             <select class="cart-adj-input" style="width:100%;min-width:120px;padding:5px 7px;"
-              onchange="updateCartField('${escCart(name)}','staffName',this.value)">
+              onchange="updateCartField('${escCart(name)}','staffName',this.value); if(this.value){this.style.border='';this.style.background='';}" >
               ${staffOpts.replace(`value="${escCart(item.staffName)}"`, `value="${escCart(item.staffName)}" selected`)}
             </select>
           </td>
@@ -2544,6 +2569,28 @@
 
       if (selectedServices.length === 0 && extraFee === 0) {
         alert('يرجى اختيار خدمة واحدة على الأقل أو إدخال رسوم إضافية!');
+        return;
+      }
+
+      // التحقق من أن كل صنف له موظف مختار (إجباري)
+      const missingStaff = selectedServices.filter(s => !s.staffName);
+      if (missingStaff.length > 0) {
+        // تلوين الـ selects الفاضية باللون الأحمر
+        document.querySelectorAll('#cartBody tr').forEach(tr => {
+          const nameCell = tr.getAttribute('data-name');
+          const missingItem = missingStaff.find(s => s.name === nameCell);
+          if (missingItem) {
+            const sel = tr.querySelector('select');
+            if (sel) {
+              sel.style.border = '2px solid #C5221F';
+              sel.style.background = '#fff0f0';
+            }
+          }
+        });
+        const firstSel = document.querySelector('#cartBody tr select:not([value])');
+        if (firstSel) firstSel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const names = missingStaff.map(s => '• ' + s.name).join('\n');
+        alert('يرجى تحديد الطبيب أو المتخصص لكل خدمة قبل الحفظ:\n\n' + names);
         return;
       }
 
@@ -5067,17 +5114,46 @@
       const tbody = document.getElementById('editServicesBody');
       tbody.innerHTML = '';
       if (editServiceRows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#aaa; padding:16px;">لا توجد خدمات — اضغط "إضافة خدمة" لإضافة خدمة جديدة</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#aaa; padding:16px;">لا توجد خدمات — اضغط "إضافة من القائمة" لإضافة خدمة جديدة</td></tr>';
         return;
       }
       editServiceRows.forEach((row, idx) => {
         const lineTotal = ((parseFloat(row.price)||0) * (parseFloat(row.qty)||1)) + (parseFloat(row.lineExtra)||0) - (parseFloat(row.lineDiscount)||0);
+
+        // بناء options لـ select الموظف
+        let staffOptsHtml = '<option value="">-- بدون --</option>';
+        if (allDoctors && allDoctors.length) {
+          staffOptsHtml += `<optgroup label="الأطباء">`;
+          allDoctors.forEach(d => {
+            const sel = d === row.staffName ? ' selected' : '';
+            staffOptsHtml += `<option value="${d}" data-type="doctor"${sel}>${d}</option>`;
+          });
+          staffOptsHtml += `</optgroup>`;
+        }
+        if (allSpecialists && allSpecialists.length) {
+          staffOptsHtml += `<optgroup label="المتخصصون">`;
+          allSpecialists.forEach(s => {
+            const sel = s === row.staffName ? ' selected' : '';
+            staffOptsHtml += `<option value="${s}" data-type="specialist"${sel}>${s}</option>`;
+          });
+          staffOptsHtml += `</optgroup>`;
+        }
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>
             <input type="text" value="${(row.name||'').replace(/"/g,'&quot;')}"
               style="width:100%; border:1.5px solid var(--border-color); border-radius:6px; padding:5px 8px; font-size:13px; background:#fff;"
               oninput="editServiceRows[${idx}].name = this.value;">
+          </td>
+          <td>
+            <select onchange="
+              const opt = this.options[this.selectedIndex];
+              editServiceRows[${idx}].staffName = this.value;
+              editServiceRows[${idx}].staffType = opt.dataset.type || '';"
+              style="width:100%; border:1.5px solid var(--border-color); border-radius:6px; padding:5px 4px; font-size:12px; background:#fff; color:var(--text-color);">
+              ${staffOptsHtml}
+            </select>
           </td>
           <td>
             <input type="number" class="cart-qty-input" value="${row.qty}" min="0.01" step="0.01"
@@ -5135,42 +5211,83 @@
     let _editSvcBycat     = {};   // { catName: [ {name,price,speciality,category} ] }
     let _editSvcActiveCat = '';   // التصنيف المفتوح حالياً
 
+    let _editSvcAllRaw  = [];
+    let _editInvoiceType = ''; // 'doctor' | 'specialist' | '' — مشتق من الفاتورة تلقائياً
+
     function openEditServicePicker() {
-      // بناء قائمة الخدمات من globalData (نفس البيانات اللي بتحمّلها الفاتورة الأصلية)
       if (!globalData || globalData.length === 0) {
         alert('لم يتم تحميل بيانات الخدمات بعد. يرجى المحاولة مرة أخرى.');
         return;
       }
 
-      _editSvcBycat = {};
+      // تحديد نوع الفاتورة من أول صف في editServiceRows
+      const firstRow = editServiceRows.find(r => r.staffType);
+      _editInvoiceType = firstRow ? firstRow.staffType : '';
+
+      // الـ speciality المقابل للنوع
+      const typeSpeciality = _editInvoiceType === 'doctor'     ? 'Laser & Dermatology'
+                           : _editInvoiceType === 'specialist' ? 'Spa & Personal Care' : '';
+
+      // بناء قائمة الخدمات من globalData مفلترة بالـ speciality
+      _editSvcAllRaw = [];
       globalData.forEach(item => {
         let name = '', price = 0, speciality = '', category = 'خدمات عامة';
         Object.keys(item).forEach(k => {
           const ck = k.trim();
-          if (ck === 'Item/Service' || ck === 'اسم الخدمة')              name       = item[k];
-          if (ck === 'Item/Service Price' || ck === 'السعر')              price      = parseFloat(item[k]) || 0;
-          if (ck === 'Item/Service Speciality')                           speciality = item[k].toString().trim();
-          if (ck === 'Item/Service Category' || ck === 'التصنيف')        category   = item[k];
+          if (ck === 'Item/Service' || ck === 'اسم الخدمة')       name       = item[k];
+          if (ck === 'Item/Service Price' || ck === 'السعر')        price      = parseFloat(item[k]) || 0;
+          if (ck === 'Item/Service Speciality')                     speciality = item[k].toString().trim();
+          if (ck === 'Item/Service Category' || ck === 'التصنيف')  category   = item[k];
         });
         if (!name) return;
-        if (!_editSvcBycat[category]) _editSvcBycat[category] = [];
-        _editSvcBycat[category].push({ name, price, speciality, category });
+        // فلتر مباشر بالـ speciality لو عارف النوع
+        if (typeSpeciality && speciality !== typeSpeciality) return;
+        _editSvcAllRaw.push({ name, price, speciality, category });
       });
 
-      _editSvcCatKeys = Object.keys(_editSvcBycat).sort((a, b) => a.localeCompare(b, 'ar'));
-      _editSvcCatKeys.forEach(cat => {
-        _editSvcBycat[cat].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+      // ملء قائمة الموظفين حسب نوع الفاتورة فقط
+      const staffSel  = document.getElementById('editPickerStaffSelect');
+      const labelText = document.getElementById('editPickerStaffLabelText');
+      const staffList = _editInvoiceType === 'doctor'     ? allDoctors
+                      : _editInvoiceType === 'specialist' ? allSpecialists
+                      : [...(allDoctors||[]), ...(allSpecialists||[])];
+      const labelStr  = _editInvoiceType === 'doctor'     ? 'الطبيب'
+                      : _editInvoiceType === 'specialist' ? 'المتخصص' : 'الموظف';
+
+      if (labelText) labelText.textContent = labelStr;
+      staffSel.innerHTML = `<option value="">-- كل ${labelStr === 'الموظف' ? 'الموظفين' : labelStr === 'الطبيب' ? 'الأطباء' : 'المتخصصين'} --</option>`;
+      staffList.forEach(name => {
+        const o = document.createElement('option'); o.value = name; o.textContent = name; staffSel.appendChild(o);
       });
-      _editSvcAllItems = [];
-      _editSvcCatKeys.forEach(cat => _editSvcAllItems.push(..._editSvcBycat[cat]));
+      staffSel.value = '';
 
       document.getElementById('editSvcSearchInput').value = '';
-      _editSvcActiveCat = _editSvcCatKeys[0] || '';
-
-      renderEditSvcTabs(_editSvcCatKeys);
-      renderEditSvcItems(_editSvcActiveCat);
+      _buildEditSvcTable(_editSvcAllRaw);
       document.getElementById('editSvcPickerOverlay').classList.add('active');
       setTimeout(() => document.getElementById('editSvcSearchInput').focus(), 80);
+    }
+
+    function onEditPickerStaffChange() {
+      document.getElementById('editSvcSearchInput').value = '';
+      const staffName = document.getElementById('editPickerStaffSelect').value;
+      // لو مفيش فلتر بالموظف — عرض كل الخدمات المفلترة بالنوع
+      // الخدمات مش مرتبطة باسم الموظف في globalData، الفلتر الوحيد هو الـ speciality
+      _buildEditSvcTable(_editSvcAllRaw);
+    }
+
+    function _buildEditSvcTable(items) {
+      _editSvcBycat = {};
+      items.forEach(item => {
+        if (!_editSvcBycat[item.category]) _editSvcBycat[item.category] = [];
+        _editSvcBycat[item.category].push(item);
+      });
+      _editSvcCatKeys = Object.keys(_editSvcBycat).sort((a, b) => a.localeCompare(b, 'ar'));
+      _editSvcCatKeys.forEach(cat => _editSvcBycat[cat].sort((a, b) => a.name.localeCompare(b.name, 'ar')));
+      _editSvcAllItems = [];
+      _editSvcCatKeys.forEach(cat => _editSvcAllItems.push(..._editSvcBycat[cat]));
+      _editSvcActiveCat = _editSvcCatKeys[0] || '';
+      renderEditSvcTabs(_editSvcCatKeys);
+      renderEditSvcItems(_editSvcActiveCat);
     }
 
     function renderEditSvcTabs(catKeys) {
@@ -5248,12 +5365,19 @@
     }
 
     function editPickService(name, price, speciality, category) {
+      // جيب الموظف المختار من الـ picker
+      const staffSel  = document.getElementById('editPickerStaffSelect');
+      const staffName = staffSel ? staffSel.value : '';
+      const staffType = _editInvoiceType || '';
+
       // لو الخدمة موجودة بالفعل نزود الكمية
       const existing = editServiceRows.find(r => r.name === name && r.speciality === speciality);
       if (existing) {
         existing.qty = (parseFloat(existing.qty) || 1) + 1;
+        // حدّث الموظف لو كان فاضي
+        if (!existing.staffName && staffName) { existing.staffName = staffName; existing.staffType = staffType; }
       } else {
-        editServiceRows.push({ name, qty: 1, price, lineDiscount: 0, lineExtra: 0, staffType: '', staffName: '', speciality, category });
+        editServiceRows.push({ name, qty: 1, price, lineDiscount: 0, lineExtra: 0, staffType, staffName, speciality, category });
       }
       renderEditServicesTable();
       recalcEditSummary();
