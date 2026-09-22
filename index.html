@@ -1403,8 +1403,8 @@
   <!-- ============================================================ -->
   <!-- لوحة اختيار الخدمة داخل التعديل                             -->
   <!-- ============================================================ -->
-  <div id="editSvcPickerOverlay" class="edit-svc-picker-overlay" onclick="closeEditSvcPickerOnOutside(event)">
-    <div class="edit-svc-picker-card">
+  <div id="editSvcPickerOverlay" class="edit-svc-picker-overlay">
+    <div class="edit-svc-picker-card" onclick="event.stopPropagation()">
       <h4>
         <span><i class="fas fa-concierge-bell" style="color:var(--gold-accent);"></i> اختر خدمة لإضافتها</span>
         <button type="button" class="reset-btn" style="padding:6px 14px; font-size:13px;" onclick="closeEditSvcPicker()">
@@ -5099,6 +5099,9 @@
       document.getElementById('editPayPOS').value     = posPaidEdit    || 0;
 
       document.getElementById('editInvoiceOverlay').dataset.paymentLabel = paymentLabelEdit;
+      // حفظ الـ User الأصلي للفاتورة في dataset عشان نبعته مع التعديل
+      const originalUserRow = rows.find(r => (r['User'] || '').toString().trim());
+      document.getElementById('editInvoiceOverlay').dataset.originalUser = originalUserRow ? (originalUserRow['User'] || '').toString().trim() : '';
 
       renderEditServicesTable();
       recalcEditSummary();
@@ -5220,29 +5223,45 @@
         return;
       }
 
-      // تحديد نوع الفاتورة من أول صف في editServiceRows
-      const firstRow = editServiceRows.find(r => r.staffType);
-      _editInvoiceType = firstRow ? firstRow.staffType : '';
+      // تحديد نوع الفاتورة من الصفوف الأصلية
+      const rawRows = salesMasterData.filter(r =>
+        (r['Num'] || '').toString().trim() === editingInvoiceNum.toString()
+      );
 
-      // الـ speciality المقابل للنوع
-      const typeSpeciality = _editInvoiceType === 'doctor'     ? 'Laser & Dermatology'
-                           : _editInvoiceType === 'specialist' ? 'Spa & Personal Care' : '';
+      // جيب اسم الموظف من أول صف خدمة حقيقية
+      let invoiceStaffName = '';
+      for (const r of rawRows) {
+        const svc = (r['Service'] || '').toString();
+        if (svc.includes('Payment') || svc === 'تعديل') continue;
+        invoiceStaffName = (r['Doctor'] || r['Specialist'] || '').toString().trim();
+        if (invoiceStaffName) break;
+      }
 
-      // بناء قائمة الخدمات من globalData مفلترة بالـ speciality
+      // جيب الـ Employee Category بتاع الموظف ده من globalData
+      let invoiceCategory = '';
+      if (invoiceStaffName) {
+        const empRow = globalData.find(d =>
+          (d['Employee Name'] || '').toString().trim() === invoiceStaffName
+        );
+        if (empRow) invoiceCategory = (empRow['Employee Category'] || '').toString().trim();
+      }
+
+      _editInvoiceType = invoiceCategory.toLowerCase().includes('laser') ? 'doctor'
+                       : invoiceCategory.toLowerCase().includes('spa')   ? 'specialist' : '';
+
+      // بناء قائمة الخدمات مفلترة بالـ Employee Category
       _editSvcAllRaw = [];
       globalData.forEach(item => {
-        let name = '', price = 0, speciality = '', category = 'خدمات عامة';
-        Object.keys(item).forEach(k => {
-          const ck = k.trim();
-          if (ck === 'Item/Service' || ck === 'اسم الخدمة')       name       = item[k];
-          if (ck === 'Item/Service Price' || ck === 'السعر')        price      = parseFloat(item[k]) || 0;
-          if (ck === 'Item/Service Speciality')                     speciality = item[k].toString().trim();
-          if (ck === 'Item/Service Category' || ck === 'التصنيف')  category   = item[k];
-        });
-        if (!name) return;
-        // فلتر مباشر بالـ speciality لو عارف النوع
-        if (typeSpeciality && speciality !== typeSpeciality) return;
-        _editSvcAllRaw.push({ name, price, speciality, category });
+        const svcName     = (item['Item/Service'] || item['اسم الخدمة'] || '').toString().trim();
+        const svcPrice    = parseFloat(item['Item/Service Price'] || item['السعر']) || 0;
+        const svcSpec     = (item['Item/Service Speciality'] || '').toString().trim();
+        const svcCat      = (item['Item/Service Category'] || item['التصنيف'] || 'خدمات عامة').toString().trim();
+        if (!svcName) return;
+        // فلتر: لو عارفين الـ category نعرض الخدمات اللي speciality بتاعها يطابق
+        if (invoiceCategory) {
+          if (svcSpec.toLowerCase() !== invoiceCategory.toLowerCase()) return;
+        }
+        _editSvcAllRaw.push({ name: svcName, price: svcPrice, speciality: svcSpec, category: svcCat });
       });
 
       // ملء قائمة الموظفين حسب نوع الفاتورة فقط
@@ -5316,20 +5335,21 @@
         container.innerHTML = '<div class="empty-msg">لا توجد خدمات في هذا التصنيف</div>';
         return;
       }
-      container.innerHTML = `
-        <div class="custom-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px;
-             background:#FAF8F5; padding:14px; border-radius:12px; border:1.5px solid var(--border-color);
-             max-height:380px; overflow-y:auto;">
-          ${items.map((item, i) => `
-            <div class="checkbox-item" onclick="editPickService(${JSON.stringify(item.name).replace(/</g,'\\u003c')}, ${item.price}, '${item.speciality.replace(/'/g,"\\'")}', '${item.category.replace(/'/g,"\\'")}')">
-              <div>
-                <i class="fas fa-plus-circle" style="color:var(--primary-green); font-size:14px;"></i>
-                <span>${item.name}</span>
-              </div>
-              <span class="price-tag">${item.price.toFixed(2)} ج.م</span>
-            </div>
-          `).join('')}
-        </div>`;
+      // بنبني الـ HTML بدون inline onclick عشان نتفادى مشاكل الـ template strings
+      const grid = document.createElement('div');
+      grid.style.cssText = 'display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; background:#FAF8F5; padding:14px; border-radius:12px; border:1.5px solid var(--border-color); max-height:380px; overflow-y:auto;';
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'checkbox-item';
+        div.innerHTML = `<div><i class="fas fa-plus-circle" style="color:var(--primary-green); font-size:14px;"></i> <span>${item.name}</span></div><span class="price-tag">${item.price.toFixed(2)} ج.م</span>`;
+        div.addEventListener('click', function(e) {
+          e.stopPropagation();
+          editPickService(div, item.name, item.price, item.speciality, item.category);
+        });
+        grid.appendChild(div);
+      });
+      container.innerHTML = '';
+      container.appendChild(grid);
     }
 
     function filterEditSvcPicker() {
@@ -5348,23 +5368,23 @@
         container.innerHTML = '<div class="empty-msg">لا توجد نتائج مطابقة</div>';
         return;
       }
-      container.innerHTML = `
-        <div class="custom-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px;
-             background:#FAF8F5; padding:14px; border-radius:12px; border:1.5px solid var(--border-color);
-             max-height:420px; overflow-y:auto;">
-          ${matches.map(item => `
-            <div class="checkbox-item" onclick="editPickService(${JSON.stringify(item.name).replace(/</g,'\\u003c')}, ${item.price}, '${item.speciality.replace(/'/g,"\\'")}', '${item.category.replace(/'/g,"\\'")}')">
-              <div>
-                <i class="fas fa-plus-circle" style="color:var(--primary-green); font-size:14px;"></i>
-                <span>${item.name}</span>
-              </div>
-              <span class="price-tag">${item.price.toFixed(2)} ج.م</span>
-            </div>
-          `).join('')}
-        </div>`;
+      const searchGrid = document.createElement('div');
+      searchGrid.style.cssText = 'display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; background:#FAF8F5; padding:14px; border-radius:12px; border:1.5px solid var(--border-color); max-height:420px; overflow-y:auto;';
+      matches.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'checkbox-item';
+        div.innerHTML = `<div><i class="fas fa-plus-circle" style="color:var(--primary-green); font-size:14px;"></i> <span>${item.name}</span></div><span class="price-tag">${item.price.toFixed(2)} ج.م</span>`;
+        div.addEventListener('click', function(e) {
+          e.stopPropagation();
+          editPickService(div, item.name, item.price, item.speciality, item.category);
+        });
+        searchGrid.appendChild(div);
+      });
+      container.innerHTML = '';
+      container.appendChild(searchGrid);
     }
 
-    function editPickService(name, price, speciality, category) {
+    function editPickService(el, name, price, speciality, category) {
       // جيب الموظف المختار من الـ picker
       const staffSel  = document.getElementById('editPickerStaffSelect');
       const staffName = staffSel ? staffSel.value : '';
@@ -5383,10 +5403,9 @@
       recalcEditSummary();
 
       // فلاش بصري على الخدمة المُضافة
-      const clickedEl = event && event.currentTarget;
-      if (clickedEl) {
-        clickedEl.style.background = '#d4edda';
-        setTimeout(() => { clickedEl.style.background = ''; }, 600);
+      if (el) {
+        el.style.background = '#d4edda';
+        setTimeout(() => { el.style.background = ''; }, 600);
       }
     }
 
@@ -5397,6 +5416,16 @@
     function closeEditSvcPickerOnOutside(e) {
       if (e.target === document.getElementById('editSvcPickerOverlay')) closeEditSvcPicker();
     }
+
+    // نربط الـ overlay click بـ addEventListener بدل inline onclick عشان stopPropagation يشتغل صح
+    document.addEventListener('DOMContentLoaded', function() {
+      const pickerOverlay = document.getElementById('editSvcPickerOverlay');
+      if (pickerOverlay) {
+        pickerOverlay.addEventListener('click', function(e) {
+          if (e.target === pickerOverlay) closeEditSvcPicker();
+        });
+      }
+    });
 
     function recalcEditSummary() {
       let servicesTotal = 0;
@@ -5459,6 +5488,9 @@
 
       const paymentLabel = document.getElementById('editInvoiceOverlay').dataset.paymentLabel || 'Payment method';
 
+      // الـ User الأصلي للفاتورة — مسجّل من وقت فتح التعديل
+      const originalInvoiceUser = document.getElementById('editInvoiceOverlay').dataset.originalUser || '';
+
       const payload = {
         action:     'editInvoice',
         token:      sessionStorage.getItem('yuni_token'),
@@ -5471,7 +5503,8 @@
           paymentLabel: paymentLabel,
           discount:     parseFloat(document.getElementById('editDiscount').value)  || 0,
           extra:        parseFloat(document.getElementById('editExtraFee').value)  || 0,
-          notes:        document.getElementById('editNotes').value.trim()
+          notes:        document.getElementById('editNotes').value.trim(),
+          originalUser: originalInvoiceUser
         }
       };
 
