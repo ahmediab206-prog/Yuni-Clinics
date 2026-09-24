@@ -486,6 +486,9 @@
       <button class="nav-btn" id="btnPageExpenses" onclick="switchPage('pageExpenses')">
         <i class="fas fa-file-invoice-dollar"></i> المصروفات
       </button>
+      <button class="nav-btn" id="btnPagePayroll" onclick="switchPage('pagePayroll')">
+        <i class="fas fa-users-cog"></i> Payroll
+      </button>
       <button class="nav-btn" id="btnPageData" onclick="switchPage('pageData')">
         <i class="fas fa-database"></i> استعراض البيانات
       </button>
@@ -901,6 +904,133 @@
     </div>
 
     <!-- الصفحة الثانية: استعراض البيانات -->
+    <!-- ==================== صفحة Payroll ==================== -->
+    <div id="pagePayroll" class="view-page">
+      <div class="card">
+        <div style="text-align: center; margin-bottom: 25px;">
+          <h2 style="color: var(--primary-green);">تسجيل حركة Payroll</h2>
+          <div style="font-size: 13px; color: var(--gold-accent); margin-top: 5px;">خصومات، مكافآت، وأوفرتايم للتيم</div>
+        </div>
+
+        <div class="form-grid" id="payrollFormGrid">
+          <!-- Action Date -->
+          <div class="form-group">
+            <label class="section-title" for="payrollActionDate">Action Date</label>
+            <input type="date" id="payrollActionDate" required>
+          </div>
+          <!-- Payroll Date -->
+          <div class="form-group">
+            <label class="section-title" for="payrollPayrollDate">Payroll Date</label>
+            <input type="date" id="payrollPayrollDate" required>
+          </div>
+          <!-- Type -->
+          <div class="form-group">
+            <label class="section-title" for="payrollType">النوع (Type)</label>
+            <select id="payrollType" onchange="onPayrollTypeChange()">
+              <option value="">-- اختر النوع --</option>
+              <option value="خصم">خصم</option>
+              <option value="مكافأة">مكافأة</option>
+              <option value="أوفرتايم">أوفرتايم</option>
+            </select>
+          </div>
+          <!-- Statement -->
+          <div class="form-group">
+            <label class="section-title" for="payrollStatement">البيان (Statement)</label>
+            <input type="text" id="payrollStatement" placeholder="مثال: خصم غياب، مكافأة أداء...">
+          </div>
+          <!-- Employee -->
+          <div class="form-group full-width">
+            <label class="section-title">الموظف (Employee)</label>
+            <select id="payrollEmployee">
+              <option value="">-- اختر الموظف --</option>
+            </select>
+          </div>
+          <!-- Value Type Toggle -->
+          <div class="form-group full-width">
+            <label class="section-title">نوع القيمة</label>
+            <div style="display:flex; gap:12px; margin-top:4px;">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; font-weight:600;">
+                <input type="radio" name="payrollValueType" value="days" id="payrollRadioDays" onchange="onPayrollValueTypeChange()" style="accent-color:var(--primary-green); width:18px; height:18px;" checked>
+                <span>أيام (Days)</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; font-weight:600;">
+                <input type="radio" name="payrollValueType" value="amount" id="payrollRadioAmount" onchange="onPayrollValueTypeChange()" style="accent-color:var(--primary-green); width:18px; height:18px;">
+                <span>قيمة (Amount)</span>
+              </label>
+            </div>
+          </div>
+          <!-- Days Input -->
+          <div class="form-group" id="payrollDaysGroup">
+            <label class="section-title" for="payrollDays">عدد الأيام (Payroll - Days)</label>
+            <input type="number" id="payrollDays" min="0" step="0.5" placeholder="0">
+          </div>
+          <!-- Amount Input -->
+          <div class="form-group" id="payrollAmountGroup" style="display:none;">
+            <label class="section-title" for="payrollAmount">المبلغ (Payroll - Amount)</label>
+            <input type="number" id="payrollAmount" min="0" step="0.01" placeholder="0.00">
+          </div>
+
+          <div class="buttons-wrapper">
+            <button type="button" id="payrollSubmitBtn" class="submit-btn" onclick="submitPayroll()">
+              <i class="fas fa-save"></i> تسجيل الحركة
+            </button>
+            <button type="button" class="reset-btn" onclick="clearPayrollForm()">تفريغ البيانات</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- جدول سجل Payroll -->
+      <div class="card" style="margin-top: 20px;">
+        <div class="table-header">
+          <div>
+            <h3><i class="fas fa-users-cog"></i> سجل Payroll</h3>
+            <p style="font-size: 12px; color: #666; margin-top: 4px;">انقر على رأس أي عمود لفتح التصفية</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="button" class="btn-small" onclick="resetPayrollFilters()"><i class="fas fa-eraser"></i> مسح الفلاتر</button>
+            <button type="button" class="btn-small" onclick="fetchPayrollData()"><i class="fas fa-sync-alt"></i> تحديث</button>
+            <span class="badge" id="payrollRecordCount">0 حركة</span>
+          </div>
+        </div>
+
+        <div class="global-search-bar">
+          <i class="fas fa-search" style="color: var(--primary-green);"></i>
+          <input type="text" id="payrollGlobalSearch" placeholder="بحث عام في سجل Payroll..." oninput="applyPayrollFilters()">
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th><div class="th-content" onclick="openPayrollFilter('pr_num', event)"><span>#</span><i class="fas fa-filter filter-icon" id="icon_pr_num"></i></div></th>
+                <th><div class="th-content" onclick="openPayrollFilter('pr_action_date', event)"><span>Action Date</span><i class="fas fa-filter filter-icon" id="icon_pr_action_date"></i></div></th>
+                <th><div class="th-content" onclick="openPayrollFilter('pr_payroll_date', event)"><span>Payroll Date</span><i class="fas fa-filter filter-icon" id="icon_pr_payroll_date"></i></div></th>
+                <th><div class="th-content" onclick="openPayrollFilter('pr_type', event)"><span>Type</span><i class="fas fa-filter filter-icon" id="icon_pr_type"></i></div></th>
+                <th><div class="th-content" onclick="openPayrollFilter('pr_statement', event)"><span>Statement</span><i class="fas fa-filter filter-icon" id="icon_pr_statement"></i></div></th>
+                <th><div class="th-content" onclick="openPayrollFilter('pr_employee', event)"><span>Employee</span><i class="fas fa-filter filter-icon" id="icon_pr_employee"></i></div></th>
+                <th><div class="th-content" onclick="openPayrollFilter('pr_days', event)"><span>Days</span><i class="fas fa-filter filter-icon" id="icon_pr_days"></i></div></th>
+                <th><div class="th-content" onclick="openPayrollFilter('pr_amount', event)"><span>Amount</span><i class="fas fa-filter filter-icon" id="icon_pr_amount"></i></div></th>
+                <th><div class="th-content" onclick="openPayrollFilter('pr_user', event)"><span>User</span><i class="fas fa-filter filter-icon" id="icon_pr_user"></i></div></th>
+                <th><div class="th-content" onclick="openPayrollFilter('pr_editby', event)"><span>Edit by</span><i class="fas fa-filter filter-icon" id="icon_pr_editby"></i></div></th>
+              </tr>
+            </thead>
+            <tbody id="payrollTableBody">
+              <tr><td colspan="10" style="text-align:center; color:#999;">لا توجد بيانات بعد</td></tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="6"><strong>الإجمالي</strong></td>
+                <td id="foot_pr_days"><strong>0</strong></td>
+                <td id="foot_pr_amount"><strong>0.00</strong></td>
+                <td colspan="2"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- ==================== نهاية صفحة Payroll ==================== -->
+
     <div id="pageData" class="view-page">
       <div class="card">
         <div class="table-header">
@@ -1665,6 +1795,10 @@
       } else if (pageId === 'pageExpenses') {
         document.getElementById('btnPageExpenses').classList.add('active');
         fetchExpensesData();
+      } else if (pageId === 'pagePayroll') {
+        document.getElementById('btnPagePayroll').classList.add('active');
+        fetchPayrollData();
+        populatePayrollEmployees();
       } else if (pageId === 'pageData') {
         document.getElementById('btnPageData').classList.add('active');
         fetchLogsFromSheet();
@@ -1966,7 +2100,7 @@
     }
 
     let authUser = null;
-    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageExpenses:'Expenses', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances'};
+    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageExpenses:'Expenses', pagePayroll:'Payroll', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances'};
     function can(tab, action) {
       const p = authUser && authUser.permissions[tab];
       return !!(p && p.view === true && p[action] === true);
@@ -2007,7 +2141,7 @@
       document.getElementById('mainHeader').style.display = 'flex';
       document.getElementById('currentUserDisplay').innerText = user.name;
       document.querySelectorAll('.view-page, .nav-btn').forEach(el => el.classList.remove('active'));
-      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageExpenses:'btnPageExpenses',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances'};
+      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageExpenses:'btnPageExpenses',pagePayroll:'btnPagePayroll',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances'};
       Object.keys(PAGE_TABS).forEach(page => {
         const btn = document.getElementById(buttons[page]);
         if (!btn) return;
@@ -2019,6 +2153,7 @@
       document.getElementById('submitBtn').disabled = !can('Sales','add');
       document.getElementById('collectionSubmitBtn').disabled = !can('Collect','add');
       document.getElementById('expenseSubmitBtn').disabled = !can('Expenses','add');
+      document.getElementById('payrollSubmitBtn').disabled = !can('Payroll','add');
       document.querySelectorAll('#pageAdd .add-client-link-btn').forEach(el => el.disabled = !can('Sales','add'));
       document.querySelectorAll('#pageCollections .add-client-link-btn').forEach(el => el.disabled = !can('Collect','add'));
       const first = Object.keys(PAGE_TABS).find(page => can(PAGE_TABS[page],'view'));
@@ -5547,6 +5682,250 @@
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-save"></i> حفظ التعديلات';
       }
+    }
+
+
+    // ============================================================
+    // ==================== Payroll Functions =====================
+    // ============================================================
+
+    let payrollData = [];
+    let payrollFilters = {};
+
+    function onPayrollValueTypeChange() {
+      const val = document.querySelector('input[name="payrollValueType"]:checked')?.value;
+      document.getElementById('payrollDaysGroup').style.display   = (val === 'days')   ? '' : 'none';
+      document.getElementById('payrollAmountGroup').style.display = (val === 'amount') ? '' : 'none';
+    }
+
+    function onPayrollTypeChange() {
+      // يمكن إضافة منطق مستقبلي هنا
+    }
+
+    function populatePayrollEmployees() {
+      const sel = document.getElementById('payrollEmployee');
+      if (!sel) return;
+      const current = sel.value;
+      sel.innerHTML = '<option value="">-- اختر الموظف --</option>';
+      const allEmps = [...(allDoctors || []), ...(allSpecialists || [])];
+      // لو مفيش بيانات من globalData نحاول نجيب من clientsData أو نترك فارغ
+      const unique = [...new Set(allEmps)].sort((a, b) => a.localeCompare(b, 'ar'));
+      if (unique.length === 0 && globalData && globalData.length) {
+        globalData.forEach(item => {
+          let name = '';
+          Object.keys(item).forEach(k => {
+            const ck = k.trim();
+            if (ck === 'Employee Name' || ck === 'اسم الموظف') name = (item[k] || '').toString().trim();
+          });
+          if (name && !unique.includes(name)) unique.push(name);
+        });
+        unique.sort((a, b) => a.localeCompare(b, 'ar'));
+      }
+      unique.forEach(emp => {
+        const opt = document.createElement('option');
+        opt.value = emp;
+        opt.textContent = emp;
+        sel.appendChild(opt);
+      });
+      if (current) sel.value = current;
+    }
+
+    function clearPayrollForm() {
+      document.getElementById('payrollActionDate').value = '';
+      document.getElementById('payrollPayrollDate').value = '';
+      document.getElementById('payrollType').value = '';
+      document.getElementById('payrollStatement').value = '';
+      document.getElementById('payrollEmployee').value = '';
+      document.getElementById('payrollDays').value = '';
+      document.getElementById('payrollAmount').value = '';
+      document.getElementById('payrollRadioDays').checked = true;
+      onPayrollValueTypeChange();
+    }
+
+    async function submitPayroll() {
+      if (!can('Payroll', 'add')) return;
+
+      const actionDate  = document.getElementById('payrollActionDate').value.trim();
+      const payrollDate = document.getElementById('payrollPayrollDate').value.trim();
+      const type        = document.getElementById('payrollType').value.trim();
+      const statement   = document.getElementById('payrollStatement').value.trim();
+      const employee    = document.getElementById('payrollEmployee').value.trim();
+      const valueType   = document.querySelector('input[name="payrollValueType"]:checked')?.value;
+      const days        = valueType === 'days'   ? (parseFloat(document.getElementById('payrollDays').value)   || 0) : 0;
+      const amount      = valueType === 'amount' ? (parseFloat(document.getElementById('payrollAmount').value) || 0) : 0;
+
+      if (!actionDate)  { alert('يرجى تحديد Action Date.');  return; }
+      if (!payrollDate) { alert('يرجى تحديد Payroll Date.'); return; }
+      if (!type)        { alert('يرجى اختيار النوع.');        return; }
+      if (!employee)    { alert('يرجى اختيار الموظف.');       return; }
+      if (days === 0 && amount === 0) { alert('يرجى إدخال قيمة (أيام أو مبلغ).'); return; }
+
+      const btn = document.getElementById('payrollSubmitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+      try {
+        const res = await apiPost({
+          action: 'addPayroll',
+          actionDate,
+          payrollDate,
+          type,
+          statement,
+          employee,
+          days,
+          amount
+        });
+        const result = await res.json();
+        if (result.status !== 'success') throw new Error(result.message);
+        alert('✅ ' + result.message);
+        clearPayrollForm();
+        fetchPayrollData();
+      } catch (err) {
+        alert('❌ ' + (err.message || 'تعذر الحفظ، يرجى المحاولة مرة أخرى.'));
+      } finally {
+        btn.disabled = !can('Payroll', 'add');
+        btn.innerHTML = '<i class="fas fa-save"></i> تسجيل الحركة';
+      }
+    }
+
+    async function fetchPayrollData() {
+      if (!can('Payroll', 'view')) return;
+      try {
+        const response = await apiRead('Payroll');
+        const result = await response.json();
+        if (result.status === 'success') {
+          payrollData = result.data || [];
+          applyPayrollFilters();
+        }
+      } catch (e) {
+        console.error('Payroll load error', e);
+      }
+    }
+
+    function applyPayrollFilters() {
+      const search = (document.getElementById('payrollGlobalSearch')?.value || '').trim().toLowerCase();
+      let rows = payrollData.slice();
+      if (search) {
+        rows = rows.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(search)));
+      }
+      // Column filters
+      Object.keys(payrollFilters).forEach(col => {
+        const f = payrollFilters[col];
+        if (!f || !f.value) return;
+        rows = rows.filter(r => {
+          const cell = String(r[f.field] ?? '').toLowerCase();
+          return cell.includes(f.value.toLowerCase());
+        });
+      });
+      renderPayrollTable(rows);
+    }
+
+    function renderPayrollTable(data) {
+      const tbody = document.getElementById('payrollTableBody');
+      if (!tbody) return;
+
+      let totalDays = 0, totalAmount = 0;
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:#999;">لا توجد بيانات</td></tr>';
+        document.getElementById('foot_pr_days').innerHTML   = '<strong>0</strong>';
+        document.getElementById('foot_pr_amount').innerHTML = '<strong>0.00</strong>';
+        document.getElementById('payrollRecordCount').textContent = '0 حركة';
+        return;
+      }
+
+      tbody.innerHTML = data.map((row, idx) => {
+        const num         = row['Num']            || (idx + 1);
+        const actionDate  = row['Action Date']    || '';
+        const payrollDate = row['Payroll Date']   || '';
+        const type        = row['Type']           || '';
+        const statement   = row['Statement']      || '';
+        const employee    = row['Employee']       || '';
+        const days        = parseFloat(row['Payroll - Days']   || 0);
+        const amount      = parseFloat(row['Payroll - Amount'] || 0);
+        const usr         = row['User']           || '';
+        const editby      = row['Edit by']        || '';
+
+        totalDays   += days;
+        totalAmount += amount;
+
+        const typeColor = type === 'خصم' ? '#C5221F' : type === 'مكافأة' ? '#184232' : '#C5A059';
+
+        return `<tr>
+          <td>${num}</td>
+          <td>${actionDate}</td>
+          <td>${payrollDate}</td>
+          <td><span style="color:${typeColor}; font-weight:700;">${type}</span></td>
+          <td>${statement}</td>
+          <td>${employee}</td>
+          <td style="text-align:center;">${days > 0 ? days : '-'}</td>
+          <td style="text-align:center;">${amount > 0 ? amount.toFixed(2) : '-'}</td>
+          <td>${usr}</td>
+          <td>${editby}</td>
+        </tr>`;
+      }).join('');
+
+      document.getElementById('foot_pr_days').innerHTML   = `<strong>${totalDays > 0 ? totalDays : '-'}</strong>`;
+      document.getElementById('foot_pr_amount').innerHTML = `<strong>${totalAmount > 0 ? totalAmount.toFixed(2) : '-'}</strong>`;
+      document.getElementById('payrollRecordCount').textContent = `${data.length} حركة`;
+    }
+
+    function openPayrollFilter(colId, event) {
+      // Simple inline filter — reuse same pattern as expenses
+      const existingModal = document.getElementById('payrollFilterModal');
+      if (existingModal) existingModal.remove();
+
+      const fieldMap = {
+        pr_num: 'Num', pr_action_date: 'Action Date', pr_payroll_date: 'Payroll Date',
+        pr_type: 'Type', pr_statement: 'Statement', pr_employee: 'Employee',
+        pr_days: 'Payroll - Days', pr_amount: 'Payroll - Amount', pr_user: 'User', pr_editby: 'Edit by'
+      };
+      const field = fieldMap[colId];
+      if (!field) return;
+
+      const modal = document.createElement('div');
+      modal.id = 'payrollFilterModal';
+      modal.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);display:flex;justify-content:center;align-items:center;z-index:10001;';
+      modal.innerHTML = `
+        <div style="background:#fff;border-radius:14px;padding:24px;min-width:280px;box-shadow:0 15px 35px rgba(0,0,0,0.2);">
+          <h4 style="color:var(--primary-green);margin-bottom:14px;">فلتر: ${field}</h4>
+          <input type="text" id="prFilterInput" placeholder="اكتب للفلترة..." style="width:100%;padding:10px;border:1.5px solid var(--border-color);border-radius:8px;font-size:14px;margin-bottom:14px;">
+          <div style="display:flex;gap:10px;">
+            <button onclick="applyPayrollColFilter('${colId}','${field}')" style="flex:1;padding:10px;background:var(--primary-green);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;">تطبيق</button>
+            <button onclick="clearPayrollColFilter('${colId}')" style="flex:1;padding:10px;background:#FAF8F5;border:1.5px solid var(--border-color);border-radius:8px;cursor:pointer;font-weight:700;">مسح</button>
+            <button onclick="document.getElementById('payrollFilterModal').remove()" style="padding:10px 14px;background:#FCE8E6;color:#C5221F;border:none;border-radius:8px;cursor:pointer;font-weight:700;">✕</button>
+          </div>
+        </div>`;
+      document.body.appendChild(modal);
+      const inp = document.getElementById('prFilterInput');
+      if (payrollFilters[colId]) inp.value = payrollFilters[colId].value || '';
+      inp.focus();
+      modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    }
+
+    function applyPayrollColFilter(colId, field) {
+      const val = document.getElementById('prFilterInput')?.value || '';
+      payrollFilters[colId] = { field, value: val };
+      document.getElementById('payrollFilterModal')?.remove();
+      const icon = document.getElementById('icon_' + colId);
+      if (icon) icon.style.color = val ? 'var(--gold-accent)' : '';
+      applyPayrollFilters();
+    }
+
+    function clearPayrollColFilter(colId) {
+      delete payrollFilters[colId];
+      document.getElementById('payrollFilterModal')?.remove();
+      const icon = document.getElementById('icon_' + colId);
+      if (icon) icon.style.color = '';
+      applyPayrollFilters();
+    }
+
+    function resetPayrollFilters() {
+      payrollFilters = {};
+      const search = document.getElementById('payrollGlobalSearch');
+      if (search) search.value = '';
+      document.querySelectorAll('[id^="icon_pr_"]').forEach(el => el.style.color = '');
+      applyPayrollFilters();
     }
 
   </script>
