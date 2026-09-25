@@ -913,11 +913,6 @@
         </div>
 
         <div class="form-grid" id="payrollFormGrid">
-          <!-- Action Date -->
-          <div class="form-group">
-            <label class="section-title" for="payrollActionDate">Action Date</label>
-            <input type="date" id="payrollActionDate" required>
-          </div>
           <!-- Payroll Date -->
           <div class="form-group">
             <label class="section-title" for="payrollPayrollDate">Payroll Date</label>
@@ -5731,7 +5726,6 @@
     }
 
     function clearPayrollForm() {
-      document.getElementById('payrollActionDate').value = '';
       document.getElementById('payrollPayrollDate').value = '';
       document.getElementById('payrollType').value = '';
       document.getElementById('payrollStatement').value = '';
@@ -5745,7 +5739,6 @@
     async function submitPayroll() {
       if (!can('Payroll', 'add')) return;
 
-      const actionDate  = document.getElementById('payrollActionDate').value.trim();
       const payrollDate = document.getElementById('payrollPayrollDate').value.trim();
       const type        = document.getElementById('payrollType').value.trim();
       const statement   = document.getElementById('payrollStatement').value.trim();
@@ -5754,7 +5747,6 @@
       const days        = valueType === 'days'   ? (parseFloat(document.getElementById('payrollDays').value)   || 0) : 0;
       const amount      = valueType === 'amount' ? (parseFloat(document.getElementById('payrollAmount').value) || 0) : 0;
 
-      if (!actionDate)  { alert('يرجى تحديد Action Date.');  return; }
       if (!payrollDate) { alert('يرجى تحديد Payroll Date.'); return; }
       if (!type)        { alert('يرجى اختيار النوع.');        return; }
       if (!employee)    { alert('يرجى اختيار الموظف.');       return; }
@@ -5767,7 +5759,6 @@
       try {
         const res = await apiPost({
           action: 'addPayroll',
-          actionDate,
           payrollDate,
           type,
           statement,
