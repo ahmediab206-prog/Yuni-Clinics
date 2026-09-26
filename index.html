@@ -52,13 +52,32 @@
     .brand-name { color: var(--primary-green); font-size: 26px; font-weight: 700; }
     .brand-korean { color: var(--primary-green); font-size: 20px; font-weight: 500; opacity: 0.85; }
 
-    .nav-tabs { display: flex; gap: 10px; background: var(--light-green); padding: 5px; border-radius: 12px; }
     .nav-btn {
       padding: 10px 20px; border: none; background: transparent; border-radius: 8px;
       font-size: 14px; font-weight: 700; color: var(--primary-green); cursor: pointer;
       display: flex; align-items: center; gap: 8px; transition: all 0.25s;
     }
     .nav-btn.active { background: var(--primary-green); color: #FFFFFF; box-shadow: 0 4px 10px rgba(24, 66, 50, 0.2); }
+
+    /* ── قائمة التابات المنسدلة (همبرجر أعلى اليمين) ── */
+    .nav-menu-wrap { position: relative; }
+    .nav-menu-toggle {
+      width: 42px; height: 42px; border-radius: 10px; border: 1.5px solid var(--border-color);
+      background: var(--light-green); color: var(--primary-green); font-size: 17px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .nav-menu-toggle:hover { background: var(--primary-green); color: #FFFFFF; }
+    .nav-menu-toggle.active { background: var(--primary-green); color: #FFFFFF; box-shadow: 0 4px 10px rgba(24, 66, 50, 0.2); }
+    .nav-menu-dropdown {
+      position: absolute; top: calc(100% + 10px); right: 0; z-index: 500;
+      background: #FFFFFF; border: 1.5px solid var(--border-color); border-radius: 14px;
+      box-shadow: 0 15px 35px rgba(24, 66, 50, 0.18); padding: 8px; min-width: 240px;
+      display: none; flex-direction: column; gap: 5px;
+    }
+    .nav-menu-dropdown.open { display: flex; }
+    .nav-menu-dropdown .nav-btn { width: 100%; justify-content: flex-start; padding: 11px 14px; }
+    .nav-menu-dropdown .nav-btn:not(.active) { background: #FAF8F5; }
+    .nav-menu-dropdown .nav-btn:not(.active):hover { background: var(--light-green); }
 
     .user-profile-bar { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; color: var(--primary-green); }
     .logout-btn { background: #FCE8E6; color: #C5221F; border: 1px solid #F5C6CB; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700; }
@@ -335,6 +354,11 @@
   .btn-tiny { flex: 1; padding: 5px 8px; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid var(--border-color); background: #FAF8F5; color: var(--primary-green); cursor: pointer; }
   .btn-tiny:hover { background: var(--light-green); }
   .cash-user-filter-list { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+
+  /* ── خدمات سريعة ── */
+  .svc-client-row { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 14px; border:1.5px solid var(--border-color); border-radius:10px; background:#FAF8F5; margin-bottom:8px; }
+  .svc-client-info { flex:1; min-width:0; }
+  .svc-msg-preview { width:100%; min-height:220px; padding:12px 14px; border:1.5px solid var(--border-color); border-radius:10px; font-size:13px; font-family:inherit; background:#FAF8F5; resize:vertical; white-space:pre-wrap; }
   .cash-user-check-item { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
   .cash-user-check-item:hover { background: var(--light-green); }
   .cash-user-check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary-green); cursor: pointer; }
@@ -474,30 +498,38 @@
     <div class="header-logo">
       <span class="brand-name">YUNI</span>
       <span class="brand-korean">- 유니</span>
-    </div>
 
-    <div class="nav-tabs">
-      <button class="nav-btn active" id="btnPageAdd" onclick="switchPage('pageAdd')">
-        <i class="fas fa-plus-circle"></i> إضافة حركة جديدة
-      </button>
-      <button class="nav-btn" id="btnPageCollections" onclick="switchPage('pageCollections')">
-        <i class="fas fa-hand-holding-usd"></i> تحصيلات
-      </button>
-      <button class="nav-btn" id="btnPageExpenses" onclick="switchPage('pageExpenses')">
-        <i class="fas fa-file-invoice-dollar"></i> المصروفات
-      </button>
-      <button class="nav-btn" id="btnPagePayroll" onclick="switchPage('pagePayroll')">
-        <i class="fas fa-users-cog"></i> Payroll
-      </button>
-      <button class="nav-btn" id="btnPageData" onclick="switchPage('pageData')">
-        <i class="fas fa-database"></i> استعراض البيانات
-      </button>
-      <button class="nav-btn" id="btnPageBalances" onclick="switchPage('pageBalances')">
-        <i class="fas fa-balance-scale"></i> الأرصدة
-      </button>
-      <button class="nav-btn" id="btnPageLogs" onclick="switchPage('pageLogs')">
-        <i class="fas fa-history"></i> السجل
-      </button>
+      <div class="nav-menu-wrap" id="navMenuWrap">
+        <button type="button" class="nav-menu-toggle" id="navMenuToggle" onclick="toggleNavMenu(event)" title="القائمة" aria-label="القائمة">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="nav-menu-dropdown" id="navMenuDropdown">
+          <button class="nav-btn active" id="btnPageAdd" onclick="switchPage('pageAdd')">
+            <i class="fas fa-plus-circle"></i> إضافة حركة جديدة
+          </button>
+          <button class="nav-btn" id="btnPageCollections" onclick="switchPage('pageCollections')">
+            <i class="fas fa-hand-holding-usd"></i> تحصيلات
+          </button>
+          <button class="nav-btn" id="btnPageExpenses" onclick="switchPage('pageExpenses')">
+            <i class="fas fa-file-invoice-dollar"></i> المصروفات
+          </button>
+          <button class="nav-btn" id="btnPagePayroll" onclick="switchPage('pagePayroll')">
+            <i class="fas fa-users-cog"></i> Payroll
+          </button>
+          <button class="nav-btn" id="btnPageData" onclick="switchPage('pageData')">
+            <i class="fas fa-database"></i> استعراض البيانات
+          </button>
+          <button class="nav-btn" id="btnPageBalances" onclick="switchPage('pageBalances')">
+            <i class="fas fa-balance-scale"></i> الأرصدة
+          </button>
+          <button class="nav-btn" id="btnPageServices" onclick="switchPage('pageServices')">
+            <i class="fas fa-concierge-bell"></i> خدمات سريعة
+          </button>
+          <button class="nav-btn" id="btnPageLogs" onclick="switchPage('pageLogs')">
+            <i class="fas fa-history"></i> السجل
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="user-profile-bar">
@@ -1366,6 +1398,77 @@
       </div>
     </div>
 
+    <!-- صفحة: خدمات سريعة -->
+    <div id="pageServices" class="view-page">
+      <div class="card">
+        <h2 style="color:var(--primary-green); margin-bottom: 20px; font-size: 20px;"><i class="fas fa-concierge-bell"></i> خدمات سريعة</h2>
+
+        <div class="balance-tabs">
+          <button class="bal-tab-btn active" id="svcTabBtnClosing" onclick="switchServicesTab('Closing')">
+            <i class="fas fa-lock"></i> رسالة التقفيل (الاستقبال)
+          </button>
+          <button class="bal-tab-btn" id="svcTabBtnClients" onclick="switchServicesTab('Clients')">
+            <i class="fas fa-headset"></i> بيانات عملاء اليوم (الكول سنتر)
+          </button>
+        </div>
+
+        <!-- تبويب: رسالة التقفيل -->
+        <div id="svcTabContentClosing" class="bal-tab-content active">
+          <div class="cash-filter-bar">
+            <div class="cash-filter-field">
+              <label for="svcClosingDate">التاريخ</label>
+              <input type="date" id="svcClosingDate">
+            </div>
+            <div class="cash-filter-field">
+              <label for="svcClosingEmployeeSelect">الموظف</label>
+              <select id="svcClosingEmployeeSelect" style="min-width:180px;" disabled>
+                <option value="">اضغط "تحميل" أولاً</option>
+              </select>
+            </div>
+            <div class="cash-filter-field">
+              <label>&nbsp;</label>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <button class="btn-small" id="svcClosingLoadBtn" onclick="svcLoadClosingDay()" style="padding:10px 16px; font-size:13px;"><i class="fas fa-sync-alt"></i> تحميل</button>
+                <button class="btn-small" id="svcClosingCopyBtn" onclick="svcCopyClosingMessage()" style="padding:10px 16px; font-size:13px; background:var(--light-green); border-color:var(--primary-green); color:var(--primary-green);" disabled title="نسخ رسالة التقفيل للواتساب">
+                  <i class="fas fa-copy"></i> نسخ رسالة التقفيل
+                </button>
+              </div>
+            </div>
+          </div>
+          <p class="sub-note" style="margin-bottom:8px;">اختر التاريخ ثم اضغط "تحميل" لعرض الموظفين اللي ليهم حركات في هذا اليوم، بعدين اختر الموظف واضغط "نسخ رسالة التقفيل".</p>
+          <textarea class="svc-msg-preview" id="svcClosingMsgPreview" placeholder="هتظهر هنا معاينة رسالة التقفيل بعد النسخ..." readonly></textarea>
+        </div>
+
+        <!-- تبويب: بيانات عملاء اليوم -->
+        <div id="svcTabContentClients" class="bal-tab-content">
+          <div class="cash-filter-bar">
+            <div class="cash-filter-field">
+              <label for="svcClientsDate">التاريخ</label>
+              <input type="date" id="svcClientsDate">
+            </div>
+            <div class="cash-filter-field">
+              <label>&nbsp;</label>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <button class="btn-small" id="svcClientsLoadBtn" onclick="svcLoadClientsDay()" style="padding:10px 16px; font-size:13px;"><i class="fas fa-search"></i> عرض</button>
+                <button class="btn-small" id="svcClientsCopyAllBtn" onclick="svcCopyAllClients()" style="padding:10px 16px; font-size:13px; background:var(--light-green); border-color:var(--primary-green); color:var(--primary-green);" disabled title="نسخ بيانات كل العملاء">
+                  <i class="fas fa-copy"></i> نسخ الكل
+                </button>
+              </div>
+            </div>
+            <div class="cash-filter-field" style="margin-inline-start:auto;">
+              <label>&nbsp;</label>
+              <span class="badge" id="svcClientsCount">0 عميلة</span>
+            </div>
+          </div>
+          <p class="sub-note" style="margin-bottom:8px;">اسم العميل، رقم الهاتف، والخدمات اللي اتعملت ليها في اليوم المحدد — لكل عملاء المركز بغض النظر عن الموظف.</p>
+          <div id="svcClientsListWrap">
+            <div class="cart-empty"><i class="fas fa-info-circle"></i> اختر التاريخ واضغط "عرض"</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 
   <!-- Modal تأكيد حذف الفاتورة -->
@@ -1777,8 +1880,29 @@
       checkLoginSession();
     });
 
+    function toggleNavMenu(e) {
+      if (e) e.stopPropagation();
+      const dd = document.getElementById('navMenuDropdown');
+      const btn = document.getElementById('navMenuToggle');
+      const isOpen = dd.classList.toggle('open');
+      btn.classList.toggle('active', isOpen);
+    }
+    function closeNavMenu() {
+      const dd = document.getElementById('navMenuDropdown');
+      const btn = document.getElementById('navMenuToggle');
+      if (dd) dd.classList.remove('open');
+      if (btn) btn.classList.remove('active');
+    }
+    document.addEventListener('click', function(e) {
+      const wrap = document.getElementById('navMenuWrap');
+      const dd = document.getElementById('navMenuDropdown');
+      if (!wrap || !dd || !dd.classList.contains('open')) return;
+      if (!wrap.contains(e.target)) closeNavMenu();
+    });
+
     function switchPage(pageId) {
       if (!can(PAGE_TABS[pageId], 'view')) return;
+      closeNavMenu();
       document.querySelectorAll('.view-page').forEach(page => page.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -1804,6 +1928,9 @@
       } else if (pageId === 'pageBalances') {
         document.getElementById('btnPageBalances').classList.add('active');
         fetchBalancesData();
+      } else if (pageId === 'pageServices') {
+        document.getElementById('btnPageServices').classList.add('active');
+        initServicesPage();
       }
     }
 
@@ -2097,7 +2224,7 @@
     }
 
     let authUser = null;
-    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageExpenses:'Expenses', pagePayroll:'Payroll', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances'};
+    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageExpenses:'Expenses', pagePayroll:'Payroll', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances', pageServices:'Services'};
     function can(tab, action) {
       const p = authUser && authUser.permissions[tab];
       return !!(p && p.view === true && p[action] === true);
@@ -2138,7 +2265,7 @@
       document.getElementById('mainHeader').style.display = 'flex';
       document.getElementById('currentUserDisplay').innerText = user.name;
       document.querySelectorAll('.view-page, .nav-btn').forEach(el => el.classList.remove('active'));
-      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageExpenses:'btnPageExpenses',pagePayroll:'btnPagePayroll',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances'};
+      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageExpenses:'btnPageExpenses',pagePayroll:'btnPagePayroll',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances',pageServices:'btnPageServices'};
       Object.keys(PAGE_TABS).forEach(page => {
         const btn = document.getElementById(buttons[page]);
         if (!btn) return;
@@ -4422,6 +4549,10 @@
     let cashPeriodMode = 'day'; // 'day' or 'range'
     let cashSalesCache = null;
     let cashExpensesCache = null;
+    // ── خدمات سريعة ──
+    let svcSalesCache = null;
+    let svcExpensesCache = null;
+    let svcDayClients = [];
     let cashSelectedUsers = []; // فارغة = كل الموظفين
     let cashAllUsersList = [];
     let cashFullTotals   = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 }; // الصافي الفعلي (مبيعات - مصروفات) لكل الموظفين — يُستخدم دائماً في الإغلاق
@@ -5074,6 +5205,379 @@
         document.execCommand('copy');
         document.body.removeChild(ta);
         alert('✅ تم نسخ رسالة التقفيل!');
+      }
+    }
+
+    // ============================================================
+    // خدمات سريعة — رسالة التقفيل (الاستقبال) + بيانات عملاء اليوم (الكول سنتر)
+    // ============================================================
+    function initServicesPage() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const dateStr = `${yyyy}-${mm}-${dd}`;
+      const d1 = document.getElementById('svcClosingDate');
+      const d2 = document.getElementById('svcClientsDate');
+      if (d1 && !d1.value) d1.value = dateStr;
+      if (d2 && !d2.value) d2.value = dateStr;
+    }
+
+    function switchServicesTab(tab) {
+      document.querySelectorAll('#pageServices .bal-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#pageServices .bal-tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('svcTabBtn' + tab).classList.add('active');
+      document.getElementById('svcTabContent' + tab).classList.add('active');
+    }
+
+    function svcFlashCopyBtn(id) {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check"></i> تم النسخ!';
+      setTimeout(() => { btn.innerHTML = orig; }, 2200);
+    }
+
+    function svcFallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (_) {}
+      document.body.removeChild(ta);
+    }
+
+    // ── رسالة التقفيل ──
+    async function svcLoadClosingDay() {
+      const dateStr = document.getElementById('svcClosingDate').value;
+      if (!dateStr) { alert('يرجى اختيار التاريخ أولاً.'); return; }
+      const btn = document.getElementById('svcClosingLoadBtn');
+      const orig = btn.innerHTML;
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
+      try {
+        const [salesRes, expRes] = await Promise.all([apiRead('Sales'), apiRead('Expenses')]);
+        const salesJson = await salesRes.json();
+        if (salesJson.status !== 'success') throw new Error(salesJson.message || 'تعذر تحميل بيانات المبيعات.');
+        svcSalesCache = salesJson.data || [];
+        try {
+          const expJson = await expRes.json();
+          svcExpensesCache = (expJson.status === 'success') ? (expJson.data || []) : [];
+        } catch (_) { svcExpensesCache = []; }
+
+        const fromD = new Date(dateStr); fromD.setHours(0, 0, 0, 0);
+        const toD = new Date(dateStr); toD.setHours(23, 59, 59, 999);
+        const usersSet = new Set();
+        svcSalesCache.forEach(row => {
+          const trxDateStr = (row['Trx Date'] || row['تاريخ الفاتورة'] || '').toString().trim();
+          if (!trxDateStr) return;
+          const d = new Date(trxDateStr); d.setHours(12, 0, 0, 0);
+          if (isNaN(d) || d < fromD || d > toD) return;
+          const u = (row['User'] || row['المستخدم'] || '').toString().trim();
+          if (u) usersSet.add(u);
+        });
+
+        const users = [...usersSet].sort((a, b) => a.localeCompare(b, 'ar'));
+        const select = document.getElementById('svcClosingEmployeeSelect');
+        if (users.length) {
+          select.innerHTML = '<option value="">اختر الموظف...</option>' + users.map(u => `<option value="${u}">${u}</option>`).join('');
+          select.disabled = false;
+        } else {
+          select.innerHTML = '<option value="">لا توجد حركات في هذا اليوم</option>';
+          select.disabled = true;
+        }
+        document.getElementById('svcClosingCopyBtn').disabled = users.length === 0;
+        document.getElementById('svcClosingMsgPreview').value = '';
+      } catch (err) {
+        alert(err.message || 'حدث خطأ أثناء التحميل.');
+      } finally {
+        btn.disabled = false; btn.innerHTML = orig;
+      }
+    }
+
+    function svcBuildClosingMessage(dateStr, employeeName) {
+      const [yr, mo, dy] = dateStr.split('-');
+      const dateDisplay = `${dy}-${mo}-${yr}`;
+      const fromD = new Date(dateStr); fromD.setHours(0, 0, 0, 0);
+      const toD = new Date(dateStr); toD.setHours(23, 59, 59, 999);
+
+      const daySales = (svcSalesCache || []).filter(row => {
+        const trxDateStr = (row['Trx Date'] || row['تاريخ الفاتورة'] || '').toString().trim();
+        if (!trxDateStr) return false;
+        const d = new Date(trxDateStr); d.setHours(12, 0, 0, 0);
+        if (isNaN(d) || d < fromD || d > toD) return false;
+        const rowUser = (row['User'] || row['المستخدم'] || '').toString().trim();
+        return rowUser === employeeName;
+      });
+
+      const invoiceMap = {};
+      const collectEntries = [];
+      const bookingEntries = [];
+      const paymentLabels = ['Payment تحصيل', 'Payment Collect', 'Payment حجز'];
+      const paymentMethods = ['Cash', 'Wallet', 'InstaPay', 'POS'];
+      const paidByMethod = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+      const salesPaidByMethod = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+
+      daySales.forEach(row => {
+        const invoiceNum = (row['Num'] || row['رقم الفاتورة'] || '').toString().trim();
+        const client = (row['Client'] || row['اسم العميلة'] || '').toString().trim();
+        const service = (row['Service'] || row['الخدمة'] || '').toString().trim();
+        const netTotal = parseFloat(row['Net Total'] || row['صافي الفاتورة'] || 0);
+        const paid = parseFloat(row['Paid'] || row['المدفوع'] || 0);
+        const credit = parseFloat(row['Credit'] || row['المتبقي'] || 0);
+        const method = (row['Payment Method'] || row['Method'] || '').toString().trim();
+        const payLabel = service;
+
+        if (paymentMethods.includes(method) && paid > 0) paidByMethod[method] += paid;
+
+        const isCollect = payLabel === 'Payment تحصيل' || payLabel === 'Payment Collect';
+        const isBooking = payLabel === 'Payment حجز';
+        if (isCollect) { collectEntries.push({ client, paid, method }); return; }
+        if (isBooking) { bookingEntries.push({ client, paid, method }); return; }
+
+        if (!invoiceNum) return;
+        if (!invoiceMap[invoiceNum]) invoiceMap[invoiceNum] = { num: invoiceNum, client, netTotal: 0, paid: 0, credit: 0, services: [] };
+        invoiceMap[invoiceNum].netTotal += netTotal;
+        invoiceMap[invoiceNum].paid += paid;
+        invoiceMap[invoiceNum].credit += credit;
+        if (service && service !== 'تعديل' && !paymentLabels.includes(service)) {
+          invoiceMap[invoiceNum].services.push(service);
+          if (paymentMethods.includes(method) && paid > 0) salesPaidByMethod[method] += paid;
+        }
+      });
+
+      const invoiceList = Object.values(invoiceMap).filter(inv => inv.services.length > 0 || inv.netTotal > 0);
+      const totalInvoices = invoiceList.length;
+      const totalNetSales = invoiceList.reduce((s, inv) => s + inv.netTotal, 0);
+      const totalPaidSales = invoiceList.reduce((s, inv) => s + inv.paid, 0);
+      const totalCreditSales = invoiceList.reduce((s, inv) => s + inv.credit, 0);
+      const totalCollect = collectEntries.reduce((s, e) => s + e.paid, 0);
+      const totalBooking = bookingEntries.reduce((s, e) => s + e.paid, 0);
+      const grandPaid = totalPaidSales + totalCollect + totalBooking;
+
+      const dayExpenses = (svcExpensesCache || []).filter(row => {
+        const expDateStr = (row['Expense Date'] || '').toString().trim();
+        if (!expDateStr) return false;
+        const d = new Date(expDateStr); d.setHours(12, 0, 0, 0);
+        if (isNaN(d) || d < fromD || d > toD) return false;
+        const rowUser = (row['User'] || '').toString().trim();
+        return rowUser === employeeName;
+      });
+      const totalExpenses = dayExpenses.reduce((s, row) => s + parseFloat(row['Net Total'] || 0), 0);
+
+      const fmt = n => Number(n).toLocaleString('ar-EG', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+      const methodAr = { Cash: 'نقدي', Wallet: 'محفظة', InstaPay: 'انستاباي', POS: 'POS' };
+
+      const empSalesByMethod = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+      daySales.forEach(row => {
+        const method = (row['Payment Method'] || row['Method'] || '').toString().trim();
+        const paid = parseFloat(row['Paid'] || row['المدفوع'] || 0);
+        if (paid > 0 && empSalesByMethod.hasOwnProperty(method)) empSalesByMethod[method] += paid;
+      });
+      const empExpByMethod = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
+      dayExpenses.forEach(row => {
+        const method = (row['Payment Method'] || '').toString().trim();
+        const amount = parseFloat(row['Net Total'] || 0);
+        if (amount > 0 && empExpByMethod.hasOwnProperty(method)) empExpByMethod[method] += amount;
+      });
+      const empNetByMethod = {
+        Cash: empSalesByMethod.Cash - empExpByMethod.Cash,
+        Wallet: empSalesByMethod.Wallet - empExpByMethod.Wallet,
+        InstaPay: empSalesByMethod.InstaPay - empExpByMethod.InstaPay,
+        POS: empSalesByMethod.POS - empExpByMethod.POS,
+      };
+      const grandNet = Object.values(empNetByMethod).reduce((s, v) => s + v, 0);
+
+      let msg = '';
+      msg += `📊 تقفيل ${employeeName} | ${dateDisplay}\n`;
+      msg += `${'─'.repeat(30)}\n`;
+      msg += `📋 إجمالي عدد الفواتير: ${totalInvoices}\n`;
+      msg += `💰 إجمالي المبيعات: ${fmt(totalNetSales)} ج.م\n`;
+      msg += `✅ إجمالي المسدد: ${fmt(grandPaid)} ج.م\n`;
+      const methodLines = paymentMethods.filter(m => paidByMethod[m] > 0)
+        .map((m, i, arr) => `   ${i === arr.length - 1 ? '└' : '├'} ${methodAr[m]}: ${fmt(paidByMethod[m])}`);
+      if (methodLines.length) msg += methodLines.join('\n') + '\n';
+      msg += `⏳ إجمالي المتبقي: ${fmt(totalCreditSales)} ج.م\n`;
+
+      msg += `${'─'.repeat(30)}\n`;
+      msg += `🔒 تقفيل اليوم:\n`;
+      paymentMethods.filter(m => empSalesByMethod[m] > 0 || empNetByMethod[m] !== 0).forEach((m, i, arr) => {
+        const prefix = i === arr.length - 1 ? '└' : '├';
+        msg += `   ${prefix} ${methodAr[m]}: ${fmt(empNetByMethod[m])} ج.م\n`;
+      });
+      msg += `💼 صافي تقفيل اليوم: ${fmt(grandNet)} ج.م\n`;
+
+      if (totalExpenses > 0) {
+        msg += `${'─'.repeat(30)}\n`;
+        msg += `🧾 المصروفات:\n`;
+        paymentMethods.filter(m => empExpByMethod[m] > 0).forEach((m, i, arr) => {
+          const prefix = i === arr.length - 1 ? '└' : '├';
+          msg += `   ${prefix} ${methodAr[m]}: ${fmt(empExpByMethod[m])} ج.م\n`;
+        });
+        msg += `📌 إجمالي المصروفات: ${fmt(totalExpenses)} ج.م\n`;
+      }
+
+      msg += `${'─'.repeat(30)}\n`;
+      msg += `💰 المبيعات:\n`;
+      paymentMethods.filter(m => empSalesByMethod[m] > 0).forEach((m, i, arr) => {
+        const prefix = i === arr.length - 1 ? '└' : '├';
+        msg += `   ${prefix} ${methodAr[m]}: ${fmt(empSalesByMethod[m])} ج.م\n`;
+      });
+
+      if (invoiceList.length > 0) {
+        msg += `\n📝 تفاصيل الفواتير:\n`;
+        invoiceList.forEach(inv => {
+          const svcStr = inv.services.length > 0 ? inv.services.join('، ') : 'خدمة';
+          msg += `• ف#${inv.num} | ${inv.client} | ${svcStr}\n`;
+          msg += `  إجمالي: ${fmt(inv.netTotal)} | مسدد: ${fmt(inv.paid)} | باقي: ${fmt(inv.credit)}\n`;
+        });
+      }
+      if (bookingEntries.length > 0) {
+        msg += `\n🔖 الحجوزات:\n`;
+        bookingEntries.forEach(e => { msg += `• حجز للعميلة ${e.client} بمبلغ ${fmt(e.paid)} ج.م\n`; });
+      }
+      if (collectEntries.length > 0) {
+        msg += `\n💳 التحصيلات:\n`;
+        collectEntries.forEach(e => { msg += `• تحصيل من العميلة ${e.client} مبلغ ${fmt(e.paid)} ج.م\n`; });
+      }
+
+      msg += `${'─'.repeat(30)}\n`;
+      msg += `✨ تم بنجاح — نظام Yuni`;
+      return msg;
+    }
+
+    async function svcCopyClosingMessage() {
+      const dateStr = document.getElementById('svcClosingDate').value;
+      const employeeName = document.getElementById('svcClosingEmployeeSelect').value;
+      if (!dateStr) { alert('يرجى اختيار التاريخ.'); return; }
+      if (!svcSalesCache) { alert('يرجى الضغط على "تحميل" أولاً.'); return; }
+      if (!employeeName) { alert('يرجى اختيار الموظف من القائمة.'); return; }
+
+      const msg = svcBuildClosingMessage(dateStr, employeeName);
+      document.getElementById('svcClosingMsgPreview').value = msg;
+      try {
+        await navigator.clipboard.writeText(msg);
+        svcFlashCopyBtn('svcClosingCopyBtn');
+      } catch (err) {
+        svcFallbackCopy(msg);
+        alert('✅ تم نسخ رسالة التقفيل!');
+      }
+    }
+
+    // ── بيانات عملاء اليوم (الكول سنتر) ──
+    async function svcLoadClientsDay() {
+      const dateStr = document.getElementById('svcClientsDate').value;
+      if (!dateStr) { alert('يرجى اختيار التاريخ أولاً.'); return; }
+      const btn = document.getElementById('svcClientsLoadBtn');
+      const orig = btn.innerHTML;
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
+      try {
+        const res = await apiRead('Sales');
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message || 'تعذر تحميل البيانات.');
+        const sales = json.data || [];
+
+        if (!clientsData || clientsData.length === 0) {
+          try {
+            const cr = await apiRead('Clients');
+            const cj = await cr.json();
+            if (cj.status === 'success') clientsData = cj.data || [];
+          } catch (_) {}
+        }
+
+        const fromD = new Date(dateStr); fromD.setHours(0, 0, 0, 0);
+        const toD = new Date(dateStr); toD.setHours(23, 59, 59, 999);
+        const paymentLabels = ['Payment تحصيل', 'Payment Collect', 'Payment حجز'];
+
+        const clientMap = {};
+        const order = [];
+        sales.forEach(row => {
+          const trxDateStr = (row['Trx Date'] || row['تاريخ الفاتورة'] || '').toString().trim();
+          if (!trxDateStr) return;
+          const d = new Date(trxDateStr); d.setHours(12, 0, 0, 0);
+          if (isNaN(d) || d < fromD || d > toD) return;
+          const client = (row['Client'] || row['اسم العميلة'] || '').toString().trim();
+          const service = (row['Service'] || row['الخدمة'] || '').toString().trim();
+          if (!client) return;
+          if (!service || service === 'تعديل' || paymentLabels.includes(service)) return;
+          if (!clientMap[client]) { clientMap[client] = new Set(); order.push(client); }
+          clientMap[client].add(service);
+        });
+
+        const phoneByName = {};
+        (clientsData || []).forEach(c => {
+          const name = getClientField(c, ['Client Name']).toString().trim();
+          const phone = getClientField(c, ['Client Number']).toString().trim();
+          if (name && !phoneByName[name]) phoneByName[name] = phone;
+        });
+
+        svcDayClients = order.map(name => ({
+          name,
+          phone: phoneByName[name] || '',
+          services: [...clientMap[name]]
+        }));
+
+        renderSvcClientsList();
+      } catch (err) {
+        alert(err.message || 'حدث خطأ أثناء التحميل.');
+      } finally {
+        btn.disabled = false; btn.innerHTML = orig;
+      }
+    }
+
+    function renderSvcClientsList() {
+      const wrap = document.getElementById('svcClientsListWrap');
+      const countBadge = document.getElementById('svcClientsCount');
+      const copyAllBtn = document.getElementById('svcClientsCopyAllBtn');
+      if (!svcDayClients || svcDayClients.length === 0) {
+        wrap.innerHTML = '<div class="cart-empty"><i class="fas fa-info-circle"></i> لا توجد مبيعات لعملاء في هذا اليوم</div>';
+        countBadge.textContent = '0 عميلة';
+        copyAllBtn.disabled = true;
+        return;
+      }
+      countBadge.textContent = svcDayClients.length + ' عميلة';
+      copyAllBtn.disabled = false;
+      wrap.innerHTML = svcDayClients.map((c, idx) => `
+        <div class="svc-client-row">
+          <div class="svc-client-info">
+            <div><strong>${c.name}</strong></div>
+            <div style="font-size:12px;color:#666;">${c.phone || 'بدون رقم'} — ${c.services.join('، ') || '-'}</div>
+          </div>
+          <button type="button" class="btn-small" onclick="svcCopySingleClient(${idx})"><i class="fas fa-copy"></i> نسخ</button>
+        </div>`).join('');
+    }
+
+    function svcBuildClientMessage(c) {
+      let msg = '';
+      msg += `👤 اسم العميل: ${c.name}\n`;
+      msg += `📞 رقم الهاتف: ${c.phone || '-'}\n`;
+      msg += `💉 الخدمات: ${c.services.join('، ') || '-'}`;
+      return msg;
+    }
+
+    async function svcCopySingleClient(idx) {
+      const c = svcDayClients[idx];
+      if (!c) return;
+      const msg = svcBuildClientMessage(c);
+      try {
+        await navigator.clipboard.writeText(msg);
+      } catch (err) {
+        svcFallbackCopy(msg);
+      }
+      alert('تم نسخ بيانات العميلة: ' + c.name);
+    }
+
+    async function svcCopyAllClients() {
+      if (!svcDayClients || svcDayClients.length === 0) return;
+      const dateStr = document.getElementById('svcClientsDate').value;
+      const [yr, mo, dy] = dateStr.split('-');
+      const dateDisplay = `${dy}-${mo}-${yr}`;
+      let msg = `📋 بيانات عملاء يوم ${dateDisplay}\n${'─'.repeat(30)}\n\n`;
+      msg += svcDayClients.map(c => svcBuildClientMessage(c)).join('\n\n');
+      try {
+        await navigator.clipboard.writeText(msg);
+        svcFlashCopyBtn('svcClientsCopyAllBtn');
+      } catch (err) {
+        svcFallbackCopy(msg);
+        alert('✅ تم نسخ بيانات كل العملاء!');
       }
     }
 
