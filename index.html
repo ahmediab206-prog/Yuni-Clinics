@@ -926,6 +926,7 @@
               <option value="خصم">خصم</option>
               <option value="مكافأة">مكافأة</option>
               <option value="أوفرتايم">أوفرتايم</option>
+              <option value="سلفة">سلفة</option>
             </select>
           </div>
           <!-- Statement -->
@@ -1816,6 +1817,7 @@
             if (sessionStorage.getItem('yuni_user')) {
               populateStaffUI(globalData);
             }
+            populatePayrollEmployees();
           }
         })
         .catch(err => console.error("Preload error:", err));
@@ -5702,10 +5704,9 @@
       if (!sel) return;
       const current = sel.value;
       sel.innerHTML = '<option value="">-- اختر الموظف --</option>';
-      const allEmps = [...(allDoctors || []), ...(allSpecialists || [])];
-      // لو مفيش بيانات من globalData نحاول نجيب من clientsData أو نترك فارغ
-      const unique = [...new Set(allEmps)].sort((a, b) => a.localeCompare(b, 'ar'));
-      if (unique.length === 0 && globalData && globalData.length) {
+      // نجيب كل أسماء الموظفين من عمود Employee Name (B) في شيت Data — كل الوظائف، مش بس دكاترة/أخصائيين
+      let unique = [];
+      if (globalData && globalData.length) {
         globalData.forEach(item => {
           let name = '';
           Object.keys(item).forEach(k => {
@@ -5714,8 +5715,12 @@
           });
           if (name && !unique.includes(name)) unique.push(name);
         });
-        unique.sort((a, b) => a.localeCompare(b, 'ar'));
       }
+      // لو شيت Data لسه متحملش، نستخدم الأطباء/الأخصائيين كبديل مؤقت
+      if (unique.length === 0) {
+        unique = [...new Set([...(allDoctors || []), ...(allSpecialists || [])])];
+      }
+      unique.sort((a, b) => a.localeCompare(b, 'ar'));
       unique.forEach(emp => {
         const opt = document.createElement('option');
         opt.value = emp;
@@ -5840,7 +5845,7 @@
         totalDays   += days;
         totalAmount += amount;
 
-        const typeColor = type === 'خصم' ? '#C5221F' : type === 'مكافأة' ? '#184232' : '#C5A059';
+        const typeColor = type === 'خصم' ? '#C5221F' : type === 'مكافأة' ? '#184232' : type === 'سلفة' ? '#6B4EFF' : '#C5A059';
 
         return `<tr>
           <td>${num}</td>
