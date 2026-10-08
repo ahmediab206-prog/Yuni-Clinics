@@ -667,19 +667,19 @@
             <div class="payment-grid">
               <div class="payment-field">
                 <label>نقدي (Cash)</label>
-                <input type="number" id="payCash" class="calc-input pay-part" min="0" placeholder="0" value="0">
+                <input type="number" id="payCash" class="calc-input pay-part" placeholder="0" value="0">
               </div>
               <div class="payment-field">
                 <label>محفظة إلكترونية (Wallet)</label>
-                <input type="number" id="payWallet" class="calc-input pay-part" min="0" placeholder="0" value="0">
+                <input type="number" id="payWallet" class="calc-input pay-part" placeholder="0" value="0">
               </div>
               <div class="payment-field">
                 <label>انستاباي (InstaPay)</label>
-                <input type="number" id="payInsta" class="calc-input pay-part" min="0" placeholder="0" value="0">
+                <input type="number" id="payInsta" class="calc-input pay-part" placeholder="0" value="0">
               </div>
               <div class="payment-field">
                 <label>POS (فيزا / ماكينة)</label>
-                <input type="number" id="payPOS" class="calc-input pay-part" min="0" placeholder="0" value="0">
+                <input type="number" id="payPOS" class="calc-input pay-part" placeholder="0" value="0">
               </div>
             </div>
           </div>
@@ -1747,19 +1747,19 @@
         <div class="payment-grid">
           <div class="payment-field">
             <label>نقدي (Cash)</label>
-            <input type="number" id="editPayCash" min="0" placeholder="0" value="0" oninput="recalcEditSummary()">
+            <input type="number" id="editPayCash" placeholder="0" value="0" oninput="recalcEditSummary()">
           </div>
           <div class="payment-field">
             <label>محفظة إلكترونية (Wallet)</label>
-            <input type="number" id="editPayWallet" min="0" placeholder="0" value="0" oninput="recalcEditSummary()">
+            <input type="number" id="editPayWallet" placeholder="0" value="0" oninput="recalcEditSummary()">
           </div>
           <div class="payment-field">
             <label>انستاباي (InstaPay)</label>
-            <input type="number" id="editPayInsta" min="0" placeholder="0" value="0" oninput="recalcEditSummary()">
+            <input type="number" id="editPayInsta" placeholder="0" value="0" oninput="recalcEditSummary()">
           </div>
           <div class="payment-field">
             <label>POS (فيزا / ماكينة)</label>
-            <input type="number" id="editPayPOS" min="0" placeholder="0" value="0" oninput="recalcEditSummary()">
+            <input type="number" id="editPayPOS" placeholder="0" value="0" oninput="recalcEditSummary()">
           </div>
         </div>
       </div>
@@ -2643,7 +2643,7 @@
             </select>
           </td>
           <td style="text-align:center;">
-            <input type="number" class="cart-qty-input" min="1" value="${item.qty}"
+            <input type="number" class="cart-qty-input" step="1" value="${item.qty}"
               onchange="updateCartField('${escCart(name)}','qty',this.value)"
               oninput="updateCartField('${escCart(name)}','qty',this.value)">
           </td>
@@ -2678,7 +2678,7 @@
       const item = cartItems.get(name);
       if (!item) return;
       if (field === 'qty') {
-        item.qty = Math.max(1, Math.round(parseFloat(val) || 1));
+        const q = Math.round(parseFloat(val)); item.qty = (isNaN(q) || q === 0) ? 1 : q; // يقبل سالب (مرتجع)
       } else if (field === 'staffName') {
         item.staffName = val;
       } else {
@@ -2745,6 +2745,12 @@
       calculateAll();
     }
 
+    // صافي الفاتورة: لو الإجمالي موجب نمنع النزول تحت الصفر بالخصم، ولو سالب (مرتجع) نسيبه سالب
+    function calcNetTotal(total, discount) {
+      const n = total - discount;
+      return total >= 0 ? Math.max(0, n) : n;
+    }
+
     function calculateAll() {
       // حساب إجمالي الخدمات من الـ cart (مع qty وخصم وإضافي لكل صنف)
       let baseServicesTotal = 0;
@@ -2756,7 +2762,7 @@
       const discount = parseFloat(document.getElementById('discount').value) || 0;
 
       const totalWithExtra = baseServicesTotal + extraFee;
-      const netAmount = Math.max(0, totalWithExtra - discount);
+      const netAmount = calcNetTotal(totalWithExtra, discount);
 
       const cash   = parseFloat(document.getElementById('payCash').value)   || 0;
       const wallet = parseFloat(document.getElementById('payWallet').value) || 0;
@@ -2826,8 +2832,8 @@
       const insta = parseFloat(document.getElementById('payInsta').value) || 0;
       const pos = parseFloat(document.getElementById('payPOS').value) || 0;
 
-      if (selectedServices.length === 0 && extraFee === 0) {
-        alert('يرجى اختيار خدمة واحدة على الأقل أو إدخال رسوم إضافية!');
+      if (selectedServices.length === 0 && extraFee === 0 && (cash + wallet + insta + pos) === 0) {
+        alert('يرجى اختيار خدمة واحدة على الأقل أو إدخال رسوم إضافية أو مبلغ دفع!');
         return;
       }
 
@@ -2854,15 +2860,15 @@
       }
 
       let paymentsArr = [];
-      if (cash > 0) paymentsArr.push({ method: "Cash", amount: cash });
-      if (wallet > 0) paymentsArr.push({ method: "Wallet", amount: wallet });
-      if (insta > 0) paymentsArr.push({ method: "InstaPay", amount: insta });
-      if (pos > 0) paymentsArr.push({ method: "POS", amount: pos });
+      if (cash !== 0) paymentsArr.push({ method: "Cash", amount: cash });
+      if (wallet !== 0) paymentsArr.push({ method: "Wallet", amount: wallet });
+      if (insta !== 0) paymentsArr.push({ method: "InstaPay", amount: insta });
+      if (pos !== 0) paymentsArr.push({ method: "POS", amount: pos });
 
       const totalPaid = cash + wallet + insta + pos;
       const cartTotal = selectedServices.reduce((s, item) =>
         s + (item.price * item.qty) + item.lineExtra - item.lineDiscount, 0);
-      const netTotal = Math.max(0, cartTotal + extraFee - discount);
+      const netTotal = calcNetTotal(cartTotal + extraFee, discount);
       const credit = netTotal - totalPaid;
 
       const payload = {
@@ -5016,7 +5022,7 @@
         const payLabel   = service; // خانة الخدمة بتحتوي على نوع الدفع للتحصيلات
 
         // تراكم المدفوع حسب طريقة الدفع
-        if (paymentMethods.includes(method) && paid > 0) {
+        if (paymentMethods.includes(method) && paid !== 0) {
           paidByMethod[method] += paid;
         }
 
@@ -5043,7 +5049,7 @@
         invoiceMap[invoiceNum].credit   += credit;
         if (service && service !== 'تعديل' && !paymentLabels.includes(service)) {
           invoiceMap[invoiceNum].services.push(service);
-          if (paymentMethods.includes(method) && paid > 0) {
+          if (paymentMethods.includes(method) && paid !== 0) {
             salesPaidByMethod[method] += paid;
           }
         }
@@ -5098,7 +5104,7 @@
       daySales.forEach(row => {
         const method = (row['Payment Method'] || row['Method'] || '').toString().trim();
         const paid   = parseFloat(row['Paid'] || row['المدفوع'] || 0);
-        if (paid > 0 && empSalesByMethod.hasOwnProperty(method)) {
+        if (paid !== 0 && empSalesByMethod.hasOwnProperty(method)) {
           empSalesByMethod[method] += paid;
         }
       });
@@ -5326,7 +5332,7 @@
         const method = (row['Payment Method'] || row['Method'] || '').toString().trim();
         const payLabel = service;
 
-        if (paymentMethods.includes(method) && paid > 0) paidByMethod[method] += paid;
+        if (paymentMethods.includes(method) && paid !== 0) paidByMethod[method] += paid;
 
         const isCollect = payLabel === 'Payment تحصيل' || payLabel === 'Payment Collect';
         const isBooking = payLabel === 'Payment حجز';
@@ -5340,7 +5346,7 @@
         invoiceMap[invoiceNum].credit += credit;
         if (service && service !== 'تعديل' && !paymentLabels.includes(service)) {
           invoiceMap[invoiceNum].services.push(service);
-          if (paymentMethods.includes(method) && paid > 0) salesPaidByMethod[method] += paid;
+          if (paymentMethods.includes(method) && paid !== 0) salesPaidByMethod[method] += paid;
         }
       });
 
@@ -5370,7 +5376,7 @@
       daySales.forEach(row => {
         const method = (row['Payment Method'] || row['Method'] || '').toString().trim();
         const paid = parseFloat(row['Paid'] || row['المدفوع'] || 0);
-        if (paid > 0 && empSalesByMethod.hasOwnProperty(method)) empSalesByMethod[method] += paid;
+        if (paid !== 0 && empSalesByMethod.hasOwnProperty(method)) empSalesByMethod[method] += paid;
       });
       const empExpByMethod = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
       dayExpenses.forEach(row => {
@@ -5718,7 +5724,7 @@
         if (isPaymentRow) paymentLabelEdit = svc;
 
         // تجميع المدفوعات حسب طريقة الدفع
-        if (paid > 0) {
+        if (paid !== 0) {
           if (method === 'Cash')     cashPaidEdit   += paid;
           else if (method === 'Wallet')   walletPaidEdit += paid;
           else if (method === 'InstaPay') instaPaidEdit  += paid;
@@ -5795,7 +5801,7 @@
             </select>
           </td>
           <td>
-            <input type="number" class="cart-qty-input" value="${row.qty}" min="0.01" step="0.01"
+            <input type="number" class="cart-qty-input" value="${row.qty}" step="0.01"
               oninput="editServiceRows[${idx}].qty = parseFloat(this.value)||1; recalcEditSummary(); updateEditRowTotal(this.closest('tr'), ${idx});">
           </td>
           <td>
@@ -6108,7 +6114,7 @@
 
       const trxDate = document.getElementById('editTrxDate').value;
       if (!trxDate)                      { showEditError('يرجى تحديد تاريخ الفاتورة.');                        return; }
-      if (editServiceRows.length === 0)  { showEditError('يرجى إضافة خدمة واحدة على الأقل.');                 return; }
+      if (editServiceRows.length === 0 && ['editPayCash','editPayWallet','editPayInsta','editPayPOS'].every(id => !(parseFloat(document.getElementById(id).value) || 0))) { showEditError('يرجى إضافة خدمة واحدة على الأقل أو مبلغ دفع.'); return; }
       if (editServiceRows.some(r => !r.name.trim())) { showEditError('يوجد خدمة بدون اسم، يرجى المراجعة.'); return; }
 
       const cash   = parseFloat(document.getElementById('editPayCash').value)   || 0;
@@ -6117,10 +6123,10 @@
       const pos    = parseFloat(document.getElementById('editPayPOS').value)    || 0;
 
       const payments = [];
-      if (cash   > 0) payments.push({ method: 'Cash',     amount: cash   });
-      if (wallet > 0) payments.push({ method: 'Wallet',   amount: wallet });
-      if (insta  > 0) payments.push({ method: 'InstaPay', amount: insta  });
-      if (pos    > 0) payments.push({ method: 'POS',      amount: pos    });
+      if (cash   !== 0) payments.push({ method: 'Cash',     amount: cash   });
+      if (wallet !== 0) payments.push({ method: 'Wallet',   amount: wallet });
+      if (insta  !== 0) payments.push({ method: 'InstaPay', amount: insta  });
+      if (pos    !== 0) payments.push({ method: 'POS',      amount: pos    });
 
       const paymentLabel = document.getElementById('editInvoiceOverlay').dataset.paymentLabel || 'Payment method';
 
