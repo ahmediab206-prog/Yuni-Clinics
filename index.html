@@ -3680,6 +3680,11 @@
         expCurrentSortDir = direction;
         closePopup();
         applyExpensesFilters();
+      } else if (activeFilterMode === 'payroll') {
+        prCurrentSortCol = prCurrentOpenCol;
+        prCurrentSortDir = direction;
+        closePopup();
+        applyPayrollFilters();
       } else {
         currentSortColumn = currentOpenCol;
         currentSortDirection = direction;
@@ -3700,6 +3705,34 @@
     }
 
     function applyPopupFilter() {
+      // ── Payroll mode ──
+      if (activeFilterMode === 'payroll') {
+        if (!prCurrentOpenCol) return;
+        if (!prActiveFilters[prCurrentOpenCol]) prActiveFilters[prCurrentOpenCol] = {};
+        document.querySelectorAll('.popup-val-cb').forEach(cb => {
+          prActiveFilters[prCurrentOpenCol][cb.value] = cb.checked;
+        });
+        const op   = document.getElementById('condOperator').value;
+        const v1El = document.getElementById('condVal1');
+        const v2El = document.getElementById('condVal2');
+        const val1 = v1El ? v1El.value.trim() : '';
+        const val2 = v2El ? v2El.value.trim() : '';
+        prActiveConditions[prCurrentOpenCol] = { op, val1, val2 };
+        const icon = document.getElementById(`icon_${prCurrentOpenCol}`);
+        if (icon) {
+          const hasUnchecked = Object.values(prActiveFilters[prCurrentOpenCol]).includes(false);
+          const hasCondition = op !== 'none' && val1 !== '';
+          icon.style.color   = (hasUnchecked || hasCondition) ? '#C5221F' : '';
+          icon.style.opacity = (hasUnchecked || hasCondition) ? '1'       : '0.7';
+        }
+        prCurrentOpenCol = null;
+        document.querySelector('.popup-btn-ok').onclick = function() { applyPopupFilter(); };
+        closePopup();
+        applyPayrollFilters();
+        return;
+      }
+
+      // ── Sales mode ──
       if (!currentOpenCol) return;
 
       if (!activeColumnFilters[currentOpenCol]) {
@@ -6197,7 +6230,14 @@
     // ============================================================
 
     let payrollData = [];
-    let payrollFilters = {};
+    let payrollFilters = {};        // (legacy — kept for reset compatibility)
+    let prActiveFilters    = {};    // checkbox filters  { colId: { val: bool } }
+    let prActiveConditions = {};    // advanced conditions { colId: { op, val1, val2 } }
+    let prCurrentOpenCol   = null;
+    let prCurrentSortCol   = null;
+    let prCurrentSortDir   = 'asc';
+    const prNumericCols = ['pr_days', 'pr_amount'];
+    const prDateCols    = ['pr_action_date', 'pr_payroll_date'];
 
     function onPayrollValueTypeChange() {
       const val = document.querySelector('input[name="payrollValueType"]:checked')?.value;
@@ -6311,18 +6351,78 @@
     function applyPayrollFilters() {
       const search = (document.getElementById('payrollGlobalSearch')?.value || '').trim().toLowerCase();
       let rows = payrollData.slice();
+
+      // ── بحث عام ──
       if (search) {
         rows = rows.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(search)));
       }
-      // Column filters
-      Object.keys(payrollFilters).forEach(col => {
-        const f = payrollFilters[col];
-        if (!f || !f.value) return;
+
+      // ── Checkbox filters ──
+      Object.keys(prActiveFilters).forEach(colId => {
+        const field = prFieldMap[colId];
+        if (!field) return;
+        const colFilters = prActiveFilters[colId];
         rows = rows.filter(r => {
-          const cell = String(r[f.field] ?? '').toLowerCase();
-          return cell.includes(f.value.toLowerCase());
+          const val = (r[field] ?? '').toString().trim();
+          return colFilters[val] !== false;
         });
       });
+
+      // ── Advanced conditions ──
+      Object.keys(prActiveConditions).forEach(colId => {
+        const cond = prActiveConditions[colId];
+        if (!cond || cond.op === 'none' || cond.val1 === '') return;
+        const field = prFieldMap[colId];
+        if (!field) return;
+        const isNum  = prNumericCols.includes(colId);
+        const isDate = prDateCols.includes(colId);
+        rows = rows.filter(r => {
+          const raw = r[field] ?? '';
+          if (isNum) {
+            const val = parseFloat(raw) || 0;
+            const v1  = parseFloat(cond.val1) || 0;
+            const v2  = parseFloat(cond.val2) || 0;
+            if (cond.op === 'equals')  return val === v1;
+            if (cond.op === 'greater') return val > v1;
+            if (cond.op === 'less')    return val < v1;
+            if (cond.op === 'between') return val >= v1 && val <= v2;
+          } else if (isDate) {
+            const valD = new Date(raw).setHours(0,0,0,0);
+            const v1D  = new Date(cond.val1).setHours(0,0,0,0);
+            const v2D  = cond.val2 ? new Date(cond.val2).setHours(0,0,0,0) : null;
+            if (isNaN(valD)) return false;
+            if (cond.op === 'equals')  return valD === v1D;
+            if (cond.op === 'greater') return valD > v1D;
+            if (cond.op === 'less')    return valD < v1D;
+            if (cond.op === 'between') return valD >= v1D && valD <= v2D;
+          } else {
+            const str = raw.toString().toLowerCase();
+            const tgt = cond.val1.toLowerCase();
+            if (cond.op === 'contains')    return str.includes(tgt);
+            if (cond.op === 'notContains') return !str.includes(tgt);
+            if (cond.op === 'startsWith')  return str.startsWith(tgt);
+            if (cond.op === 'endsWith')    return str.endsWith(tgt);
+            if (cond.op === 'equals')      return str === tgt;
+          }
+          return true;
+        });
+      });
+
+      // ── Sorting ──
+      if (prCurrentSortCol) {
+        const sortField = prFieldMap[prCurrentSortCol] || prCurrentSortCol;
+        const isNum = prNumericCols.includes(prCurrentSortCol);
+        rows.sort((a, b) => {
+          let vA = a[sortField] ?? '';
+          let vB = b[sortField] ?? '';
+          if (isNum) { vA = parseFloat(vA) || 0; vB = parseFloat(vB) || 0; }
+          else       { vA = vA.toString().toLowerCase(); vB = vB.toString().toLowerCase(); }
+          if (vA < vB) return prCurrentSortDir === 'asc' ? -1 : 1;
+          if (vA > vB) return prCurrentSortDir === 'asc' ?  1 : -1;
+          return 0;
+        });
+      }
+
       renderPayrollTable(rows);
     }
 
@@ -6376,61 +6476,105 @@
       document.getElementById('payrollRecordCount').textContent = `${data.length} حركة`;
     }
 
-    function openPayrollFilter(colId, event) {
-      // Simple inline filter — reuse same pattern as expenses
-      const existingModal = document.getElementById('payrollFilterModal');
-      if (existingModal) existingModal.remove();
+    // ── fieldMap: colId → اسم الحقل في payrollData ──
+    const prFieldMap = {
+      pr_num: 'Num', pr_action_date: 'Action Date', pr_payroll_date: 'Payroll Date',
+      pr_type: 'Type', pr_statement: 'Statement', pr_employee: 'Employee',
+      pr_days: 'Payroll - Days', pr_amount: 'Payroll - Amount',
+      pr_user: 'User', pr_editby: 'Edit by'
+    };
 
-      const fieldMap = {
-        pr_num: 'Num', pr_action_date: 'Action Date', pr_payroll_date: 'Payroll Date',
-        pr_type: 'Type', pr_statement: 'Statement', pr_employee: 'Employee',
-        pr_days: 'Payroll - Days', pr_amount: 'Payroll - Amount', pr_user: 'User', pr_editby: 'Edit by'
-      };
-      const field = fieldMap[colId];
+    function openPayrollFilter(colId, event) {
+      event.stopPropagation();
+      const field = prFieldMap[colId];
       if (!field) return;
 
-      const modal = document.createElement('div');
-      modal.id = 'payrollFilterModal';
-      modal.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);display:flex;justify-content:center;align-items:center;z-index:10001;';
-      modal.innerHTML = `
-        <div style="background:#fff;border-radius:14px;padding:24px;min-width:280px;box-shadow:0 15px 35px rgba(0,0,0,0.2);">
-          <h4 style="color:var(--primary-green);margin-bottom:14px;">فلتر: ${field}</h4>
-          <input type="text" id="prFilterInput" placeholder="اكتب للفلترة..." style="width:100%;padding:10px;border:1.5px solid var(--border-color);border-radius:8px;font-size:14px;margin-bottom:14px;">
-          <div style="display:flex;gap:10px;">
-            <button onclick="applyPayrollColFilter('${colId}','${field}')" style="flex:1;padding:10px;background:var(--primary-green);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;">تطبيق</button>
-            <button onclick="clearPayrollColFilter('${colId}')" style="flex:1;padding:10px;background:#FAF8F5;border:1.5px solid var(--border-color);border-radius:8px;cursor:pointer;font-weight:700;">مسح</button>
-            <button onclick="document.getElementById('payrollFilterModal').remove()" style="padding:10px 14px;background:#FCE8E6;color:#C5221F;border:none;border-radius:8px;cursor:pointer;font-weight:700;">✕</button>
-          </div>
-        </div>`;
-      document.body.appendChild(modal);
-      const inp = document.getElementById('prFilterInput');
-      if (payrollFilters[colId]) inp.value = payrollFilters[colId].value || '';
-      inp.focus();
-      modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-    }
+      activeFilterMode   = 'payroll';
+      prCurrentOpenCol   = colId;
 
-    function applyPayrollColFilter(colId, field) {
-      const val = document.getElementById('prFilterInput')?.value || '';
-      payrollFilters[colId] = { field, value: val };
-      document.getElementById('payrollFilterModal')?.remove();
-      const icon = document.getElementById('icon_' + colId);
-      if (icon) icon.style.color = val ? 'var(--gold-accent)' : '';
-      applyPayrollFilters();
-    }
+      // ── عنوان الـ popup ──
+      document.getElementById('popupTitleText').innerText = `فلتر: ${field}`;
 
-    function clearPayrollColFilter(colId) {
-      delete payrollFilters[colId];
-      document.getElementById('payrollFilterModal')?.remove();
-      const icon = document.getElementById('icon_' + colId);
-      if (icon) icon.style.color = '';
-      applyPayrollFilters();
+      // ── operators حسب نوع العمود ──
+      const condOperator = document.getElementById('condOperator');
+      condOperator.innerHTML = '<option value="none">-- بدون شرط متقدم --</option>';
+
+      let colType = 'text';
+      if (prNumericCols.includes(colId)) colType = 'number';
+      if (prDateCols.includes(colId))    colType = 'date';
+
+      if (colType === 'text') {
+        document.getElementById('condTitle').innerText = 'فلترة بشرط نصي:';
+        condOperator.innerHTML += `
+          <option value="contains">يحتوي على (Contains)</option>
+          <option value="notContains">لا يحتوي على (Not Contain)</option>
+          <option value="startsWith">يبدأ بـ (Starts With)</option>
+          <option value="endsWith">ينتهي بـ (Ends With)</option>
+          <option value="equals">يساوي تماماً (Equals)</option>`;
+      } else if (colType === 'number') {
+        document.getElementById('condTitle').innerText = 'فلترة بشرط رقمي:';
+        condOperator.innerHTML += `
+          <option value="equals">يساوي (=)</option>
+          <option value="greater">أكبر من (>)</option>
+          <option value="less">أصغر من (<)</option>
+          <option value="between">بين رقمين (Between)</option>`;
+      } else if (colType === 'date') {
+        document.getElementById('condTitle').innerText = 'فلترة بشرط التاريخ:';
+        condOperator.innerHTML += `
+          <option value="equals">في تاريخ (=)</option>
+          <option value="greater">بعد تاريخ (أكبر من)</option>
+          <option value="less">قبل تاريخ (أصغر من)</option>
+          <option value="between">بين تاريخين (Between)</option>`;
+      }
+
+      const existingCond = prActiveConditions[colId] || { op: 'none', val1: '', val2: '' };
+      condOperator.value = existingCond.op;
+      renderConditionInputs(colType, existingCond.val1, existingCond.val2);
+
+      // ── بناء قائمة الـ checkboxes من القيم الفريدة ──
+      let uniqueVals = new Set();
+      payrollData.forEach(row => {
+        const v = (row[field] ?? '').toString().trim();
+        uniqueVals.add(v);
+      });
+
+      const cbList = document.getElementById('popupCheckboxList');
+      cbList.innerHTML = '';
+      document.getElementById('popupSearchInput').value = '';
+      document.getElementById('popupSelectAllCB').checked = true;
+
+      if (!prActiveFilters[colId]) {
+        prActiveFilters[colId] = {};
+        uniqueVals.forEach(v => { prActiveFilters[colId][v] = true; });
+      }
+
+      Array.from(uniqueVals).sort().forEach(val => {
+        const isChecked = prActiveFilters[colId][val] !== false;
+        cbList.innerHTML += `
+          <label class="popup-cb-item">
+            <input type="checkbox" class="popup-val-cb" value="${val}" ${isChecked ? 'checked' : ''} onchange="updateSelectAllState()">
+            <span>${val === '' ? '(فارغ)' : val}</span>
+          </label>`;
+      });
+
+      // ── تحويل زر OK لاستخدام applyPopupFilter المشترك ──
+      document.querySelector('.popup-btn-ok').onclick = function() { applyPopupFilter(); };
+      document.getElementById('filterModalOverlay').classList.add('active');
     }
 
     function resetPayrollFilters() {
-      payrollFilters = {};
+      payrollFilters      = {};
+      prActiveFilters     = {};
+      prActiveConditions  = {};
+      prCurrentSortCol    = null;
+      prCurrentSortDir    = 'asc';
+      prCurrentOpenCol    = null;
       const search = document.getElementById('payrollGlobalSearch');
       if (search) search.value = '';
-      document.querySelectorAll('[id^="icon_pr_"]').forEach(el => el.style.color = '');
+      document.querySelectorAll('[id^="icon_pr_"]').forEach(el => {
+        el.style.color   = '';
+        el.style.opacity = '0.7';
+      });
       applyPayrollFilters();
     }
 
