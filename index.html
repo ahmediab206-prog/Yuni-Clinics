@@ -3442,15 +3442,13 @@
         uniqueVals.forEach(v => { expActiveFilters[colName][v] = true; });
       }
 
-      Array.from(uniqueVals).sort().forEach(val => {
+      cbList.innerHTML = Array.from(uniqueVals).sort().map(val => {
         const isChecked = expActiveFilters[colName][val] !== false;
-        cbList.innerHTML += `
-          <label class="popup-cb-item">
+        return `<label class="popup-cb-item">
             <input type="checkbox" class="popup-val-cb" value="${val}" ${isChecked ? 'checked' : ''} onchange="updateSelectAllState()">
             <span>${val === '' ? '(فارغ)' : val}</span>
-          </label>
-        `;
-      });
+          </label>`;
+      }).join('');
 
       document.querySelector('.popup-btn-ok').onclick = function() { applyExpPopupFilter(); };
       document.getElementById('filterModalOverlay').classList.add('active');
@@ -3537,6 +3535,8 @@
       doctor: ['Doctor', 'الطبيب'],
       specialist: ['Specialist', 'الأخصائي'],
       notes: ['Notes', 'ملاحظات'],
+      speciality: ['Item/Service Speciality', 'Speciality'],
+      category: ['Item/Service Category', 'Category'],
       user: ['User', 'المستخدم']
     };
 
@@ -3610,15 +3610,13 @@
         uniqueVals.forEach(val => { activeColumnFilters[colName][val] = true; });
       }
 
-      Array.from(uniqueVals).sort().forEach(val => {
+      cbList.innerHTML = Array.from(uniqueVals).sort().map(val => {
         const isChecked = activeColumnFilters[colName][val] !== false;
-        cbList.innerHTML += `
-          <label class="popup-cb-item">
+        return `<label class="popup-cb-item">
             <input type="checkbox" class="popup-val-cb" value="${val}" ${isChecked ? 'checked' : ''} onchange="updateSelectAllState()">
             <span>${val === "" ? "(فارغ)" : val}</span>
-          </label>
-        `;
-      });
+          </label>`;
+      }).join('');
 
       document.getElementById('filterModalOverlay').classList.add('active');
     }
@@ -3640,8 +3638,22 @@
 
     function handleOperatorChange() {
       let colType = 'text';
-      if (numericColumns.includes(currentOpenCol)) colType = 'number';
-      if (dateColumns.includes(currentOpenCol)) colType = 'date';
+      if (activeFilterMode === 'expenses') {
+        const col = expCurrentOpenCol;
+        if (expNumericCols.includes(col)) colType = 'number';
+        else if (expDateCols.includes(col)) colType = 'date';
+      } else if (activeFilterMode === 'payroll') {
+        const col = prCurrentOpenCol;
+        if (prNumericCols.includes(col)) colType = 'number';
+        else if (prDateCols.includes(col)) colType = 'date';
+      } else if (activeFilterMode === 'logs') {
+        const col = logsCurrentOpenCol;
+        if (logsDateCols.includes(col)) colType = 'date';
+      } else {
+        // sales
+        if (numericColumns.includes(currentOpenCol)) colType = 'number';
+        else if (dateColumns.includes(currentOpenCol)) colType = 'date';
+      }
       renderConditionInputs(colType);
     }
 
@@ -4238,15 +4250,13 @@
         uniqueVals.forEach(v => { logsActiveFilters[colName][v] = true; });
       }
 
-      Array.from(uniqueVals).sort().forEach(val => {
+      cbList.innerHTML = Array.from(uniqueVals).sort().map(val => {
         const isChecked = logsActiveFilters[colName][val] !== false;
-        cbList.innerHTML += `
-          <label class="popup-cb-item">
+        return `<label class="popup-cb-item">
             <input type="checkbox" class="popup-val-cb" value="${val}" ${isChecked ? 'checked' : ''} onchange="updateSelectAllState()">
             <span>${val === '' ? '(فارغ)' : val}</span>
-          </label>
-        `;
-      });
+          </label>`;
+      }).join('');
 
       // Override popup ok button temporarily
       document.querySelector('.popup-btn-ok').onclick = function() { applyLogsPopupFilter(); };
@@ -6548,14 +6558,13 @@
         uniqueVals.forEach(v => { prActiveFilters[colId][v] = true; });
       }
 
-      Array.from(uniqueVals).sort().forEach(val => {
+      cbList.innerHTML = Array.from(uniqueVals).sort().map(val => {
         const isChecked = prActiveFilters[colId][val] !== false;
-        cbList.innerHTML += `
-          <label class="popup-cb-item">
+        return `<label class="popup-cb-item">
             <input type="checkbox" class="popup-val-cb" value="${val}" ${isChecked ? 'checked' : ''} onchange="updateSelectAllState()">
             <span>${val === '' ? '(فارغ)' : val}</span>
           </label>`;
-      });
+      }).join('');
 
       // ── تحويل زر OK لاستخدام applyPopupFilter المشترك ──
       document.querySelector('.popup-btn-ok').onclick = function() { applyPopupFilter(); };
