@@ -5360,6 +5360,7 @@
       const invoiceMap = {};
       const collectEntries = [];
       const bookingEntries = [];
+      const serviceSummary = {}; // { serviceName: { qty, unitPrice, total } }
       const paymentLabels = ['Payment تحصيل', 'Payment Collect', 'Payment حجز'];
       const paymentMethods = ['Cash', 'Wallet', 'InstaPay', 'POS'];
       const paidByMethod = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 };
@@ -5390,6 +5391,12 @@
         if (service && service !== 'تعديل' && !paymentLabels.includes(service)) {
           invoiceMap[invoiceNum].services.push(service);
           if (paymentMethods.includes(method) && paid !== 0) salesPaidByMethod[method] += paid;
+          // ملخص الخدمات: كل سطر = وحدة واحدة، netTotal = سعر الوحدة
+          if (netTotal > 0) {
+            if (!serviceSummary[service]) serviceSummary[service] = { qty: 0, unitPrice: netTotal, total: 0 };
+            serviceSummary[service].qty += 1;
+            serviceSummary[service].total += netTotal;
+          }
         }
       });
 
@@ -5440,6 +5447,15 @@
       msg += `${'─'.repeat(30)}\n`;
       msg += `📋 إجمالي عدد الفواتير: ${totalInvoices}\n`;
       msg += `💰 إجمالي المبيعات: ${fmt(totalNetSales)} ج.م\n`;
+      const svcEntries = Object.entries(serviceSummary);
+      if (svcEntries.length > 0) {
+        msg += `${'─'.repeat(30)}\n`;
+        msg += `🛎️ ملخص الخدمات:\n`;
+        svcEntries.forEach(([name, info], i, arr) => {
+          const prefix = i === arr.length - 1 ? '└' : '├';
+          msg += `   ${prefix} ${info.qty}× ${name} (${fmt(info.unitPrice)} ج.م) = ${fmt(info.total)} ج.م\n`;
+        });
+      }
       msg += `✅ إجمالي المسدد: ${fmt(grandPaid)} ج.م\n`;
       const methodLines = paymentMethods.filter(m => paidByMethod[m] > 0)
         .map((m, i, arr) => `   ${i === arr.length - 1 ? '└' : '├'} ${methodAr[m]}: ${fmt(paidByMethod[m])}`);
