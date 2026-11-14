@@ -470,6 +470,48 @@
     color: var(--primary-green); font-size: 17px; margin-bottom: 14px;
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
   }
+
+  /* ===== شاشة النقدية والعهد ===== */
+  .cx-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:22px; }
+  .cx-head h2 { color:var(--primary-green); font-size:20px; }
+  .cx-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .cx-btn { padding:10px 16px; font-size:13px; font-weight:700; border-radius:10px; border:1.5px solid var(--primary-green); background:var(--primary-green); color:#FFF; cursor:pointer; display:inline-flex; align-items:center; gap:7px; transition:all .2s; }
+  .cx-btn:hover { background:var(--accent-green); }
+  .cx-btn.alt { background:#FAF8F5; color:var(--primary-green); border-color:var(--border-color); }
+  .cx-btn.alt:hover { background:var(--light-green); border-color:var(--primary-green); }
+  .cx-btn:disabled { opacity:.45; cursor:not-allowed; }
+  .cx-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin-bottom:26px; }
+  .cx-card { background:#FFF; border:1.5px solid var(--border-color); border-radius:14px; padding:16px 18px; cursor:pointer; transition:all .2s; text-align:right; }
+  .cx-card:hover { box-shadow:0 6px 18px rgba(24,66,50,.12); border-color:var(--primary-green); }
+  .cx-card.main { background:var(--primary-green); border-color:var(--primary-green); color:#FFF; }
+  .cx-card-label { font-size:13px; font-weight:700; color:#666; display:flex; align-items:center; gap:7px; }
+  .cx-card.main .cx-card-label { color:rgba(255,255,255,.85); }
+  .cx-card-val { font-size:24px; font-weight:700; color:var(--primary-green); margin-top:8px; direction:ltr; text-align:right; }
+  .cx-card.main .cx-card-val { color:#FFF; }
+  .cx-card-val.neg { color:#C5221F; }
+  .cx-card-sub { font-size:11px; color:#999; margin-top:5px; line-height:1.6; }
+  .cx-card.main .cx-card-sub { color:rgba(255,255,255,.8); }
+  .cx-section-title { font-size:15px; font-weight:700; color:var(--primary-green); margin:0 0 10px; display:flex; align-items:center; gap:8px; }
+  .cx-section { margin-bottom:26px; }
+  .cx-num { direction:ltr; text-align:right; font-weight:700; }
+  .cx-in { color:#1A7F4B; } .cx-out { color:#C5221F; }
+  #cxCustodyBody tr { cursor:pointer; }
+  #cxCustodyBody tr:hover td { background:var(--light-green); }
+  .cx-total-row td { background:#F1EFEA; font-weight:700; color:var(--primary-green); border-top:2px solid var(--border-color); }
+  .cx-filters { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-bottom:12px; background:var(--light-green); padding:14px 16px; border-radius:14px; border:1px solid rgba(24,66,50,.15); }
+  .cx-filters .f { display:flex; flex-direction:column; gap:5px; flex:1 1 130px; min-width:120px; }
+  .cx-filters .f.wide { flex:2 1 200px; }
+  .cx-filters label { font-size:12px; font-weight:700; color:var(--primary-green); }
+  .cx-filters input, .cx-filters select { padding:9px 10px; font-size:13px; background:#FFF; }
+  .cx-badge { display:inline-block; padding:3px 9px; border-radius:12px; font-size:11px; font-weight:700; }
+  .cx-t-Opening { background:#E8EAF6; color:#283593; } .cx-t-Sale { background:#E5F0EC; color:#184232; }
+  .cx-t-Collection { background:#E0F2F1; color:#00695C; } .cx-t-Expense { background:#FDECEA; color:#C5221F; }
+  .cx-t-Advance { background:#EDE9FF; color:#4B32C3; }
+  .cx-t-Transfer { background:#FFF3CD; color:#7A4F00; } .cx-t-Adjustment { background:#EEE; color:#444; }
+  .cx-ledger-foot { margin-top:10px; background:#FAF8F5; border:1px solid var(--border-color); border-radius:10px; padding:11px 14px; display:flex; gap:22px; flex-wrap:wrap; font-size:13px; font-weight:700; }
+  .cx-empty { text-align:center; color:#999; padding:22px !important; }
+  .cx-field label { display:block; font-size:13px; font-weight:700; color:var(--primary-green); margin-bottom:6px; }
+  .cx-hint { background:#FAF8F5; border:1px solid var(--border-color); border-radius:8px; padding:9px 12px; font-size:12px; color:#666; line-height:1.6; }
   </style>
 </head>
 <body>
@@ -521,6 +563,9 @@
           </button>
           <button class="nav-btn" id="btnPageBalances" onclick="switchPage('pageBalances')">
             <i class="fas fa-balance-scale"></i> الأرصدة
+          </button>
+          <button class="nav-btn" id="btnPageCash" onclick="switchPage('pageCash')">
+            <i class="fas fa-cash-register"></i> النقدية والعهد
           </button>
           <button class="nav-btn" id="btnPageServices" onclick="switchPage('pageServices')">
             <i class="fas fa-concierge-bell"></i> خدمات سريعة
@@ -843,6 +888,13 @@
                 <input type="number" id="expPOS" class="expense-pay-part" min="0" placeholder="0" value="0" oninput="calculateExpenseTotal()">
               </div>
             </div>
+            <div style="margin-top:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <label for="expCashFrom" style="font-size:13px; font-weight:700; color:var(--primary-green); white-space:nowrap;"><i class="fas fa-hand-holding-usd"></i> النقدي يتصرف من</label>
+              <select id="expCashFrom" style="flex:1; min-width:180px; max-width:320px; padding:9px 12px; font-size:14px;">
+                <option value="me">عهدتي</option>
+                <option value="safe">الخزنة</option>
+              </select>
+            </div>
           </div>
 
           <div class="form-group full-width">
@@ -974,7 +1026,7 @@
             </select>
           </div>
           <!-- Value Type Toggle -->
-          <div class="form-group full-width">
+          <div class="form-group full-width" id="payrollValueTypeGroup">
             <label class="section-title">نوع القيمة</label>
             <div style="display:flex; gap:12px; margin-top:4px;">
               <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; font-weight:600;">
@@ -996,6 +1048,40 @@
           <div class="form-group" id="payrollAmountGroup" style="display:none;">
             <label class="section-title" for="payrollAmount">المبلغ (Payroll - Amount)</label>
             <input type="number" id="payrollAmount" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <!-- السلفة: المبلغ موزّع على طرق الدفع (بتتخصم من النقدية) -->
+          <div class="form-group full-width" id="payrollAdvanceGroup" style="display:none;">
+            <label class="section-title">مبلغ السلفة موزّع على طرق الدفع</label>
+            <div class="payment-grid">
+              <div class="payment-field">
+                <label>نقدي (Cash)</label>
+                <input type="number" id="prAdvCash" class="payroll-adv-part" min="0" placeholder="0" value="0" oninput="calculatePayrollAdvanceTotal()">
+              </div>
+              <div class="payment-field">
+                <label>محفظة إلكترونية (Wallet)</label>
+                <input type="number" id="prAdvWallet" class="payroll-adv-part" min="0" placeholder="0" value="0" oninput="calculatePayrollAdvanceTotal()">
+              </div>
+              <div class="payment-field">
+                <label>انستاباي (InstaPay)</label>
+                <input type="number" id="prAdvInsta" class="payroll-adv-part" min="0" placeholder="0" value="0" oninput="calculatePayrollAdvanceTotal()">
+              </div>
+              <div class="payment-field">
+                <label>POS (فيزا / ماكينة)</label>
+                <input type="number" id="prAdvPOS" class="payroll-adv-part" min="0" placeholder="0" value="0" oninput="calculatePayrollAdvanceTotal()">
+              </div>
+            </div>
+            <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; background:var(--light-green); border-radius:10px; padding:10px 14px; font-weight:700; color:var(--primary-green);">
+              <span>إجمالي السلفة</span>
+              <span id="payrollAdvanceTotal">0.00 ج.م</span>
+            </div>
+            <div style="margin-top:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <label for="prAdvCashFrom" style="font-size:13px; font-weight:700; color:var(--primary-green); white-space:nowrap;"><i class="fas fa-hand-holding-usd"></i> النقدي يتصرف من</label>
+              <select id="prAdvCashFrom" style="flex:1; min-width:180px; max-width:320px; padding:9px 12px; font-size:14px;">
+                <option value="me">عهدتي</option>
+                <option value="safe">الخزنة</option>
+              </select>
+            </div>
+            <div style="font-size:12px; color:#777; margin-top:8px;"><i class="fas fa-info-circle"></i> السلفة بتتسجل خارج في شاشة النقدية.</div>
           </div>
 
           <div class="buttons-wrapper">
@@ -1394,6 +1480,109 @@
             <i class="fas fa-lock"></i> تأكيد الإغلاق
           </button>
           <button class="reset-btn" style="flex:1;" onclick="closeCloseDayModal()">إلغاء</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- صفحة: النقدية والعهد (مصدرها شيت Cash) -->
+    <div id="pageCash" class="view-page">
+      <div class="card">
+        <div class="cx-head">
+          <h2><i class="fas fa-cash-register"></i> النقدية والعهد</h2>
+          <div class="cx-actions">
+            <button class="cx-btn" id="cxBtnTransfer" onclick="cxOpenModal('Transfer')"><i class="fas fa-exchange-alt"></i> تحويل / تسليم</button>
+            <button class="cx-btn alt" id="cxBtnAdjust" onclick="cxOpenModal('Adjustment')"><i class="fas fa-sliders-h"></i> تسوية</button>
+            <button class="cx-btn alt" id="cxBtnOpening" onclick="cxOpenModal('Opening')"><i class="fas fa-flag"></i> رصيد أول المدة</button>
+            <button class="cx-btn alt" onclick="cxLoad()"><i class="fas fa-sync-alt"></i> تحديث</button>
+          </div>
+        </div>
+
+        <!-- إجمالي كل طريقة دفع -->
+        <div class="cx-cards">
+          <div class="cx-card main" onclick="cxQuickFilter('Cash','')">
+            <div class="cx-card-label"><i class="fas fa-money-bill-wave"></i> نقدي (Cash)</div>
+            <div class="cx-card-val" id="cxTotal_Cash">-</div>
+            <div class="cx-card-sub" id="cxSub_Cash">إجمالي الخزنة + كل العهد</div>
+          </div>
+          <div class="cx-card" onclick="cxQuickFilter('Wallet','')">
+            <div class="cx-card-label"><i class="fas fa-wallet"></i> محفظة (Wallet)</div>
+            <div class="cx-card-val" id="cxTotal_Wallet">-</div>
+            <div class="cx-card-sub" id="cxSub_Wallet"></div>
+          </div>
+          <div class="cx-card" onclick="cxQuickFilter('InstaPay','')">
+            <div class="cx-card-label"><i class="fas fa-mobile-alt"></i> انستاباي (InstaPay)</div>
+            <div class="cx-card-val" id="cxTotal_InstaPay">-</div>
+            <div class="cx-card-sub" id="cxSub_InstaPay"></div>
+          </div>
+          <div class="cx-card" onclick="cxQuickFilter('POS','')">
+            <div class="cx-card-label"><i class="fas fa-credit-card"></i> POS (فيزا)</div>
+            <div class="cx-card-val" id="cxTotal_POS">-</div>
+            <div class="cx-card-sub" id="cxSub_POS"></div>
+          </div>
+        </div>
+
+        <!-- رصيد كل عهدة -->
+        <div class="cx-section">
+          <h3 class="cx-section-title"><i class="fas fa-user-shield"></i> أرصدة النقدي: الخزنة والعهد</h3>
+          <div class="table-container" style="max-height:340px;">
+            <table>
+              <thead><tr><th>الجهة</th><th>إجمالي داخل</th><th>إجمالي خارج</th><th>الرصيد الحالي</th></tr></thead>
+              <tbody id="cxCustodyBody"><tr><td colspan="4" class="cx-empty">-</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- كل الحركات -->
+        <div class="cx-section" style="margin-bottom:0;">
+          <h3 class="cx-section-title"><i class="fas fa-list-alt"></i> الحركات</h3>
+          <div class="cx-filters">
+            <div class="f"><label>من تاريخ</label><input type="date" id="cxFFrom" onchange="cxApplyFilters()"></div>
+            <div class="f"><label>إلى تاريخ</label><input type="date" id="cxFTo" onchange="cxApplyFilters()"></div>
+            <div class="f"><label>طريقة الدفع</label>
+              <select id="cxFMethod" onchange="cxApplyFilters()">
+                <option value="">الكل</option><option value="Cash">نقدي (Cash)</option><option value="Wallet">محفظة (Wallet)</option><option value="InstaPay">انستاباي (InstaPay)</option><option value="POS">POS (فيزا)</option>
+              </select></div>
+            <div class="f"><label>العهدة / الخزنة</label><select id="cxFCustodian" onchange="cxApplyFilters()"><option value="">الكل</option></select></div>
+            <div class="f"><label>نوع الحركة</label>
+              <select id="cxFType" onchange="cxApplyFilters()">
+                <option value="">الكل</option><option value="Sale">مبيعات</option><option value="Collection">تحصيل</option><option value="Expense">مصروف</option><option value="Advance">سلفة</option><option value="Transfer">تحويل</option><option value="Adjustment">تسوية</option><option value="Opening">رصيد أول المدة</option>
+              </select></div>
+            <div class="f wide"><label>بحث</label><input type="text" id="cxFSearch" placeholder="بيان / رقم مرجع / مستخدم..." oninput="cxApplyFilters()"></div>
+            <div><button class="cx-btn alt" onclick="cxResetFilters()"><i class="fas fa-undo"></i> مسح</button></div>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead><tr>
+                <th>#</th><th>التاريخ</th><th>النوع</th><th>البيان</th><th>طريقة الدفع</th><th>العهدة</th>
+                <th>داخل</th><th>خارج</th><th>الشاشة</th><th>رقم المرجع</th><th>المستخدم</th>
+              </tr></thead>
+              <tbody id="cxLedgerBody"><tr><td colspan="11" class="cx-empty">-</td></tr></tbody>
+            </table>
+          </div>
+          <div class="cx-ledger-foot" id="cxLedgerFoot" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- نافذة حركة نقدية: رصيد أول المدة / تحويل / تسوية -->
+    <div id="cxModal" class="modal-overlay-generic" style="z-index:10005;">
+      <div class="modal-card-generic" style="max-width:460px;">
+        <h3 id="cxModalTitle">حركة نقدية</h3>
+        <div class="modal-fields">
+          <div class="cx-hint" id="cxModalHint"></div>
+          <div class="cx-field"><label>التاريخ</label><input type="date" id="cxMDate"></div>
+          <div class="cx-field" id="cxMAccountWrap"><label>الحساب</label><select id="cxMAccount" onchange="cxAccountChanged(this)"></select></div>
+          <div class="cx-field" id="cxMFromWrap"><label>من (المُسلِّم)</label><select id="cxMFrom" onchange="cxAccountChanged(this)"></select></div>
+          <div class="cx-field" id="cxMToWrap"><label>إلى (المُستلِم)</label><select id="cxMTo" onchange="cxAccountChanged(this)"></select></div>
+          <div class="cx-field" id="cxMDirWrap"><label>نوع التسوية</label>
+            <select id="cxMDir"><option value="out">عجز (ينقص الرصيد)</option><option value="in">زيادة (يزود الرصيد)</option></select></div>
+          <div class="cx-field"><label>المبلغ</label><input type="number" id="cxMAmount" min="0" step="0.01" placeholder="0.00"></div>
+          <div class="cx-field"><label id="cxMStatementLabel">البيان</label><input type="text" id="cxMStatement" placeholder="وصف مختصر..."></div>
+          <div class="modal-error-msg" id="cxMError"></div>
+          <div class="modal-actions-row">
+            <button class="submit-btn" style="flex:2;" id="cxMSave" onclick="cxSave()"><i class="fas fa-save"></i> حفظ</button>
+            <button class="reset-btn" style="flex:1;" onclick="cxCloseModal()">إلغاء</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1928,6 +2117,9 @@
       } else if (pageId === 'pageBalances') {
         document.getElementById('btnPageBalances').classList.add('active');
         fetchBalancesData();
+      } else if (pageId === 'pageCash') {
+        document.getElementById('btnPageCash').classList.add('active');
+        cxLoad();
       } else if (pageId === 'pageServices') {
         document.getElementById('btnPageServices').classList.add('active');
         initServicesPage();
@@ -2224,7 +2416,7 @@
     }
 
     let authUser = null;
-    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageExpenses:'Expenses', pagePayroll:'Payroll', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances', pageServices:'Services'};
+    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageExpenses:'Expenses', pagePayroll:'Payroll', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances', pageServices:'Services', pageCash:'Cash'};
     function can(tab, action) {
       const p = authUser && authUser.permissions[tab];
       return !!(p && p.view === true && p[action] === true);
@@ -2265,7 +2457,7 @@
       document.getElementById('mainHeader').style.display = 'flex';
       document.getElementById('currentUserDisplay').innerText = user.name;
       document.querySelectorAll('.view-page, .nav-btn').forEach(el => el.classList.remove('active'));
-      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageExpenses:'btnPageExpenses',pagePayroll:'btnPagePayroll',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances',pageServices:'btnPageServices'};
+      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageExpenses:'btnPageExpenses',pagePayroll:'btnPagePayroll',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances',pageServices:'btnPageServices',pageCash:'btnPageCash'};
       Object.keys(PAGE_TABS).forEach(page => {
         const btn = document.getElementById(buttons[page]);
         if (!btn) return;
@@ -3130,6 +3322,7 @@
         instaPay: insta,
         pos: pos,
         total: total,
+        cashFrom: document.getElementById('expCashFrom').value,
         user: currentUser
       };
 
@@ -6265,14 +6458,35 @@
     const prNumericCols = ['pr_days', 'pr_amount'];
     const prDateCols    = ['pr_action_date', 'pr_payroll_date'];
 
-    function onPayrollValueTypeChange() {
-      const val = document.querySelector('input[name="payrollValueType"]:checked')?.value;
-      document.getElementById('payrollDaysGroup').style.display   = (val === 'days')   ? '' : 'none';
-      document.getElementById('payrollAmountGroup').style.display = (val === 'amount') ? '' : 'none';
+    function isPayrollAdvance() {
+      return document.getElementById('payrollType').value.trim() === 'سلفة';
     }
 
+    function onPayrollValueTypeChange() {
+      const adv = isPayrollAdvance();
+      const val = document.querySelector('input[name="payrollValueType"]:checked')?.value;
+      document.getElementById('payrollDaysGroup').style.display   = (!adv && val === 'days')   ? '' : 'none';
+      document.getElementById('payrollAmountGroup').style.display = (!adv && val === 'amount') ? '' : 'none';
+    }
+
+    // السلفة: مفيش أيام ولا مبلغ واحد — المبلغ بيتوزع على طرق الدفع
     function onPayrollTypeChange() {
-      // يمكن إضافة منطق مستقبلي هنا
+      const adv = isPayrollAdvance();
+      document.getElementById('payrollValueTypeGroup').style.display = adv ? 'none' : '';
+      document.getElementById('payrollAdvanceGroup').style.display   = adv ? '' : 'none';
+      onPayrollValueTypeChange();
+    }
+
+    function getPayrollAdvanceParts() {
+      const v = id => Math.max(0, parseFloat(document.getElementById(id).value) || 0);
+      return { cash: v('prAdvCash'), wallet: v('prAdvWallet'), instaPay: v('prAdvInsta'), pos: v('prAdvPOS') };
+    }
+
+    function calculatePayrollAdvanceTotal() {
+      const p = getPayrollAdvanceParts();
+      const total = p.cash + p.wallet + p.instaPay + p.pos;
+      document.getElementById('payrollAdvanceTotal').innerText = total.toFixed(2) + ' ج.م';
+      return total;
     }
 
     function populatePayrollEmployees() {
@@ -6314,7 +6528,10 @@
       document.getElementById('payrollDays').value = '';
       document.getElementById('payrollAmount').value = '';
       document.getElementById('payrollRadioDays').checked = true;
-      onPayrollValueTypeChange();
+      document.querySelectorAll('.payroll-adv-part').forEach(el => { el.value = 0; });
+      document.getElementById('prAdvCashFrom').value = 'me';
+      calculatePayrollAdvanceTotal();
+      onPayrollTypeChange();
     }
 
     async function submitPayroll() {
@@ -6325,12 +6542,16 @@
       const statement   = document.getElementById('payrollStatement').value.trim();
       const employee    = document.getElementById('payrollEmployee').value.trim();
       const valueType   = document.querySelector('input[name="payrollValueType"]:checked')?.value;
-      const days        = valueType === 'days'   ? (parseFloat(document.getElementById('payrollDays').value)   || 0) : 0;
-      const amount      = valueType === 'amount' ? (parseFloat(document.getElementById('payrollAmount').value) || 0) : 0;
+      const isAdvance   = (type === 'سلفة');
+      const advParts    = isAdvance ? getPayrollAdvanceParts() : { cash: 0, wallet: 0, instaPay: 0, pos: 0 };
+      const days        = (!isAdvance && valueType === 'days')   ? (parseFloat(document.getElementById('payrollDays').value)   || 0) : 0;
+      const amount      = isAdvance ? (advParts.cash + advParts.wallet + advParts.instaPay + advParts.pos)
+                        : (valueType === 'amount' ? (parseFloat(document.getElementById('payrollAmount').value) || 0) : 0);
 
       if (!payrollDate) { alert('يرجى تحديد Payroll Date.'); return; }
       if (!type)        { alert('يرجى اختيار النوع.');        return; }
       if (!employee)    { alert('يرجى اختيار الموظف.');       return; }
+      if (isAdvance && amount === 0) { alert('يرجى إدخال مبلغ السلفة على طريقة دفع واحدة على الأقل.'); return; }
       if (days === 0 && amount === 0) { alert('يرجى إدخال قيمة (أيام أو مبلغ).'); return; }
 
       const btn = document.getElementById('payrollSubmitBtn');
@@ -6345,7 +6566,12 @@
           statement,
           employee,
           days,
-          amount
+          amount,
+          cash: advParts.cash,
+          wallet: advParts.wallet,
+          instaPay: advParts.instaPay,
+          pos: advParts.pos,
+          cashFrom: isAdvance ? document.getElementById('prAdvCashFrom').value : ''
         });
         const result = await res.json();
         if (result.status !== 'success') throw new Error(result.message);
@@ -6601,6 +6827,289 @@
         el.style.opacity = '0.7';
       });
       applyPayrollFilters();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // شاشة النقدية والعهد — مصدرها شيت Cash
+    // كل صف: Entry Date | Num | Type | Statement | Method | In | Out | Custodian | Ref | Source | User
+    // الحساب = طريقة دفع، ولو نقدي بيتقسم على أصحاب العهد + الخزنة
+    // ═══════════════════════════════════════════════════════════════
+    const CX_SAFE = 'الخزنة';
+    const CX_METHODS = ['Cash', 'Wallet', 'InstaPay', 'POS'];
+    const CX_METHOD_LABELS = { Cash:'نقدي', Wallet:'محفظة (Wallet)', InstaPay:'انستاباي (InstaPay)', POS:'POS (فيزا)' };
+    const CX_TYPE_LABELS = { Opening:'رصيد أول المدة', Sale:'مبيعات', Collection:'تحصيل', Expense:'مصروف', Advance:'سلفة', Transfer:'تحويل', Adjustment:'تسوية' };
+    let cxRows = [];
+    let cxBalances = { methods:{}, custody:{} };
+    let cxExtraCustodians = [];
+
+    function cxEsc(v) { return String(v === null || v === undefined ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function cxNum(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+    function cxFmt(v) { return (Math.round(v * 100) / 100).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+    function cxToday() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+    function cxCustodyLabel(name) { return name === CX_SAFE ? CX_SAFE : 'عهدة ' + name; }
+
+    async function cxLoad() {
+      if (!can('Cash', 'view')) return;
+      ['cxBtnTransfer','cxBtnAdjust','cxBtnOpening'].forEach(id => { document.getElementById(id).disabled = !can('Cash','add'); });
+      document.getElementById('cxLedgerBody').innerHTML = '<tr><td colspan="11" class="cx-empty"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr>';
+      try {
+        const res = await (await apiRead('Cash')).json();
+        if (res.status !== 'success') throw new Error(res.message || 'تعذر تحميل بيانات النقدية');
+        cxRows = (res.data || []).map(r => ({
+          date: (r['Entry Date'] || '').toString().substring(0, 10),
+          num: r['Num'], type: (r['Type'] || '').toString().trim(),
+          statement: (r['Statement'] || '').toString(),
+          method: (r['Method'] || '').toString().trim(),
+          inAmt: cxNum(r['In']), outAmt: cxNum(r['Out']),
+          custodian: (r['Custodian'] || '').toString().trim(),
+          ref: (r['Ref'] === undefined || r['Ref'] === null) ? '' : r['Ref'].toString(),
+          source: (r['Source'] || '').toString(), user: (r['User'] || '').toString()
+        })).filter(r => r.method);
+        cxComputeBalances();
+        cxRenderCards();
+        cxRenderCustody();
+        cxFillCustodianFilter();
+        cxApplyFilters();
+      } catch (e) {
+        document.getElementById('cxLedgerBody').innerHTML = '<tr><td colspan="11" class="cx-empty" style="color:#C5221F;">' + cxEsc(e.message || 'تعذر التحميل') + '</td></tr>';
+      }
+    }
+
+    function cxComputeBalances() {
+      const methods = {}; CX_METHODS.forEach(m => methods[m] = { inAmt:0, outAmt:0, bal:0 });
+      const custody = {};
+      cxRows.forEach(r => {
+        if (!methods[r.method]) return;
+        methods[r.method].inAmt += r.inAmt; methods[r.method].outAmt += r.outAmt;
+        methods[r.method].bal += r.inAmt - r.outAmt;
+        if (r.method === 'Cash') {
+          const c = r.custodian || 'غير محدد';
+          if (!custody[c]) custody[c] = { inAmt:0, outAmt:0, bal:0 };
+          custody[c].inAmt += r.inAmt; custody[c].outAmt += r.outAmt; custody[c].bal += r.inAmt - r.outAmt;
+        }
+      });
+      cxBalances = { methods, custody };
+    }
+
+    function cxCustodianNames() {
+      const names = Object.keys(cxBalances.custody).filter(n => n !== CX_SAFE).sort((a, b) => a.localeCompare(b, 'ar'));
+      return [CX_SAFE].concat(names);
+    }
+
+    function cxRenderCards() {
+      CX_METHODS.forEach(m => {
+        const b = cxBalances.methods[m];
+        const el = document.getElementById('cxTotal_' + m);
+        el.textContent = cxFmt(b.bal) + ' ج.م';
+        el.classList.toggle('neg', b.bal < 0 && m !== 'Cash');
+        if (m !== 'Cash') document.getElementById('cxSub_' + m).textContent = 'داخل ' + cxFmt(b.inAmt) + ' · خارج ' + cxFmt(b.outAmt);
+      });
+      const safe = cxBalances.custody[CX_SAFE] ? cxBalances.custody[CX_SAFE].bal : 0;
+      document.getElementById('cxSub_Cash').textContent = 'الخزنة ' + cxFmt(safe) + ' · العهد ' + cxFmt(cxBalances.methods.Cash.bal - safe);
+    }
+
+    function cxRenderCustody() {
+      const tbody = document.getElementById('cxCustodyBody');
+      const names = cxCustodianNames().filter(n => cxBalances.custody[n]);
+      if (!names.length) { tbody.innerHTML = '<tr><td colspan="4" class="cx-empty">لا توجد حركات نقدية بعد. ابدأ بتسجيل رصيد أول المدة.</td></tr>'; return; }
+      let html = '', tIn = 0, tOut = 0, tBal = 0;
+      names.forEach(n => {
+        const b = cxBalances.custody[n];
+        tIn += b.inAmt; tOut += b.outAmt; tBal += b.bal;
+        const icon = n === CX_SAFE ? 'fa-lock' : 'fa-user';
+        html += '<tr data-cust="' + cxEsc(n) + '" title="اضغط لعرض حركات ' + cxEsc(cxCustodyLabel(n)) + '">'
+          + '<td><i class="fas ' + icon + '" style="color:var(--gold-accent); margin-left:6px;"></i><b>' + cxEsc(cxCustodyLabel(n)) + '</b></td>'
+          + '<td class="cx-num cx-in">' + cxFmt(b.inAmt) + '</td>'
+          + '<td class="cx-num cx-out">' + cxFmt(b.outAmt) + '</td>'
+          + '<td class="cx-num" style="font-size:15px; color:' + (b.bal < 0 ? '#C5221F' : 'var(--primary-green)') + ';">' + cxFmt(b.bal) + ' ج.م</td></tr>';
+      });
+      html += '<tr class="cx-total-row" data-cust=""><td>إجمالي النقدي</td><td class="cx-num">' + cxFmt(tIn) + '</td><td class="cx-num">' + cxFmt(tOut) + '</td><td class="cx-num" style="font-size:15px;">' + cxFmt(tBal) + ' ج.م</td></tr>';
+      tbody.innerHTML = html;
+      tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => cxQuickFilter('Cash', tr.getAttribute('data-cust'))));
+    }
+
+    function cxFillCustodianFilter() {
+      const sel = document.getElementById('cxFCustodian');
+      const current = sel.value;
+      let html = '<option value="">الكل</option>';
+      cxCustodianNames().filter(n => cxBalances.custody[n]).forEach(n => { html += '<option value="' + cxEsc(n) + '">' + cxEsc(cxCustodyLabel(n)) + '</option>'; });
+      sel.innerHTML = html;
+      sel.value = current;
+      if (sel.value !== current) sel.value = '';
+    }
+
+    function cxQuickFilter(method, custodian) {
+      document.getElementById('cxFMethod').value = method || '';
+      document.getElementById('cxFCustodian').value = custodian || '';
+      cxApplyFilters();
+      document.getElementById('cxLedgerBody').closest('.cx-section').scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+
+    function cxResetFilters() {
+      ['cxFFrom','cxFTo','cxFMethod','cxFCustodian','cxFType','cxFSearch'].forEach(id => { document.getElementById(id).value = ''; });
+      cxApplyFilters();
+    }
+
+    function cxApplyFilters() {
+      const from = document.getElementById('cxFFrom').value, to = document.getElementById('cxFTo').value;
+      const method = document.getElementById('cxFMethod').value, cust = document.getElementById('cxFCustodian').value;
+      const type = document.getElementById('cxFType').value;
+      const q = document.getElementById('cxFSearch').value.trim().toLowerCase();
+      const rows = cxRows.filter(r => {
+        if (from && r.date < from) return false;
+        if (to && r.date > to) return false;
+        if (method && r.method !== method) return false;
+        if (cust && r.custodian !== cust) return false;
+        if (type && r.type !== type) return false;
+        if (q && (r.statement + ' ' + r.ref + ' ' + r.user + ' ' + r.source + ' ' + r.custodian).toLowerCase().indexOf(q) === -1) return false;
+        return true;
+      }).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : (cxNum(b.num) - cxNum(a.num))));
+      cxRenderLedger(rows);
+    }
+
+    function cxRenderLedger(rows) {
+      const tbody = document.getElementById('cxLedgerBody');
+      const foot = document.getElementById('cxLedgerFoot');
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="11" class="cx-empty">' + (cxRows.length ? 'لا توجد حركات مطابقة للفلتر' : 'لا توجد حركات مسجلة بعد') + '</td></tr>';
+        foot.style.display = 'none';
+        return;
+      }
+      let html = '', tIn = 0, tOut = 0;
+      rows.forEach(r => {
+        tIn += r.inAmt; tOut += r.outAmt;
+        html += '<tr>'
+          + '<td>' + cxEsc(r.num) + '</td>'
+          + '<td>' + cxEsc(r.date) + '</td>'
+          + '<td><span class="cx-badge cx-t-' + cxEsc(r.type) + '">' + cxEsc(CX_TYPE_LABELS[r.type] || r.type) + '</span></td>'
+          + '<td style="white-space:normal; min-width:180px;">' + cxEsc(r.statement) + '</td>'
+          + '<td>' + cxEsc(CX_METHOD_LABELS[r.method] || r.method) + '</td>'
+          + '<td>' + (r.custodian ? cxEsc(cxCustodyLabel(r.custodian)) : '-') + '</td>'
+          + '<td class="cx-num cx-in">' + (r.inAmt ? cxFmt(r.inAmt) : '-') + '</td>'
+          + '<td class="cx-num cx-out">' + (r.outAmt ? cxFmt(r.outAmt) : '-') + '</td>'
+          + '<td>' + cxEsc(r.source) + '</td>'
+          + '<td>' + cxEsc(r.ref || '-') + '</td>'
+          + '<td style="color:#777;">' + cxEsc(r.user) + '</td></tr>';
+      });
+      tbody.innerHTML = html;
+      const net = tIn - tOut;
+      foot.style.display = 'flex';
+      foot.innerHTML = '<span>عدد الصفوف: ' + rows.length + '</span>'
+        + '<span class="cx-in">إجمالي داخل: ' + cxFmt(tIn) + '</span>'
+        + '<span class="cx-out">إجمالي خارج: ' + cxFmt(tOut) + '</span>'
+        + '<span style="color:' + (net < 0 ? '#C5221F' : 'var(--primary-green)') + ';">الصافي: ' + cxFmt(net) + ' ج.م</span>';
+    }
+
+    // ── الحسابات المتاحة في النوافذ: الخزنة + كل صاحب عهدة له حركة + المستخدم الحالي + طرق الدفع الإلكترونية
+    function cxAccountOptions(placeholder) {
+      const names = cxCustodianNames();
+      const me = authUser && authUser.name;
+      [me].concat(cxExtraCustodians).forEach(n => { if (n && names.indexOf(n) === -1) names.push(n); });
+      let html = '<option value="">' + cxEsc(placeholder) + '</option><optgroup label="نقدي">';
+      names.forEach(n => {
+        const b = cxBalances.custody[n] ? cxBalances.custody[n].bal : 0;
+        html += '<option value="Cash::' + cxEsc(n) + '">' + cxEsc(cxCustodyLabel(n)) + ' — ' + cxFmt(b) + '</option>';
+      });
+      html += '<option value="__new__">+ عهدة موظف آخر...</option></optgroup><optgroup label="طرق الدفع">';
+      CX_METHODS.filter(m => m !== 'Cash').forEach(m => {
+        html += '<option value="' + m + '::">' + cxEsc(CX_METHOD_LABELS[m]) + ' — ' + cxFmt(cxBalances.methods[m] ? cxBalances.methods[m].bal : 0) + '</option>';
+      });
+      return html + '</optgroup>';
+    }
+    function cxAccountChanged(sel) {
+      if (sel.value !== '__new__') return;
+      const name = (window.prompt('اكتب اسم الموظف صاحب العهدة:') || '').trim();
+      if (!name) { sel.value = ''; return; }
+      if (cxExtraCustodians.indexOf(name) === -1 && !cxBalances.custody[name]) cxExtraCustodians.push(name);
+      ['cxMAccount','cxMFrom','cxMTo'].forEach(id => {
+        const el = document.getElementById(id), keep = el.value === '__new__' ? '' : el.value;
+        el.innerHTML = cxAccountOptions(el.options[0] ? el.options[0].textContent : '-- اختر --');
+        el.value = keep;
+      });
+      sel.value = 'Cash::' + name;
+    }
+    function cxParseAccount(v) {
+      if (!v || v === '__new__') return null;
+      const i = v.indexOf('::');
+      const method = v.substring(0, i), custodian = v.substring(i + 2);
+      const bal = method === 'Cash' ? (cxBalances.custody[custodian] ? cxBalances.custody[custodian].bal : 0) : (cxBalances.methods[method] ? cxBalances.methods[method].bal : 0);
+      return { method, custodian, bal, label: method === 'Cash' ? cxCustodyLabel(custodian) : CX_METHOD_LABELS[method] };
+    }
+
+    let cxModalType = '';
+    function cxOpenModal(type) {
+      if (!can('Cash', 'add')) return;
+      cxModalType = type;
+      const titles = { Opening:'<i class="fas fa-flag" style="color:var(--gold-accent);"></i> رصيد أول المدة', Transfer:'<i class="fas fa-exchange-alt" style="color:var(--gold-accent);"></i> تحويل / تسليم', Adjustment:'<i class="fas fa-sliders-h" style="color:var(--gold-accent);"></i> تسوية' };
+      const hints = {
+        Opening: 'سجّل الرصيد الموجود فعلياً في كل حساب عند بداية العمل بالشاشة (الخزنة، كل عهدة، وكل طريقة دفع) — حركة لكل حساب.',
+        Transfer: 'لتسليم النقدي من عهدة موظف للمدير أو للخزنة، أو للتحويل بين طريقة دفع والنقدي (مثال: سحب رصيد انستاباي ووضعه في الخزنة).',
+        Adjustment: 'لتصحيح فرق بين الرصيد المسجل والموجود فعلياً بعد الجرد. اكتب السبب في البيان.'
+      };
+      document.getElementById('cxModalTitle').innerHTML = titles[type];
+      document.getElementById('cxModalHint').textContent = hints[type];
+      document.getElementById('cxMDate').value = cxToday();
+      document.getElementById('cxMAmount').value = '';
+      document.getElementById('cxMStatement').value = '';
+      document.getElementById('cxMDir').value = 'out';
+      document.getElementById('cxMAccount').innerHTML = cxAccountOptions('-- اختر الحساب --');
+      document.getElementById('cxMFrom').innerHTML = cxAccountOptions('-- اختر المُسلِّم --');
+      document.getElementById('cxMTo').innerHTML = cxAccountOptions('-- اختر المُستلِم --');
+      const isTransfer = type === 'Transfer';
+      document.getElementById('cxMAccountWrap').style.display = isTransfer ? 'none' : '';
+      document.getElementById('cxMFromWrap').style.display = isTransfer ? '' : 'none';
+      document.getElementById('cxMToWrap').style.display = isTransfer ? '' : 'none';
+      document.getElementById('cxMDirWrap').style.display = type === 'Adjustment' ? '' : 'none';
+      document.getElementById('cxMStatementLabel').textContent = type === 'Adjustment' ? 'البيان (سبب التسوية)' : 'البيان (اختياري)';
+      document.getElementById('cxMError').style.display = 'none';
+      document.getElementById('cxModal').classList.add('active');
+    }
+    function cxCloseModal() { document.getElementById('cxModal').classList.remove('active'); }
+
+    async function cxSave() {
+      const errEl = document.getElementById('cxMError');
+      const fail = msg => { errEl.textContent = msg; errEl.style.display = 'block'; };
+      errEl.style.display = 'none';
+      const entryDate = document.getElementById('cxMDate').value;
+      const amount = cxNum(document.getElementById('cxMAmount').value);
+      const statement = document.getElementById('cxMStatement').value.trim();
+      if (!entryDate) return fail('يرجى تحديد التاريخ.');
+      const payload = { action:'addCashEntry', type:cxModalType, entryDate, amount, statement };
+
+      if (cxModalType === 'Transfer') {
+        const from = cxParseAccount(document.getElementById('cxMFrom').value);
+        const to = cxParseAccount(document.getElementById('cxMTo').value);
+        if (!from) return fail('يرجى اختيار المُسلِّم.');
+        if (!to) return fail('يرجى اختيار المُستلِم.');
+        if (from.method === to.method && from.custodian === to.custodian) return fail('لا يمكن التحويل لنفس الحساب.');
+        if (!(amount > 0)) return fail('يرجى إدخال مبلغ أكبر من صفر.');
+        if (amount > from.bal + 0.001 && !window.confirm('المبلغ (' + cxFmt(amount) + ') أكبر من رصيد ' + from.label + ' الحالي (' + cxFmt(from.bal) + ').\nهل تريد المتابعة؟')) return;
+        payload.fromMethod = from.method; payload.fromCustodian = from.custodian;
+        payload.toMethod = to.method; payload.toCustodian = to.custodian;
+      } else {
+        const acc = cxParseAccount(document.getElementById('cxMAccount').value);
+        if (!acc) return fail('يرجى اختيار الحساب.');
+        if (!(amount > 0)) return fail('يرجى إدخال مبلغ أكبر من صفر.');
+        payload.method = acc.method; payload.custodian = acc.custodian;
+        if (cxModalType === 'Adjustment') {
+          if (!statement) return fail('يرجى كتابة سبب التسوية في البيان.');
+          payload.direction = document.getElementById('cxMDir').value;
+        }
+      }
+
+      const btn = document.getElementById('cxMSave');
+      const original = btn.innerHTML;
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+      try {
+        const res = await (await apiPost(payload)).json();
+        if (res.status !== 'success') throw new Error(res.message || 'تعذر الحفظ');
+        cxCloseModal();
+        await cxLoad();
+      } catch (e) {
+        fail(e.message || 'تعذر الاتصال بالسيرفر');
+      } finally {
+        btn.disabled = false; btn.innerHTML = original;
+      }
     }
 
   </script>
