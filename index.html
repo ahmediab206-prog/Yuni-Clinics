@@ -824,6 +824,129 @@
       .svx .perm-row select { width: 100%; }
     }
 
+    /* ═══ بطاقات العملاء ═══ */
+    .svx .cc-search { position: relative; margin-bottom: 16px; }
+    .svx .cc-search > i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #9A937D; pointer-events: none; }
+    .svx .cc-search input { width: 100%; padding: 13px 42px 13px 14px; font-size: 15px; border-radius: 12px; border: 1.5px solid var(--border-color); background: #FFF; }
+    .svx .cc-search input:focus { border-color: var(--primary-green); outline: none; box-shadow: 0 0 0 3px rgba(24,66,50,.08); }
+    .svx .cc-drop { position: absolute; top: 100%; right: 0; left: 0; background: #FFF; border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 12px 28px rgba(0,0,0,.13); z-index: 60; max-height: 330px; overflow-y: auto; display: none; margin-top: 4px; }
+    .svx .cc-drop.active { display: block; }
+    .svx .cc-opt { display: flex; justify-content: space-between; gap: 10px; padding: 11px 14px; cursor: pointer; border-bottom: 1px solid #F1EFEA; font-weight: 700; color: #2D312E; }
+    .svx .cc-opt:hover, .svx .cc-opt.hl { background: var(--light-green); }
+    .svx .cc-opt .ph { color: #9A937D; font-size: 13px; direction: ltr; font-weight: 400; }
+    .svx .cc-none { padding: 14px; color: #9A937D; text-align: center; }
+    .svx .cc-hint { font-size: 13px; color: #7A6F55; background: #F6F2E6; border: 1px solid #E8DCC0; border-radius: 10px; padding: 10px 12px; margin: 10px 0 4px; }
+    .svx .cc-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; background: var(--light-green); border: 1px solid rgba(24,66,50,.15); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
+    .svx .cc-head-side { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .svx .cc-name { font-size: 21px; font-weight: 800; color: var(--primary-green); }
+    .svx .cc-sub { font-size: 12px; color: #9A937D; margin-top: 3px; }
+    .svx .cc-bal { font-weight: 800; font-size: 13px; padding: 6px 12px; border-radius: 20px; background: #FFF; color: #555; border: 1px solid var(--border-color); white-space: nowrap; }
+    .svx .cc-bal.due { background: #FDECEC; color: #C5221F; border-color: #F5C6CB; }
+    .svx .cc-bal.credit { color: var(--primary-green); }
+    .svx .cc-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+    .svx .cc-chip { padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border-color); background: #FFF; color: var(--primary-green); font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+    .svx .cc-chip.on { background: var(--primary-green); color: #FFF; border-color: var(--primary-green); }
+    .svx .cc-h { font-size: 15px; font-weight: 800; color: var(--primary-green); margin: 18px 0 10px; display: flex; align-items: center; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+    .svx .cc-h > span { display: flex; align-items: center; gap: 8px; }
+    .svx .cc-pkgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
+    .svx .cc-pkg { border: 1px solid var(--border-color); border-right: 4px solid var(--primary-green); border-radius: 14px; padding: 13px 14px; background: #FFF; display: flex; flex-direction: column; gap: 8px; }
+    .svx .cc-pkg.st-expired { border-right-color: var(--danger); background: #FFFAFA; }
+    .svx .cc-pkg.st-done, .svx .cc-pkg.st-closed { border-right-color: #BDB6A3; background: var(--soft); }
+    .svx .cc-pkg .top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+    .svx .cc-pkg .svc { font-weight: 800; color: var(--primary-green); font-size: 15px; }
+    .svx .cc-badge { font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 10px; white-space: nowrap; background: var(--light-green); color: var(--primary-green); }
+    .svx .cc-badge.expired { background: #FDECEC; color: var(--danger); }
+    .svx .cc-badge.done, .svx .cc-badge.closed { background: #ECEAE4; color: #777; }
+    .svx .cc-badge.warn { background: #FFF3CD; color: #7A4F00; }
+    .svx .cc-bar { height: 8px; background: #EEE9DD; border-radius: 6px; overflow: hidden; }
+    .svx .cc-bar span { display: block; height: 100%; background: var(--gold-accent); border-radius: 6px; }
+    .svx .cc-dots { letter-spacing: 4px; color: var(--gold-accent); font-size: 15px; line-height: 1; }
+    .svx .cc-nums { font-size: 13px; color: #555; }
+    .svx .cc-nums b { color: var(--primary-green); font-size: 15px; }
+    .svx .cc-meta { font-size: 11.5px; color: #9A937D; line-height: 1.7; }
+    .svx .cc-acts { display: flex; gap: 6px; flex-wrap: wrap; }
+    .svx .cc-acts .btn { padding: 7px 11px; font-size: 12.5px; border-radius: 8px; }
+    .svx .cc-tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border-color); margin: 22px 0 12px; overflow-x: auto; }
+    .svx .cc-tab { padding: 10px 14px; border: none; background: none; font-weight: 800; color: #9A937D; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; font-size: 14px; font-family: inherit; white-space: nowrap; display: flex; gap: 7px; align-items: center; }
+    .svx .cc-tab.on { color: var(--primary-green); border-bottom-color: var(--gold-accent); }
+    .svx .cc-table td { vertical-align: top; font-size: 13.5px; }
+    .svx .cc-svc { font-weight: 700; color: #2D312E; }
+    .svx .cc-notes { min-width: 180px; max-width: 380px; line-height: 1.7; }
+    .svx .cc-tag { display: inline-block; font-size: 10.5px; font-weight: 800; padding: 1px 7px; border-radius: 8px; background: #F1EFEA; color: #7A6F55; margin-inline-start: 3px; }
+    .svx .cc-tag.ovr { background: #FFF3CD; color: #7A4F00; }
+    .svx .cc-ovr { font-size: 12px; color: #7A4F00; margin-top: 4px; }
+    .svx .cc-link { color: var(--primary-green); font-weight: 800; cursor: pointer; border-bottom: 1px dotted var(--primary-green); }
+    .svx .cc-stats { display: flex; gap: 10px; flex-wrap: wrap; }
+    .svx .cc-stats .st { background: var(--soft); border: 1px solid var(--border-color); border-radius: 12px; padding: 10px 16px; display: flex; align-items: baseline; gap: 8px; }
+    .svx .cc-stats b { font-size: 22px; color: var(--primary-green); }
+    .svx .cc-stats span { font-size: 13px; color: #777; }
+    .svx .cc-empty-sm { color: #9A937D; font-size: 13.5px; padding: 16px; text-align: center; background: var(--soft); border-radius: 12px; border: 1px dashed var(--border-color); }
+    .svx .cc-info { background: var(--soft); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: #555; line-height: 1.7; display: none; }
+    .svx .cc-override { background: #FFF8E6; border: 1px solid #E8DCC0; border-radius: 10px; padding: 12px; display: none; }
+    .svx .cc-override .msg { color: #7A4F00; font-weight: 700; font-size: 13px; margin-bottom: 8px; line-height: 1.7; }
+    .svx .cc-override label { font-size: 13px; font-weight: 700; color: var(--primary-green); display: block; margin-bottom: 6px; }
+
+    .svx .cc-views { display: flex; gap: 6px; background: var(--soft); border: 1px solid var(--border-color); border-radius: 14px; padding: 5px; margin-bottom: 14px; }
+    .svx .cc-view { flex: 1; padding: 10px; border: none; border-radius: 10px; background: none; font-family: inherit; font-weight: 800; font-size: 14px; color: #7A6F55; cursor: pointer; display: flex; gap: 8px; align-items: center; justify-content: center; }
+    .svx .cc-view.on { background: var(--primary-green); color: #FFF; box-shadow: 0 3px 10px rgba(24,66,50,.2); }
+    .svx .cc-searchrow { display: flex; gap: 8px; align-items: flex-start; }
+    .svx .cc-searchrow .cc-search { flex: 1; }
+    .svx .cc-searchrow > .btn { height: 49px; }
+    .svx .cc-daybar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .svx .cc-daypick { display: flex; gap: 6px; align-items: center; }
+    .svx .cc-daypick input { padding: 8px 10px; border-radius: 10px; border: 1.5px solid var(--border-color); font-family: inherit; }
+    .svx .cc-stats .st.warn { background: #FFF8E6; border-color: #E8DCC0; }
+    .svx .cc-grps { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+    .svx .cc-grp { border: 1px solid var(--border-color); border-right: 4px solid var(--primary-green); border-radius: 14px; padding: 12px 14px; background: #FFF; cursor: pointer; display: flex; flex-direction: column; gap: 8px; transition: box-shadow .2s, transform .2s; }
+    .svx .cc-grp:hover { box-shadow: 0 6px 18px rgba(0,0,0,.08); transform: translateY(-1px); }
+    .svx .cc-grp.pend { border-right-color: var(--gold-accent); background: #FFFDF7; }
+    .svx .cc-grp.late { border-right-color: var(--danger); background: #FFFAFA; }
+    .svx .cc-grp .top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+    .svx .cc-grp .nm { font-weight: 800; color: var(--primary-green); font-size: 15px; }
+    .svx .cc-grp .lns { display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; }
+    .svx .cc-grp .ln i { width: 16px; text-align: center; }
+    .svx .cc-pend { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; background: #FFF8E6; border: 1px solid #E8DCC0; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; color: #7A4F00; }
+    .svx .cc-res { font-size: 12px; color: #7A4F00; font-weight: 700; }
+    .svx .dc-list { display: flex; flex-direction: column; gap: 12px; }
+    .svx .dc-item { border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; background: #FFF; display: flex; flex-direction: column; gap: 10px; }
+    .svx .dc-item.pend { border-right: 4px solid var(--gold-accent); }
+    .svx .dc-item.ok { border-right: 4px solid var(--primary-green); background: var(--soft); }
+    .svx .dc-item.skip .dc-grid, .svx .dc-item.skip textarea { opacity: .55; }
+    .svx .dc-top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+    .svx .dc-pkg { font-size: 12.5px; color: #555; background: var(--soft); border-radius: 8px; padding: 7px 10px; }
+    .svx .dc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .svx .dc-warn { font-size: 12.5px; color: var(--danger); font-weight: 700; }
+    .svx .dc-warn:empty { display: none; }
+    .svx .dc-view { font-size: 13.5px; line-height: 1.8; color: #444; }
+    .svx .it-warn { background: #FFF8E6; border: 1px solid #E8DCC0; color: #7A4F00; border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.8; }
+    .svx .it-warn.err { background: #FDECEC; border-color: #F5C6CB; color: var(--danger); }
+    .svx .it-table tr.it-off td { opacity: .55; }
+    .svx .it-table tr.it-off td:last-child { opacity: 1; }
+    @media (max-width: 700px) {
+      .svx .dc-grid { grid-template-columns: 1fr 1fr; }
+      .svx #ccDayModal .modal-actions { flex-wrap: wrap; }
+      .svx #ccDayModal .modal-actions .btn { flex: 1 1 45%; }
+      .svx .cc-grps { grid-template-columns: 1fr; }
+      .svx .cc-daybar { flex-direction: column; align-items: stretch; }
+      .svx .cc-daypick input { flex: 1; }
+    }
+    .svx .track-box { background: #EEF4F1; border-color: rgba(24,66,50,.18); }
+    .svx .track-box > .lbl { color: var(--primary-green); }
+    @media (max-width: 700px) {
+      .svx .cc-table thead { display: none; }
+      .svx .cc-table, .svx .cc-table tbody { display: block; }
+      .svx .cc-table tr { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; padding: 12px; border-bottom: 1px solid var(--border-color); }
+      .svx .cc-table td { border: none; padding: 0; }
+      .svx .cc-table td[data-l]::before { content: attr(data-l); display: block; color: #9A937D; font-size: 11px; font-weight: 700; }
+      .svx .cc-table td.wide { grid-column: 1 / -1; }
+      .svx .cc-notes { max-width: none; min-width: 0; }
+      .svx .cc-name { font-size: 18px; }
+      .svx .cc-pkgs { grid-template-columns: 1fr; }
+      .svx .cc-head-side, .svx .cc-head-side .cc-acts { width: 100%; }
+      .svx .cc-head-side .cc-acts .btn { flex: 1; }
+      .svx .cc-tab { padding: 9px 8px; font-size: 12.5px; flex: 1; justify-content: center; }
+    }
+
   </style>
 </head>
 <body class="public-mode">
@@ -895,6 +1018,9 @@
           <button class="nav-btn" id="btnPageCollections" onclick="switchPage('pageCollections')">
             <i class="fas fa-hand-holding-usd"></i> تحصيلات
           </button>
+          <button class="nav-btn" id="btnPageClients" onclick="switchPage('pageClients')">
+            <i class="fas fa-id-card"></i> بطاقات العملاء
+          </button>
           <button class="nav-btn" id="btnPageExpenses" onclick="switchPage('pageExpenses')">
             <i class="fas fa-file-invoice-dollar"></i> المصروفات
           </button>
@@ -921,6 +1047,9 @@
           </button>
           <button class="nav-btn" id="btnPageManage" onclick="switchPage('pageManage')">
             <i class="fas fa-folder-tree"></i> إدارة الخدمات
+          </button>
+          <button class="nav-btn" id="btnPageItems" onclick="switchPage('pageItems')">
+            <i class="fas fa-boxes"></i> الأصناف
           </button>
           <button class="nav-btn" id="btnPageUsers" onclick="switchPage('pageUsers')">
             <i class="fas fa-user-shield"></i> المستخدمين والصلاحيات
@@ -1022,6 +1151,61 @@
           </table>
         </div>
         <div class="hint" style="margin-top:10px; font-size:12px; color:#9A937D;"><i class="fas fa-info-circle"></i> الأصفر = فيه صلاحية إضافة أو تعديل أو حذف — الأخضر = عرض بس.</div>
+      </div>
+    </section>
+
+
+    <!-- ═══ الأصناف ═══ -->
+    <section id="pageItems" class="view-page svx">
+      <div class="card">
+        <div class="page-head">
+          <h2><i class="fas fa-boxes"></i> الأصناف</h2>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn" id="itAddBtn" onclick="openItemModal('')"><i class="fas fa-plus"></i> صنف جديد</button>
+            <button class="btn alt" onclick="loadItems()" title="تحديث"><i class="fas fa-sync-alt"></i></button>
+          </div>
+        </div>
+        <div class="filters">
+          <div class="f"><label>بحث</label><input type="text" id="itSearch" placeholder="اسم الصنف..." oninput="renderItems()"></div>
+          <div class="f half"><label>التخصص</label><select id="itSpec" onchange="renderItems()"></select></div>
+          <div class="f half"><label>التصنيف</label><select id="itCat" onchange="renderItems()"></select></div>
+          <div class="f half"><label>الحالة</label><select id="itState" onchange="renderItems()"><option value="">الكل</option><option value="on">شغال</option><option value="off">موقوف</option></select></div>
+        </div>
+        <div class="cc-sub" id="itCount" style="margin:-4px 0 8px;"></div>
+        <div class="table-container">
+          <table class="cc-table it-table">
+            <thead><tr><th>الصنف</th><th>التخصص / التصنيف</th><th>السعر</th><th>التكلفة</th><th>المتابعة</th><th>الحركات</th><th>الحالة</th><th style="text-align:left;">إجراءات</th></tr></thead>
+            <tbody id="itBody"></tbody>
+          </table>
+        </div>
+        <div class="hint" style="margin-top:10px; font-size:12px; color:#9A937D;"><i class="fas fa-info-circle"></i> الحذف بس للصنف اللي ملوش ولا حركة (مبيعات أو بطاقات). الصنف اللي عليه حركات بيتوقف بدل ما يتحذف.</div>
+      </div>
+    </section>
+
+    <!-- ═══ بطاقات العملاء ═══ -->
+    <section id="pageClients" class="view-page svx">
+      <div class="card">
+        <div class="page-head">
+          <h2><i class="fas fa-id-card"></i> بطاقات العملاء</h2>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn alt" onclick="ccInit()" title="تحديث"><i class="fas fa-sync-alt"></i></button>
+          </div>
+        </div>
+        <div class="cc-views">
+          <button type="button" class="cc-view on" id="ccvwToday" onclick="ccSetView('today')"><i class="fas fa-calendar-day"></i> اليوم</button>
+          <button type="button" class="cc-view" id="ccvwClients" onclick="ccSetView('clients')"><i class="fas fa-users"></i> العملاء</button>
+        </div>
+        <div id="ccClientsBar" style="display:none;">
+          <div class="cc-searchrow">
+            <div class="cc-search">
+              <i class="fas fa-search"></i>
+              <input type="text" id="ccSearch" placeholder="ابحث باسم العميل أو رقم الموبايل..." autocomplete="off" oninput="ccSearchInput()" onkeydown="ccSearchKey(event)" onfocus="if(this.value && !CC.client) ccSearchInput()">
+              <div class="cc-drop" id="ccDrop"></div>
+            </div>
+            <button class="btn alt" id="ccHomeBtn" onclick="ccHome()" style="display:none;" title="رجوع"><i class="fas fa-times"></i></button>
+          </div>
+        </div>
+        <div id="ccBody"></div>
       </div>
     </section>
 
@@ -2440,6 +2624,30 @@
           </div>
           <div class="hint" style="margin-top:6px;">التخصص بيحدد الخدمة تظهر مع مين في شاشة الفاتورة (لازم يطابق قسم الطبيب أو الأخصائية).</div>
         </div>
+        <div class="sales-box track-box">
+          <div class="lbl"><i class="fas fa-id-card"></i> المتابعة في بطاقة العميل</div>
+          <div class="two">
+            <div class="field"><label>نوع المتابعة</label>
+              <select id="svcTrackType" onchange="trackTypeChanged()">
+                <option value="">بدون (مش بتظهر في البطاقة)</option>
+                <option value="Visit">زيارة بس (بتنزل في سجل المتابعة)</option>
+                <option value="Pulses">رصيد نبضات</option>
+                <option value="Sessions">رصيد جلسات</option>
+                <option value="Units">رصيد وحدات</option>
+              </select></div>
+            <div class="field" id="svcTrackModeWrap"><label>طريقة الاستخدام</label>
+              <select id="svcTrackMode" onchange="trackTypeChanged()">
+                <option value="Multi">على كذا مرة</option>
+                <option value="Single">مرة واحدة (الفاضل بيتقفل)</option>
+                <option value="Instant">بتتستخدم في نفس الزيارة</option>
+              </select></div>
+          </div>
+          <div class="two" id="svcTrackNums">
+            <div class="field"><label>الكمية في الخدمة الواحدة <span id="svcTrackUnit"></span></label><input type="text" id="svcTrackQty" inputmode="decimal" placeholder="مثال: 400 — فاضي = بدون حد" oninput="trackTypeChanged()"></div>
+            <div class="field"><label>مدة الصلاحية (أيام)</label><input type="text" id="svcValidity" inputmode="numeric" placeholder="مثال: 365 — فاضي = مالوش انتهاء"></div>
+          </div>
+          <div class="hint" id="svcTrackHint" style="margin-top:6px;"></div>
+        </div>
         <div class="field">
           <label>الصور والفيديوهات</label>
           <div class="media-list" id="svcMediaList"></div>
@@ -2533,6 +2741,162 @@
       </div>
     </div>
   </div>
+
+  <!-- بطاقات العملاء: جلسة / زيارة -->
+  <div class="modal-overlay" id="ccVisitModal">
+    <div class="modal-card" style="max-width:620px;">
+      <h3 id="ccVisitTitle"></h3>
+      <div class="fields">
+        <div class="field"><label>من رصيد</label><select id="ccvPkg" onchange="ccvPkgChanged()"></select></div>
+        <div class="cc-info" id="ccvInfo"></div>
+        <div class="field" id="ccvSvcWrap"><label>الخدمة *</label><input type="text" id="ccvService" list="ccSvcList" placeholder="اكتب أو اختار الخدمة (كشف، متابعة، ...)"></div>
+        <div class="two">
+          <div class="field"><label>التاريخ *</label><input type="date" id="ccvDate" onchange="ccvCheck()"></div>
+          <div class="field"><label>نوع الزيارة</label><input type="text" id="ccvType" list="ccTypeList" placeholder="كشف / متابعة / جلسة / حقن..."></div>
+        </div>
+        <div class="two">
+          <div class="field" id="ccvQtyWrap"><label>الكمية المستخدمة <span id="ccvUnit"></span></label><input type="text" id="ccvQty" inputmode="decimal" oninput="ccvCheck()" placeholder="مثال: 520"><div class="hint" id="ccvQtyHint"></div></div>
+          <div class="field"><label>الدكتور / الأخصائية</label><input type="text" id="ccvStaff" list="ccStaffList" placeholder="اختياري"></div>
+        </div>
+        <div class="field"><label>الملاحظات</label><textarea id="ccvNotes" rows="4" placeholder="مثال: المنطقة، إعدادات الجهاز، نوع البشرة، الحقن المستخدم، رد فعل البشرة..."></textarea></div>
+        <div class="field"><label>ميعاد المتابعة الجاية (اختياري)</label><input type="date" id="ccvNext"></div>
+        <div class="cc-hint" id="ccvNote" style="display:none; margin:0;"><i class="fas fa-hourglass-half"></i> الجلسة هتنزل في "اليوم" مستنية تأكيد. الكمية ممكن تتكتب دلوقتي أو وقت التأكيد.</div>
+        <div class="cc-override" id="ccvOverride"><div class="msg" id="ccvOverrideMsg"></div><label>سبب التجاوز *</label><input type="text" id="ccvReason" placeholder="مثال: تعويض جلسة / بموافقة الدكتور"></div>
+        <div class="modal-error" id="ccvError"></div>
+        <div class="modal-actions">
+          <button class="btn" id="ccvSave" onclick="ccSaveVisit()"><i class="fas fa-save"></i> حفظ</button>
+          <button class="btn alt" onclick="closeModal('ccVisitModal')">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- بطاقات العملاء: رصيد (للمدير) -->
+  <div class="modal-overlay" id="ccPkgModal">
+    <div class="modal-card" style="max-width:560px;">
+      <h3 id="ccPkgTitle"></h3>
+      <div class="fields">
+        <div class="cc-info" id="ccpInfo"></div>
+        <div class="field" id="ccpSourceWrap"><label>نوع الإضافة</label>
+          <select id="ccpSource" onchange="ccpSourceChanged()">
+            <option value="Opening">رصيد افتتاحي (باكدج قديم قبل السيستم)</option>
+            <option value="Manual">إضافة يدوية (هدية / تعويض ...)</option>
+          </select></div>
+        <div class="field" id="ccpSvcWrap"><label>الخدمة *</label><input type="text" id="ccpService" list="ccSvcList" oninput="ccpServiceChanged()" placeholder="مثال: بالنبضة / باكدج 10,000"></div>
+        <div class="two">
+          <div class="field" id="ccpTypeField"><label>نوع الرصيد *</label><select id="ccpType"><option value="Pulses">نبضات</option><option value="Sessions">جلسات</option><option value="Units">وحدات</option></select></div>
+          <div class="field" id="ccpModeField"><label>طريقة الاستخدام</label><select id="ccpMode"><option value="Multi">على كذا مرة</option><option value="Single">مرة واحدة (الفاضل بيتقفل)</option></select></div>
+        </div>
+        <div class="two">
+          <div class="field"><label>الكمية *</label><input type="text" id="ccpTotal" inputmode="decimal" placeholder="مثال: 500"><div class="hint" id="ccpTotalHint"></div></div>
+          <div class="field"><label>التاريخ</label><input type="date" id="ccpDate"></div>
+        </div>
+        <div class="field"><label>تاريخ الانتهاء</label><input type="date" id="ccpExpiry"><div class="hint">فاضي = مالوش انتهاء.</div></div>
+        <div class="field"><label>ملاحظات <span id="ccpNotesReq"></span></label><textarea id="ccpNotes" rows="2"></textarea></div>
+        <div class="modal-error" id="ccpError"></div>
+        <div class="modal-actions">
+          <button class="btn" id="ccpSave" onclick="ccSavePkg()"><i class="fas fa-save"></i> حفظ</button>
+          <button class="btn alt" onclick="closeModal('ccPkgModal')">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- بطاقات العملاء: تحويل رصيد (للمدير) -->
+  <div class="modal-overlay" id="ccTrModal">
+    <div class="modal-card" style="max-width:480px;">
+      <h3><i class="fas fa-exchange-alt" style="color:var(--gold-accent);"></i> تحويل رصيد لعميل تاني</h3>
+      <div class="fields">
+        <div class="cc-info" id="cctInfo" style="display:block;"></div>
+        <div class="field"><label>إلى العميل *</label><input type="text" id="cctTo" list="ccClientList" placeholder="اكتب اسم العميل" autocomplete="off"></div>
+        <div class="field"><label>الكمية *</label><input type="text" id="cctQty" inputmode="decimal"><div class="hint" id="cctHint"></div></div>
+        <div class="field"><label>ملاحظات</label><input type="text" id="cctNotes" placeholder="مثال: أختها / مامتها"></div>
+        <div class="modal-error" id="cctError"></div>
+        <div class="modal-actions">
+          <button class="btn" id="cctSave" onclick="ccSaveTransfer()"><i class="fas fa-exchange-alt"></i> تحويل</button>
+          <button class="btn alt" onclick="closeModal('ccTrModal')">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- بطاقات العملاء: تكملة البطاقة والتأكيد -->
+  <div class="modal-overlay" id="ccDayModal">
+    <div class="modal-card" style="max-width:720px;">
+      <h3 id="ccDayTitle"></h3>
+      <div class="fields">
+        <div class="cc-hint" id="ccdNote" style="margin:0;"></div>
+        <div id="ccDayBody" class="dc-list"></div>
+        <div class="cc-override" id="ccdOverride"><div class="msg" id="ccdOverrideMsg"><i class="fas fa-exclamation-triangle"></i> فيه كمية أكبر من المتاح أو رصيد منتهي — تقدر تكمل كمدير بس لازم تكتب السبب.</div><label>سبب التجاوز *</label><input type="text" id="ccdReason" placeholder="مثال: تعويض جلسة / بموافقة الدكتور"></div>
+        <div class="modal-error" id="ccdError"></div>
+        <div class="modal-actions">
+          <button class="btn" id="ccdConfirm" onclick="ccDaySubmit('confirm')"><i class="fas fa-check-double"></i> تأكيد</button>
+          <button class="btn alt" id="ccdSave" onclick="ccDaySubmit('save')"><i class="fas fa-save"></i> حفظ من غير تأكيد</button>
+          <button class="btn alt" onclick="ccDayOpenClient()"><i class="fas fa-id-card"></i> بطاقة العميل</button>
+          <button class="btn alt" onclick="closeModal('ccDayModal')">إغلاق</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- الأصناف: صنف -->
+  <div class="modal-overlay" id="itModal">
+    <div class="modal-card" style="max-width:640px;">
+      <h3 id="itModalTitle"></h3>
+      <div class="fields">
+        <div class="field"><label>اسم الصنف *</label><input type="text" id="itName" oninput="itCheckName()" placeholder="مثال: كريم واقي شمس / باكدج 5,000" autocomplete="off"><div class="hint" id="itNameHint"></div></div>
+        <div class="it-warn" id="itNameWarn" style="display:none;"></div>
+        <div class="two">
+          <div class="field"><label>التخصص *</label><select id="itSpecSel"></select><div class="hint">بيحدد الصنف يظهر مع مين في الفاتورة.</div></div>
+          <div class="field"><label>تصنيف المبيعات</label><input type="text" id="itSalesCat" list="itCatList" placeholder="مثال: Laser / Products"><datalist id="itCatList"></datalist></div>
+        </div>
+        <div class="field"><label>المجلد (مكانه في موقع العملاء)</label><select id="itFolder"></select></div>
+        <div class="two">
+          <div class="field"><label>السعر</label><input type="text" id="itPrice" inputmode="decimal" placeholder="مثال: 350"></div>
+          <div class="field"><label>التكلفة</label><input type="text" id="itCost" inputmode="decimal" placeholder="اختياري"></div>
+        </div>
+        <div class="two">
+          <div class="field"><label>سعر التيم</label><input type="text" id="itTeam" inputmode="decimal" placeholder="اختياري"></div>
+          <div class="field"><label>سعر أهل التيم</label><input type="text" id="itFamily" inputmode="decimal" placeholder="اختياري"></div>
+        </div>
+        <div class="sales-box track-box">
+          <div class="lbl"><i class="fas fa-id-card"></i> المتابعة في بطاقة العميل</div>
+          <div class="two">
+            <div class="field"><label>نوع المتابعة</label>
+              <select id="itTrackType" onchange="trackTypeChanged('it')">
+                <option value="">بدون (مش بيظهر في البطاقة)</option>
+                <option value="Visit">زيارة بس (بتنزل في البطاقة للملاحظات)</option>
+                <option value="Pulses">رصيد نبضات</option>
+                <option value="Sessions">رصيد جلسات</option>
+                <option value="Units">رصيد وحدات</option>
+              </select></div>
+            <div class="field" id="itTrackModeWrap"><label>طريقة الاستخدام</label>
+              <select id="itTrackMode" onchange="trackTypeChanged('it')">
+                <option value="Multi">على كذا مرة</option>
+                <option value="Single">مرة واحدة (الفاضل بيتقفل)</option>
+                <option value="Instant">بتتستخدم في نفس الزيارة</option>
+              </select></div>
+          </div>
+          <div class="two" id="itTrackNums">
+            <div class="field"><label>الكمية في الصنف الواحد <span id="itTrackUnit"></span></label><input type="text" id="itTrackQty" inputmode="decimal" placeholder="مثال: 400 — فاضي = بدون حد" oninput="trackTypeChanged('it')"></div>
+            <div class="field"><label>مدة الصلاحية (أيام)</label><input type="text" id="itValidity" inputmode="numeric" placeholder="مثال: 365 — فاضي = مالوش انتهاء"></div>
+          </div>
+          <div class="hint" id="itTrackHint" style="margin-top:6px;"></div>
+        </div>
+        <div class="svc-flags">
+          <label class="check-row"><input type="checkbox" id="itActive" checked> متاح في المبيعات</label>
+          <label class="check-row"><input type="checkbox" id="itOnline"> ظاهر للعملاء في الموقع</label>
+        </div>
+        <div class="hint"><i class="fas fa-info-circle"></i> الوصف والصور اللي بتظهر للعملاء بتتضاف من "إدارة الخدمات".</div>
+        <div class="modal-error" id="itError"></div>
+        <div class="modal-actions">
+          <button class="btn" id="itSave" onclick="saveItem()"><i class="fas fa-save"></i> حفظ</button>
+          <button class="btn alt" onclick="closeModal('itModal')">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <datalist id="ccSvcList"></datalist><datalist id="ccTypeList"></datalist><datalist id="ccStaffList"></datalist><datalist id="ccClientList"></datalist>
     <div class="toast" id="svToast"></div>
   </div>
 
@@ -2682,6 +3046,12 @@
       } else if (pageId === 'pageUsers') {
         document.getElementById('btnPageUsers').classList.add('active');
         loadUsers();
+      } else if (pageId === 'pageClients') {
+        document.getElementById('btnPageClients').classList.add('active');
+        ccInit();
+      } else if (pageId === 'pageItems') {
+        document.getElementById('btnPageItems').classList.add('active');
+        loadItems();
       }
     }
 
@@ -2983,7 +3353,7 @@
     }
 
     let authUser = null;
-    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageExpenses:'Expenses', pagePayroll:'Payroll', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances', pageServices:'Services', pageCash:'Cash', pagePrices:'PriceList', pageManage:'Catalog', pageUsers:'Users'};
+    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageClients:'ClientCards', pageItems:'Items', pageExpenses:'Expenses', pagePayroll:'Payroll', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances', pageServices:'Services', pageCash:'Cash', pagePrices:'PriceList', pageManage:'Catalog', pageUsers:'Users'};
     function can(tab, action) {
       const p = authUser && authUser.permissions[tab];
       return !!(p && p.view === true && p[action] === true);
@@ -3025,7 +3395,7 @@
       document.getElementById('mainHeader').style.display = 'flex';
       document.getElementById('currentUserDisplay').innerText = user.name;
       document.querySelectorAll('.view-page, .nav-btn').forEach(el => el.classList.remove('active'));
-      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageExpenses:'btnPageExpenses',pagePayroll:'btnPagePayroll',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances',pageServices:'btnPageServices',pageCash:'btnPageCash',pagePrices:'btnPagePrices',pageManage:'btnPageManage',pageUsers:'btnPageUsers'};
+      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageClients:'btnPageClients',pageItems:'btnPageItems',pageExpenses:'btnPageExpenses',pagePayroll:'btnPagePayroll',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances',pageServices:'btnPageServices',pageCash:'btnPageCash',pagePrices:'btnPagePrices',pageManage:'btnPageManage',pageUsers:'btnPageUsers'};
       Object.keys(PAGE_TABS).forEach(page => {
         const btn = document.getElementById(buttons[page]);
         if (!btn) return;
@@ -8131,7 +8501,7 @@
           : s.online === false ? '<span class="hidden-badge">للمبيعات بس</span>'
           : '<span style="color:#1A7F4B; font-weight:700; font-size:12px;">ظاهرة</span>';
         html += '<tr class="' + (s.enabled === false ? 'is-hidden' : '') + '"><td><div class="mg-row-name"><div class="mg-thumb">' + (m ? imgTag(m, 160) : '<i class="fas fa-spa"></i>') + '</div>'
-          + '<div><div class="mg-name" onclick="openServiceModal(\'' + esc(s.id) + '\')">' + esc(s.name) + '</div><div class="mg-sub">' + esc(s.speciality || '—') + (s.salesCategory ? ' / ' + esc(s.salesCategory) : '') + ' · ' + (s.media || []).length + ' صورة/فيديو</div></div></div></td>'
+          + '<div><div class="mg-name" onclick="openServiceModal(\'' + esc(s.id) + '\')">' + esc(s.name) + '</div><div class="mg-sub">' + esc(s.speciality || '—') + (s.salesCategory ? ' / ' + esc(s.salesCategory) : '') + ' · ' + (s.media || []).length + ' صورة/فيديو' + (trackLabel(s) ? ' · ' + esc(trackLabel(s)) : '') + '</div></div></div></td>'
           + '<td class="price-cell">' + esc(priceText(s.price))
           + ((s.teamPrice !== '' && s.teamPrice !== undefined) || (s.familyPrice !== '' && s.familyPrice !== undefined)
               ? '<div class="mg-team">تيم: ' + esc(teamText(s.teamPrice)) + ' · أهل: ' + esc(teamText(s.familyPrice)) + '</div>' : '')
@@ -8246,6 +8616,11 @@
       document.getElementById('svcOnline').checked = s ? s.online !== false : true;
       document.getElementById('svcCost').value = s && s.cost !== undefined ? s.cost : '';
       fillSalesOptions(s ? s.speciality : '', s ? s.salesCategory : '');
+      document.getElementById('svcTrackType').value = s && s.trackType ? s.trackType : '';
+      document.getElementById('svcTrackMode').value = s && s.trackMode ? s.trackMode : 'Multi';
+      document.getElementById('svcTrackQty').value = s && s.trackQty !== undefined ? s.trackQty : '';
+      document.getElementById('svcValidity').value = s && s.validityDays !== undefined ? s.validityDays : '';
+      trackTypeChanged();
       document.getElementById('svcYoutube').value = '';
       document.getElementById('svcCategory').innerHTML = folderOptions(s ? s.category : mgFolder, null, null);
       if (!s) fillSalesFromFolder();
@@ -8309,7 +8684,9 @@
         notes: document.getElementById('svcNotes').value, media: svcEdit.media,
         cost: document.getElementById('svcCost').value.trim(),
         speciality: document.getElementById('svcSpeciality').value, salesCategory: document.getElementById('svcSalesCategory').value.trim(),
-        enabled: document.getElementById('svcEnabled').checked, online: document.getElementById('svcOnline').checked
+        enabled: document.getElementById('svcEnabled').checked, online: document.getElementById('svcOnline').checked,
+        trackType: document.getElementById('svcTrackType').value, trackMode: document.getElementById('svcTrackMode').value,
+        trackQty: document.getElementById('svcTrackQty').value.trim(), validityDays: document.getElementById('svcValidity').value.trim()
       } }, () => { closeModal('svcModal'); toast('تم حفظ الخدمة'); });
     }
 
@@ -8384,6 +8761,8 @@
     // ═══════════════════════════ المستخدمين والصلاحيات ═══════════════════════════
     const TAB_LABELS = {
       Sales: ['إضافة حركة جديدة', 'تسجيل الفواتير'], Collect: ['تحصيلات', 'تحصيل وحجز'],
+      ClientCards: ['بطاقات العملاء', 'إضافة = تسجيل جلسة · تعديل = تكملة وتأكيد البطاقات · حذف = حذف جلسة مستنية — بعد التأكيد والأرصدة والتحويل للمدير بس'],
+      Items: ['الأصناف', 'إضافة = صنف جديد · تعديل = تعديل وإيقاف · حذف = حذف صنف ملوش حركات'],
       Transactions: ['استعراض البيانات', 'تعديل = تعديل فاتورة · حذف = حذف فاتورة'], Logs: ['السجل', ''],
       Balances: ['الأرصدة', 'إضافة = إغلاق اليوم'], Expenses: ['المصروفات', ''], Payroll: ['Payroll', 'السلف والخصومات'],
       Services: ['خدمات سريعة', ''], Cash: ['النقدية والعهد', 'إضافة = تحويل / تسوية / رصيد أول المدة'],
@@ -8520,15 +8899,21 @@
     }
 
     // ── ترتيب التابات في القائمة (للكل)
-    const MENU_ITEMS = { Sales: ['btnPageAdd', 'pageAdd'], Collect: ['btnPageCollections', 'pageCollections'],
+    const MENU_ITEMS = { Sales: ['btnPageAdd', 'pageAdd'], Collect: ['btnPageCollections', 'pageCollections'], ClientCards: ['btnPageClients', 'pageClients'],
       Expenses: ['btnPageExpenses', 'pageExpenses'], Payroll: ['btnPagePayroll', 'pagePayroll'], Transactions: ['btnPageData', 'pageData'],
       Balances: ['btnPageBalances', 'pageBalances'], Cash: ['btnPageCash', 'pageCash'], Services: ['btnPageServices', 'pageServices'],
-      Logs: ['btnPageLogs', 'pageLogs'], Home: ['btnPageCatalog', 'pageCatalog'], PriceList: ['btnPagePrices', 'pagePrices'], Catalog: ['btnPageManage', 'pageManage'], Users: ['btnPageUsers', 'pageUsers'] };
+      Logs: ['btnPageLogs', 'pageLogs'], Home: ['btnPageCatalog', 'pageCatalog'], PriceList: ['btnPagePrices', 'pagePrices'], Catalog: ['btnPageManage', 'pageManage'], Items: ['btnPageItems', 'pageItems'], Users: ['btnPageUsers', 'pageUsers'] };
     const DEFAULT_ORDER = Object.keys(MENU_ITEMS);
     let TAB_ORDER = DEFAULT_ORDER.slice();
     function normOrder(order) {
       const o = (Array.isArray(order) ? order : []).filter((k, i, a) => MENU_ITEMS[k] && a.indexOf(k) === i);
-      DEFAULT_ORDER.forEach(k => { if (o.indexOf(k) === -1) o.push(k); });
+      // التاب الجديد بيتحط بعد اللي قبله في الترتيب الأصلي
+      DEFAULT_ORDER.forEach((k, i) => {
+        if (o.indexOf(k) !== -1) return;
+        let at = 0;
+        for (let j = i - 1; j >= 0; j--) { const p = o.indexOf(DEFAULT_ORDER[j]); if (p !== -1) { at = p + 1; break; } }
+        o.splice(at, 0, k);
+      });
       return o;
     }
     function menuOrderPages(order) { return normOrder(order || TAB_ORDER).map(k => MENU_ITEMS[k][1]); }
@@ -8657,7 +9042,10 @@
       { page: 'pageCash',     table: '#cxLedgerBody',                        name: 'حركات النقدية', file: 'Cash-Ledger' },
       { page: 'pageLogs',     table: '#logsTableBody',                       name: 'السجل', file: 'Log' },
       { page: 'pagePrices',   table: '#prBody',                              name: 'قائمة الأسعار', file: 'Price-List' },
-      { page: 'pageUsers',    table: '#usBody',                              name: 'المستخدمين والصلاحيات', file: 'Users' }
+      { page: 'pageUsers',    table: '#usBody',                              name: 'المستخدمين والصلاحيات', file: 'Users' },
+      { page: 'pageItems',    table: '#itBody',                              name: 'الأصناف', file: 'Items' },
+      { page: 'pageClients',  table: '#ccVisitsTable',                       name: 'سجل المتابعة', base: 'سجل المتابعة', file: 'Client-Visits' },
+      { page: 'pageClients',  table: '#ccInvTable',                          name: 'فواتير العميل', base: 'فواتير العميل', file: 'Client-Invoices' }
     ];
     function xpTable(cfg) {
       const el = document.querySelector(cfg.table);
@@ -8783,6 +9171,825 @@
       });
     }
     initExportBars();
+
+
+    // ═══════════════════════════ بطاقات العملاء ═══════════════════════════
+    // الأرصدة (باكدجات النبضات/الجلسات/الوحدات) + سجل المتابعة (كل زيارة وملاحظاتها) + الفواتير والمدفوعات
+    const CC_UNIT = { Pulses: 'نبضة', Sessions: 'جلسة', Units: 'وحدة' };
+    const CC_TYPE_AR = { Visit: 'زيارة بس', Pulses: 'نبضات', Sessions: 'جلسات', Units: 'وحدات' };
+    const CC_MODE_AR = { Multi: 'على كذا مرة', Single: 'مرة واحدة', Instant: 'في نفس الزيارة' };
+    const CC_STATUS = { open: 'مفتوح', done: 'خلص', closed: 'اتقفل', expired: 'منتهي' };
+    const CC_SOURCE = { Sale: 'فاتورة', Credit: 'رصيد من فاتورة', Opening: 'رصيد افتتاحي', Manual: 'إضافة يدوية', Transfer: 'تحويل' };
+    const CC_SECTIONS = [['all', 'الكل'], ['Laser & Dermatology', 'ليزر وجلدية'], ['Spa & Personal Care', 'سبا وعناية']];
+    const CC_VISIT_TYPES = ['كشف', 'متابعة', 'جلسة', 'جلسة ليزر', 'حقن', 'استشارة'];
+    let CC = { view: 'today', client: '', card: null, overview: null, dayData: null, day: '', daySection: 'all', services: [], isManager: false, section: 'all', tab: 'visits', showClosed: false, req: 0 };
+    let ccVisitEdit = null, ccPkgEdit = null, ccTrPkg = null;
+
+    function ccNum(n) { return (n === '' || n === null || n === undefined) ? '' : Number(n).toLocaleString('en-US'); }
+    function ccQty(q, type) { return (q === '' || q === null || q === undefined) ? 'بدون حد' : ccNum(q) + ' ' + (CC_UNIT[type] || ''); }
+    function ccSecName(s) { const x = CC_SECTIONS.find(a => a[0] === s); return x ? x[1] : (s || '—'); }
+    function ccToday() { const d = new Date(), p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
+    function ccAddDays(ymd, n) {
+      const p = String(ymd).split('-').map(Number), d = new Date(p[0], p[1] - 1, p[2] + n), q = x => String(x).padStart(2, '0');
+      return d.getFullYear() + '-' + q(d.getMonth() + 1) + '-' + q(d.getDate());
+    }
+    function ccDate(ymd) { if (!ymd) return '—'; const p = ymd.split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : ymd; }
+    function ccText(s) { return esc(s).replace(/\n/g, '<br>'); }
+    function ccLoading(msg) { return '<div class="loading"><i class="fas fa-spinner fa-spin"></i> ' + (msg || 'جاري التحميل...') + '</div>'; }
+    async function ccGet(params) {
+      const q = Object.keys(params).map(k => k + '=' + encodeURIComponent(params[k])).join('&');
+      const res = await (await fetch(SCRIPT_URL + '?' + q + '&token=' + encodeURIComponent(svToken()) + '&t=' + Date.now())).json();
+      if (res.status !== 'success') throw new Error(String(res.message || 'تعذر التحميل').replace(/^Error:\s*/, ''));
+      return res;
+    }
+    function ccSvc(name) { const n = String(name || '').trim().toLowerCase(); return CC.services.find(s => s.name.toLowerCase() === n) || null; }
+
+    // ── فتح التاب: لو فيه عميل مفتوح بتتحدث بطاقته، غير كده الصفحة الرئيسية
+    function ccInit() {
+      if (!clientsData || !clientsData.length) refreshClients().catch(() => {});
+      ccSetView(CC.view);
+    }
+    // تابين جوه البطاقات: "اليوم" (البطاقات المستنية تأكيد واللي اتأكدت) و"العملاء" (البحث والبطاقة)
+    function ccSetView(v) {
+      CC.view = v;
+      document.getElementById('ccvwToday').classList.toggle('on', v === 'today');
+      document.getElementById('ccvwClients').classList.toggle('on', v === 'clients');
+      document.getElementById('ccClientsBar').style.display = v === 'clients' ? '' : 'none';
+      if (v === 'today') ccLoadToday();
+      else if (CC.client) ccOpen(CC.client, true);
+      else ccHome();
+    }
+    function ccShowClient(name) { CC.view = 'clients'; document.getElementById('ccvwToday').classList.remove('on'); document.getElementById('ccvwClients').classList.add('on');
+      document.getElementById('ccClientsBar').style.display = ''; ccOpen(name); }
+    async function ccHome() {
+      CC.client = ''; CC.card = null;
+      const req = ++CC.req;
+      document.getElementById('ccHomeBtn').style.display = 'none';
+      document.getElementById('ccSearch').value = '';
+      const body = document.getElementById('ccBody');
+      body.innerHTML = ccLoading();
+      try {
+        const res = await ccGet({ action: 'clientCards' });
+        if (req !== CC.req) return;
+        CC.overview = res; CC.services = res.services || []; CC.isManager = !!res.isManager;
+        ccRenderHome();
+      } catch (e) {
+        if (req === CC.req) body.innerHTML = '<div class="empty" style="color:var(--danger);">' + esc(e.message) + '</div>';
+      }
+    }
+    async function ccOpen(name, keepView) {
+      name = String(name || '').trim();
+      if (!name) return;
+      const req = ++CC.req;
+      const same = CC.card && CC.card.client.name.toLowerCase() === name.toLowerCase();
+      CC.client = name;
+      document.getElementById('ccDrop').classList.remove('active');
+      document.getElementById('ccSearch').value = name;
+      document.getElementById('ccHomeBtn').style.display = '';
+      if (!keepView) { CC.tab = 'visits'; CC.showClosed = false; CC.section = 'all'; }
+      const body = document.getElementById('ccBody');
+      if (!same) body.innerHTML = ccLoading('جاري تحميل بطاقة ' + esc(name) + '...');
+      try {
+        const res = await ccGet({ action: 'clientCard', client: name });
+        if (req === CC.req) ccSetCard(res);
+      } catch (e) {
+        if (req === CC.req) body.innerHTML = '<div class="empty" style="color:var(--danger);"><i class="fas fa-exclamation-circle"></i>' + esc(e.message) + '</div>';
+      }
+    }
+    function ccSetCard(res) {
+      CC.card = res; CC.client = res.client.name;
+      if (res.services && res.services.length) CC.services = res.services;
+      CC.isManager = !!res.isManager;
+      document.getElementById('ccSearch').value = res.client.name;
+      ccRenderCard();
+    }
+
+    // ── البحث عن عميل
+    function ccSearchInput() {
+      const q = document.getElementById('ccSearch').value.trim().toLowerCase();
+      const drop = document.getElementById('ccDrop');
+      if (!q) { drop.classList.remove('active'); return; }
+      const list = (clientsData || []).filter(c => {
+        const n = String(c['Client Name'] || '').toLowerCase();
+        return n.indexOf(q) !== -1 || String(c['Client Number'] || '').indexOf(q) !== -1 || String(c['Client Number 2'] || '').indexOf(q) !== -1;
+      }).slice(0, 20);
+      drop.innerHTML = list.length
+        ? list.map((c, i) => '<div class="cc-opt' + (i === 0 ? ' hl' : '') + '" data-c="' + esc(c['Client Name']) + '" onclick="ccOpen(this.dataset.c)"><span>' + esc(c['Client Name']) + '</span><span class="ph">' + esc(c['Client Number'] || '') + '</span></div>').join('')
+        : '<div class="cc-none">' + ((clientsData || []).length ? 'مفيش عميل بالاسم أو الرقم ده' : 'جاري تحميل العملاء...') + '</div>';
+      drop.classList.add('active');
+    }
+    function ccSearchKey(e) {
+      const opts = [...document.querySelectorAll('#ccDrop .cc-opt')];
+      let i = opts.findIndex(o => o.classList.contains('hl'));
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (!opts.length) return;
+        if (i !== -1) opts[i].classList.remove('hl');
+        i = e.key === 'ArrowDown' ? Math.min(opts.length - 1, i + 1) : Math.max(0, i - 1);
+        opts[i].classList.add('hl'); opts[i].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (opts[i === -1 ? 0 : i]) ccOpen(opts[i === -1 ? 0 : i].dataset.c);
+      } else if (e.key === 'Escape') document.getElementById('ccDrop').classList.remove('active');
+    }
+    document.addEventListener('click', e => {
+      const box = document.querySelector('#pageClients .cc-search');
+      if (box && !box.contains(e.target)) document.getElementById('ccDrop').classList.remove('active');
+    });
+
+    // ── الصفحة الرئيسية للتاب
+    function ccRenderHome() {
+      const o = CC.overview;
+      const clientLink = n => '<span class="cc-link" data-c="' + esc(n) + '" onclick="ccShowClient(this.dataset.c)">' + esc(n) + '</span>';
+      let html = '<div class="cc-stats"><div class="st"><b>' + ccNum(o.stats.openPackages) + '</b><span>رصيد مفتوح</span></div>'
+        + '<div class="st"><b>' + ccNum(o.stats.pending) + '</b><span>جلسة مستنية تأكيد</span></div></div>'
+        + '<div class="cc-hint"><i class="fas fa-info-circle"></i> ابحث عن العميل فوق عشان تفتح بطاقته: أرصدته وجلساته وملاحظاته وفواتيره.</div>';
+      html += '<div class="cc-h"><span><i class="fas fa-hourglass-half"></i> أرصدة صلاحيتها هتخلص خلال 30 يوم</span></div>';
+      html += o.expiring.length
+        ? '<div class="table-container"><table class="cc-table"><thead><tr><th>العميل</th><th>الخدمة</th><th>الفاضل</th><th>ينتهي</th></tr></thead><tbody>'
+          + o.expiring.map(p => '<tr><td data-l="العميل" class="wide">' + clientLink(p.client) + '</td><td data-l="الخدمة">' + esc(p.service) + '</td>'
+            + '<td data-l="الفاضل">' + ccQty(p.remaining, p.type) + '</td><td data-l="ينتهي">' + ccDate(p.expiry) + ' <span class="cc-badge warn">' + (p.daysLeft <= 0 ? 'النهارده' : 'باقي ' + p.daysLeft + ' يوم') + '</span></td></tr>').join('')
+          + '</tbody></table></div>'
+        : '<div class="cc-empty-sm">مفيش أرصدة صلاحيتها قربت تخلص</div>';
+      document.getElementById('ccBody').innerHTML = html;
+    }
+
+    // ── بطاقة العميل
+    function ccRenderCard() {
+      const d = CC.card, c = d.client, mgr = CC.isManager;
+      const inSec = x => CC.section === 'all' || x.speciality === CC.section;
+      const pk = d.packages.filter(inSec);
+      const live = p => p.status === 'open' || p.status === 'expired';
+      const shown = CC.showClosed ? pk : pk.filter(live);
+      const hiddenN = pk.length - pk.filter(live).length;
+      const visits = d.visits.filter(inSec).filter(v => v.status === 'Confirmed');
+      const pendingV = d.visits.filter(v => v.status === 'Pending');
+      const bal = Number(c.balance) || 0;
+      const balHtml = bal > 0 ? '<span class="cc-bal due"><i class="fas fa-exclamation-circle"></i> عليها ' + ccNum(bal) + ' ' + CURRENCY + '</span>'
+        : bal < 0 ? '<span class="cc-bal credit"><i class="fas fa-check-circle"></i> ليها ' + ccNum(-bal) + ' ' + CURRENCY + '</span>'
+        : '<span class="cc-bal">رصيد مالي: 0</span>';
+      let html = '<div class="cc-head"><div><div class="cc-name">' + esc(c.name) + '</div><div class="cc-sub">'
+        + [c.phone, c.phone2, c.address, c.id].filter(Boolean).map(esc).join(' · ') + '</div></div>'
+        + '<div class="cc-head-side">' + balHtml + '<div class="cc-acts">'
+        + (can('ClientCards', 'add') ? '<button class="btn" onclick="ccOpenVisit(\'\')"><i class="fas fa-plus"></i> جلسة / زيارة</button>' : '')
+        + (mgr && can('ClientCards', 'add') ? '<button class="btn alt" onclick="ccOpenPkg(\'\')"><i class="fas fa-box-open"></i> إضافة رصيد</button>' : '')
+        + '</div></div></div>';
+      if (pendingV.length) html += '<div class="cc-pend"><div><i class="fas fa-hourglass-half"></i> <b>' + pendingV.length + ' جلسة مستنية تأكيد</b><div class="cc-sub">'
+        + pendingV.map(v => esc(v.service) + ' (' + ccDate(v.date) + ')').join('، ') + '</div></div>'
+        + (can('ClientCards', 'edit') ? '<button class="btn" onclick="ccOpenDayForClient()"><i class="fas fa-check-double"></i> فتح للتأكيد</button>' : '') + '</div>';
+      html += '<div class="cc-chips">' + CC_SECTIONS.map(s => '<button type="button" class="cc-chip' + (CC.section === s[0] ? ' on' : '') + '" data-s="' + esc(s[0]) + '" onclick="ccSetSection(this.dataset.s)">' + s[1] + '</button>').join('') + '</div>';
+      // الأرصدة
+      html += '<div class="cc-h"><span><i class="fas fa-box-open"></i> الأرصدة' + (pk.filter(live).length ? ' (' + pk.filter(live).length + ')' : '') + '</span>'
+        + (hiddenN ? '<button type="button" class="cc-chip" onclick="ccToggleClosed()">' + (CC.showClosed ? 'إخفاء اللي خلصت' : 'عرض اللي خلصت (' + hiddenN + ')') + '</button>' : '') + '</div>';
+      html += shown.length ? '<div class="cc-pkgs">' + shown.map(ccPkgHtml).join('') + '</div>'
+        : '<div class="cc-empty-sm">' + (pk.length ? 'كل الأرصدة خلصت' : 'مفيش أرصدة للعميل ده') + '</div>';
+      // سجل المتابعة / الفواتير
+      html += '<div class="cc-tabs"><button type="button" class="cc-tab' + (CC.tab === 'visits' ? ' on' : '') + '" onclick="ccSetTab(\'visits\')"><i class="fas fa-notes-medical"></i> سجل المتابعة (' + visits.length + ')</button>'
+        + '<button type="button" class="cc-tab' + (CC.tab === 'invoices' ? ' on' : '') + '" onclick="ccSetTab(\'invoices\')"><i class="fas fa-file-invoice"></i> الفواتير والمدفوعات (' + d.invoices.length + ')</button></div>';
+      const xp = file => '<div class="xp-bar"><button type="button" class="xp-btn xl" onclick="exportExcel(' + ccXpIdx(file) + ', this)"><i class="fas fa-file-excel"></i> Excel</button>'
+        + '<button type="button" class="xp-btn pdf" onclick="exportPdf(' + ccXpIdx(file) + ')"><i class="fas fa-file-pdf"></i> PDF</button></div>';
+      if (CC.tab === 'visits') {
+        html += visits.length ? xp('Client-Visits') + '<div class="table-container"><table class="cc-table" id="ccVisitsTable"><thead><tr><th>التاريخ</th><th>الخدمة</th><th>النوع</th><th>الكمية</th><th>الدكتور / الأخصائية</th><th>الملاحظات</th><th>المتابعة الجاية</th><th>إجراءات</th></tr></thead><tbody>'
+          + visits.map(ccVisitRow).join('') + '</tbody></table></div>'
+          : '<div class="cc-empty-sm">مفيش زيارات متسجلة' + (CC.section !== 'all' ? ' في القسم ده' : '') + '</div>';
+      } else {
+        html += d.invoices.length ? xp('Client-Invoices') + '<div class="table-container"><table class="cc-table" id="ccInvTable"><thead><tr><th>التاريخ</th><th>رقم</th><th>الخدمات</th><th>الصافي</th><th>المدفوع</th><th>طريقة الدفع</th><th>الدكتور / الأخصائية</th></tr></thead><tbody>'
+          + d.invoices.map(i => '<tr><td data-l="التاريخ">' + ccDate(i.date) + '</td><td data-l="رقم">' + esc(i.num) + '</td>'
+            + '<td data-l="الخدمات" class="wide">' + (i.items.length ? i.items.map(esc).join('، ') : '<span class="cc-tag">' + esc(/حجز/.test(i.kind) ? 'حجز' : 'تحصيل') + '</span>') + (i.notes ? '<div class="cc-sub">' + esc(i.notes) + '</div>' : '') + '</td>'
+            + '<td data-l="الصافي">' + ccNum(i.net) + '</td><td data-l="المدفوع">' + ccNum(i.paid) + '</td><td data-l="طريقة الدفع">' + esc(i.methods || '—') + '</td>'
+            + '<td data-l="الدكتور / الأخصائية">' + esc(i.staff || '—') + '</td></tr>').join('') + '</tbody></table></div>'
+          : '<div class="cc-empty-sm">مفيش فواتير للعميل ده</div>';
+      }
+      document.getElementById('ccBody').innerHTML = html;
+      EXPORT_TABLES.forEach(t => { if (/^Client-/.test(t.file)) t.name = t.base + ' - ' + c.name; });
+    }
+    function ccXpIdx(file) { return EXPORT_TABLES.findIndex(t => t.file === file); }
+    function ccPkgHtml(p) {
+      const mgr = CC.isManager;
+      const pct = p.total !== '' && p.total > 0 ? Math.min(100, Math.max(0, p.used / p.total * 100)) : 0;
+      let badge = '<span class="cc-badge ' + p.status + '">' + CC_STATUS[p.status] + '</span>';
+      if (p.status === 'open' && p.expiry && p.daysLeft <= 30) badge = '<span class="cc-badge warn">ينتهي خلال ' + Math.max(0, p.daysLeft) + ' يوم</span>';
+      let nums;
+      if (p.total === '') nums = 'مستخدم <b>' + ccQty(p.used, p.type) + '</b> · بدون حد';
+      else if (p.status === 'closed') nums = 'استخدم <b>' + ccQty(p.used, p.type) + '</b> من ' + ccNum(p.total) + (p.remaining > 0 ? ' · الفاضل (' + ccNum(p.remaining) + ') اتقفل' : '');
+      else nums = 'فاضل <b>' + ccQty(p.remaining, p.type) + '</b> من ' + ccNum(p.total) + (p.used ? ' · مستخدم ' + ccNum(p.used) : '');
+      if (p.reserved) nums += '<br><span class="cc-res"><i class="fas fa-hourglass-half"></i> محجوز ' + ccNum(p.reserved) + ' مستني تأكيد</span>';
+      else if (p.pending) nums += '<br><span class="cc-res"><i class="fas fa-hourglass-half"></i> عليه جلسة مستنية تأكيد</span>';
+      const dots = p.type === 'Sessions' && p.total !== '' && p.total <= 12
+        ? '<div class="cc-dots" title="الجلسات">' + '●'.repeat(Math.min(p.total, Math.round(p.used))) + '○'.repeat(Math.max(0, p.total - Math.round(p.used))) + '</div>'
+        : (p.total !== '' ? '<div class="cc-bar"><span style="width:' + pct.toFixed(1) + '%"></span></div>' : '');
+      const meta = [CC_SOURCE[p.source] + (p.source === 'Sale' || p.source === 'Credit' ? ' ' + esc(p.invoice) : ''), ccDate(p.date), CC_MODE_AR[p.mode] || '',
+        p.expiry ? (p.status === 'expired' ? 'انتهى ' : 'ينتهي ') + ccDate(p.expiry) : 'مالوش انتهاء'].filter(Boolean).join(' · ');
+      const open = p.status === 'open';
+      const acts = [];
+      if (can('ClientCards', 'add') && (open || (mgr && p.status === 'expired'))) acts.push('<button class="btn" data-p="' + esc(p.id) + '" onclick="ccOpenVisit(this.dataset.p)"><i class="fas fa-plus"></i> جلسة</button>');
+      if (mgr && can('ClientCards', 'add') && open && p.total !== '') acts.push('<button class="btn alt" data-p="' + esc(p.id) + '" onclick="ccOpenTransfer(this.dataset.p)"><i class="fas fa-exchange-alt"></i> تحويل</button>');
+      if (mgr && can('ClientCards', 'edit')) acts.push('<button class="btn alt" data-p="' + esc(p.id) + '" onclick="ccOpenPkg(this.dataset.p)" title="تعديل الكمية أو الصلاحية"><i class="fas fa-pen"></i></button>');
+      if (mgr && can('ClientCards', 'delete') && (p.source === 'Opening' || p.source === 'Manual' || p.source === 'Credit') && !p.used && !p.sessions && !p.pending) acts.push('<button class="btn alt" style="color:var(--danger);" data-p="' + esc(p.id) + '" onclick="ccDeletePkg(this.dataset.p)" title="حذف"><i class="fas fa-trash"></i></button>');
+      return '<div class="cc-pkg st-' + p.status + '"><div class="top"><div><div class="svc">' + esc(p.service) + '</div><div class="cc-sub">' + esc(ccSecName(p.speciality)) + ' · ' + esc(p.id) + '</div></div>' + badge + '</div>'
+        + dots + '<div class="cc-nums">' + nums + '</div>'
+        + '<div class="cc-meta">' + meta + (p.notes ? '<br>' + esc(p.notes) : '') + '</div>'
+        + (acts.length ? '<div class="cc-acts">' + acts.join('') + '</div>' : '') + '</div>';
+    }
+    function ccVisitRow(v) {
+      const tags = (v.source === 'Sale' ? '<span class="cc-tag">فاتورة ' + esc(v.invoice) + '</span>' : '')
+        + (v.source === 'Transfer' ? '<span class="cc-tag">تحويل</span>' : '') + (v.override ? '<span class="cc-tag ovr">تجاوز</span>' : '')
+        + (v.confirmedBy ? '<div class="cc-sub"><i class="fas fa-check"></i> أكدها ' + esc(v.confirmedBy) + '</div>' : '');
+      // بعد التأكيد: التعديل والحذف للمدير بس
+      const locked = v.source === 'Transfer' || !CC.isManager;
+      const acts = (!locked && can('ClientCards', 'edit') ? '<button class="icon-btn" title="تعديل / ملاحظات" data-v="' + esc(v.id) + '" onclick="ccEditVisit(this.dataset.v)"><i class="fas fa-pen"></i></button>' : '')
+        + (!locked && can('ClientCards', 'delete') ? '<button class="icon-btn danger" title="حذف" data-v="' + esc(v.id) + '" onclick="ccDeleteVisit(this.dataset.v)"><i class="fas fa-trash"></i></button>' : '');
+      return '<tr><td data-l="التاريخ">' + ccDate(v.date) + '</td>'
+        + '<td data-l="الخدمة" class="wide"><div class="cc-svc">' + esc(v.service) + '</div><div class="cc-sub">' + esc(ccSecName(v.speciality)) + (v.pkg ? ' · ' + esc(v.pkg) : '') + ' ' + tags + '</div></td>'
+        + '<td data-l="النوع">' + esc(v.type || '—') + '</td><td data-l="الكمية">' + (v.qty !== '' ? ccQty(v.qty, v.pkgType) : '—') + '</td>'
+        + '<td data-l="الدكتور / الأخصائية">' + esc(v.staff || '—') + '</td>'
+        + '<td data-l="الملاحظات" class="cc-notes wide">' + (v.notes ? ccText(v.notes) : '<span class="cc-sub">—</span>') + (v.override ? '<div class="cc-ovr"><i class="fas fa-exclamation-triangle"></i> سبب التجاوز: ' + esc(v.override) + '</div>' : '') + '</td>'
+        + '<td data-l="المتابعة الجاية">' + (v.next ? ccDate(v.next) : '—') + '</td>'
+        + '<td class="wide"><div class="mg-actions">' + acts + '</div></td></tr>';
+    }
+    function ccSetSection(s) { CC.section = s; ccRenderCard(); }
+    function ccSetTab(t) { CC.tab = t; ccRenderCard(); }
+    function ccToggleClosed() { CC.showClosed = !CC.showClosed; ccRenderCard(); }
+    function ccPkg(id) { return CC.card ? CC.card.packages.find(p => p.id === id) : null; }
+
+    // ── قوائم الاختيار في النوافذ
+    function ccFillLists() {
+      document.getElementById('ccSvcList').innerHTML = CC.services.map(s => '<option value="' + esc(s.name) + '">' + esc(ccSecName(s.speciality)) + '</option>').join('');
+      document.getElementById('ccTypeList').innerHTML = CC_VISIT_TYPES.map(t => '<option value="' + t + '">').join('');
+      const staff = [...new Set((typeof globalData !== 'undefined' ? globalData : []).filter(r => r['Employee Name'] && !/^(general|admin)$/i.test(String(r['Employee Category'] || '').trim()))
+        .map(r => String(r['Employee Name']).trim()))].sort();
+      document.getElementById('ccStaffList').innerHTML = staff.map(n => '<option value="' + esc(n) + '">').join('');
+    }
+
+    // ── نافذة الجلسة / الزيارة
+    function ccOpenVisit(pkgId) {
+      ccVisitEdit = { id: '', pkgOld: '', qtyOld: 0 };
+      ccFillLists();
+      document.getElementById('ccVisitTitle').innerHTML = '<i class="fas fa-notes-medical" style="color:var(--gold-accent);"></i> جلسة / زيارة جديدة — ' + esc(CC.card.client.name);
+      document.getElementById('ccvNote').style.display = 'block';
+      const sel = document.getElementById('ccvPkg');
+      const avail = CC.card.packages.filter(p => p.status === 'open' || p.id === pkgId || (CC.isManager && p.status === 'expired'));
+      sel.innerHTML = '<option value="">بدون رصيد (كشف / متابعة / زيارة)</option>'
+        + avail.map(p => '<option value="' + esc(p.id) + '">' + esc(p.service) + ' — ' + (p.total === '' ? 'بدون حد' : 'فاضل ' + ccQty(p.remaining, p.type)) + (p.status === 'expired' ? ' (منتهي)' : '') + '</option>').join('');
+      sel.value = pkgId || '';
+      sel.disabled = false;
+      document.getElementById('ccvService').value = '';
+      document.getElementById('ccvDate').value = ccToday();
+      document.getElementById('ccvType').value = '';
+      document.getElementById('ccvQty').value = '';
+      document.getElementById('ccvStaff').value = '';
+      document.getElementById('ccvNotes').value = '';
+      document.getElementById('ccvNext').value = '';
+      document.getElementById('ccvReason').value = '';
+      ccvPkgChanged(true);
+      showErr('ccvError', '');
+      openModal('ccVisitModal');
+      setTimeout(() => document.getElementById(pkgId ? 'ccvQty' : 'ccvService').focus(), 50);
+    }
+    function ccEditVisit(id) {
+      const v = CC.card.visits.find(x => x.id === id);
+      if (!v) return;
+      ccVisitEdit = { id: v.id, pkgOld: v.pkg, qtyOld: v.qty === '' ? 0 : Number(v.qty), dateOld: v.date, override: v.override };
+      ccFillLists();
+      document.getElementById('ccVisitTitle').innerHTML = '<i class="fas fa-pen" style="color:var(--gold-accent);"></i> تعديل جلسة (بعد التأكيد) — ' + esc(CC.card.client.name);
+      document.getElementById('ccvNote').style.display = 'none';
+      const sel = document.getElementById('ccvPkg');
+      const p = v.pkg ? ccPkg(v.pkg) : null;
+      sel.innerHTML = v.pkg ? '<option value="' + esc(v.pkg) + '">' + esc(p ? p.service : v.service) + ' (' + esc(v.pkg) + ')</option>' : '<option value="">بدون رصيد</option>';
+      sel.disabled = true;
+      document.getElementById('ccvService').value = v.service;
+      document.getElementById('ccvDate').value = v.date || ccToday();
+      document.getElementById('ccvType').value = v.type || '';
+      document.getElementById('ccvQty').value = v.qty === '' ? '' : v.qty;
+      document.getElementById('ccvStaff').value = v.staff || '';
+      document.getElementById('ccvNotes').value = v.notes || '';
+      document.getElementById('ccvNext').value = v.next || '';
+      document.getElementById('ccvReason').value = v.override || '';
+      ccvPkgChanged(false);
+      showErr('ccvError', '');
+      openModal('ccVisitModal');
+      setTimeout(() => document.getElementById('ccvNotes').focus(), 50);
+    }
+    function ccvPkgChanged(setDefaults) {
+      const id = document.getElementById('ccvPkg').value;
+      const p = id ? ccPkg(id) : null;
+      document.getElementById('ccvSvcWrap').style.display = p ? 'none' : '';
+      document.getElementById('ccvQtyWrap').style.display = p ? '' : 'none';
+      document.getElementById('ccvUnit').textContent = p ? '(' + (CC_UNIT[p.type] || '') + ')' : '';
+      const info = document.getElementById('ccvInfo');
+      if (p) {
+        info.style.display = 'block';
+        info.innerHTML = '<b>' + esc(p.service) + '</b> — ' + (p.total === '' ? 'بدون حد' : 'الإجمالي ' + ccQty(p.total, p.type) + ' · الفاضل ' + ccQty(ccvRemaining(p), p.type))
+          + ' · ' + (CC_MODE_AR[p.mode] || '') + (p.expiry ? ' · ينتهي ' + ccDate(p.expiry) : '');
+        if (setDefaults !== false && !ccVisitEdit.id) {
+          if (!document.getElementById('ccvType').value) document.getElementById('ccvType').value = p.type === 'Pulses' ? 'جلسة ليزر' : p.type === 'Units' ? 'حقن' : 'جلسة';
+          if (p.type === 'Sessions' && !document.getElementById('ccvQty').value) document.getElementById('ccvQty').value = 1;
+        }
+      } else info.style.display = 'none';
+      ccvCheck();
+    }
+    function ccvRemaining(p) {
+      if (p.total === '') return '';
+      return p.remaining + (ccVisitEdit && ccVisitEdit.id && ccVisitEdit.pkgOld === p.id ? ccVisitEdit.qtyOld : 0);
+    }
+    // تنبيه قبل الحفظ (السيرفر هو اللي بيحكم في الآخر)
+    function ccvProblems() {
+      const id = document.getElementById('ccvPkg').value, p = id ? ccPkg(id) : null;
+      if (!p) return [];
+      const qtyRaw = document.getElementById('ccvQty').value.trim(), qty = Number(qtyRaw) || 0, date = document.getElementById('ccvDate').value;
+      if (ccVisitEdit.id && qty === ccVisitEdit.qtyOld && date === ccVisitEdit.dateOld) return [];
+      const out = [], rem = ccvRemaining(p);
+      const otherSessions = p.sessions + (p.pending || 0) - (ccVisitEdit.id && ccVisitEdit.pkgOld === p.id ? 1 : 0);
+      if (p.mode === 'Single' && otherSessions >= 1) out.push('الرصيد ده بيتستخدم مرة واحدة واتستخدم قبل كده');
+      if (qtyRaw !== '' && rem !== '' && qty > rem) out.push('الكمية أكبر من الفاضل (' + ccQty(rem, p.type) + ')');
+      if (p.expiry && date > p.expiry) out.push('الرصيد صلاحيته خلصت يوم ' + ccDate(p.expiry));
+      return out;
+    }
+    function ccvCheck() {
+      const probs = ccvProblems();
+      const hint = document.getElementById('ccvQtyHint');
+      const id = document.getElementById('ccvPkg').value, p = id ? ccPkg(id) : null;
+      hint.style.color = probs.length ? 'var(--danger)' : '';
+      hint.textContent = probs.length ? probs.join(' — ') : (p && p.total !== '' ? 'الفاضل: ' + ccQty(ccvRemaining(p), p.type) : '');
+      const box = document.getElementById('ccvOverride');
+      if (probs.length && CC.isManager) {
+        box.style.display = 'block';
+        document.getElementById('ccvOverrideMsg').innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + esc(probs.join(' — ')) + '. تقدر تكمل كمدير بس لازم تكتب السبب.';
+      } else box.style.display = 'none';
+    }
+    async function ccSaveVisit() {
+      const pkgId = document.getElementById('ccvPkg').value;
+      const data = {
+        id: ccVisitEdit.id, client: CC.card.client.name, date: document.getElementById('ccvDate').value, packageId: pkgId,
+        service: document.getElementById('ccvService').value.trim(), type: document.getElementById('ccvType').value.trim(),
+        qty: pkgId ? document.getElementById('ccvQty').value.trim() : '', staff: document.getElementById('ccvStaff').value.trim(),
+        notes: document.getElementById('ccvNotes').value, next: document.getElementById('ccvNext').value,
+        override: document.getElementById('ccvOverride').style.display === 'block' ? document.getElementById('ccvReason').value.trim() : ''
+      };
+      if (!data.date) { showErr('ccvError', 'اختار التاريخ.'); return; }
+      if (!pkgId && !data.service) { showErr('ccvError', 'اختار الخدمة.'); return; }
+      if (pkgId && ccVisitEdit.id && !(Number(data.qty) > 0)) { showErr('ccvError', 'اكتب الكمية المستخدمة.'); return; }
+      if (data.qty !== '' && !(Number(data.qty) > 0)) { showErr('ccvError', 'الكمية لازم تكون رقم أكبر من صفر.'); return; }
+      const probs = ccvProblems();
+      if (probs.length && !CC.isManager) { showErr('ccvError', probs.join(' — ') + '. التجاوز للمدير بس.'); return; }
+      if (probs.length && !data.override) { showErr('ccvError', 'اكتب سبب التجاوز.'); document.getElementById('ccvReason').focus(); return; }
+      const btn = document.getElementById('ccvSave'), orig = btn.innerHTML;
+      showErr('ccvError', '');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+      try {
+        const res = await svPost({ action: 'ccSaveVisit', data });
+        closeModal('ccVisitModal');
+        ccSetCard(res);
+        toast(res.message || 'تم الحفظ');
+      } catch (e) {
+        const m = e.message || 'تعذر الحفظ';
+        if (/^OVERRIDE\|/.test(m)) {
+          document.getElementById('ccvOverride').style.display = 'block';
+          document.getElementById('ccvOverrideMsg').innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + esc(m.replace(/^OVERRIDE\|/, '')) + '. تقدر تكمل كمدير بس لازم تكتب السبب.';
+          showErr('ccvError', 'اكتب سبب التجاوز واحفظ تاني.');
+          document.getElementById('ccvReason').focus();
+        } else showErr('ccvError', m);
+      } finally { btn.disabled = false; btn.innerHTML = orig; }
+    }
+    async function ccDeleteVisit(id) {
+      const v = CC.card.visits.find(x => x.id === id);
+      if (!v || !confirm('حذف جلسة "' + v.service + '" بتاريخ ' + ccDate(v.date) + '؟' + (v.pkg ? '\nالكمية (' + v.qty + ') هترجع للرصيد.' : '') + (v.notes ? '\nالملاحظات هتتمسح معاها.' : ''))) return;
+      try { const res = await svPost({ action: 'ccDeleteVisit', id }); ccSetCard(res); toast(res.message || 'تم الحذف'); }
+      catch (e) { toast(e.message || 'تعذر الحذف', true); }
+    }
+
+    // ── نافذة الرصيد (للمدير): رصيد افتتاحي / إضافة يدوية / تعديل الكمية والصلاحية
+    function ccOpenPkg(id) {
+      const p = id ? ccPkg(id) : null;
+      ccPkgEdit = { id: p ? p.id : '', used: p ? p.used : 0 };
+      ccFillLists();
+      document.getElementById('ccPkgTitle').innerHTML = '<i class="fas fa-box-open" style="color:var(--gold-accent);"></i> ' + (p ? 'تعديل رصيد: ' + esc(p.service) : 'إضافة رصيد — ' + esc(CC.card.client.name));
+      document.getElementById('ccpSourceWrap').style.display = p ? 'none' : '';
+      document.getElementById('ccpSvcWrap').style.display = p ? 'none' : '';
+      document.getElementById('ccpTypeField').style.display = p ? 'none' : '';
+      document.getElementById('ccpModeField').style.display = p && p.mode === 'Instant' ? 'none' : '';
+      document.getElementById('ccpSource').value = 'Opening';
+      document.getElementById('ccpService').value = '';
+      document.getElementById('ccpType').value = p ? p.type : 'Pulses';
+      document.getElementById('ccpMode').value = p && p.mode === 'Single' ? 'Single' : 'Multi';
+      document.getElementById('ccpTotal').value = p ? p.total : '';
+      document.getElementById('ccpDate').value = p ? p.date : ccToday();
+      document.getElementById('ccpExpiry').value = p ? p.expiry : '';
+      document.getElementById('ccpNotes').value = p ? p.notes : '';
+      document.getElementById('ccpInfo').style.display = p ? 'block' : 'none';
+      document.getElementById('ccpInfo').innerHTML = p ? esc(CC_SOURCE[p.source] + (p.source === 'Sale' ? ' ' + p.invoice : '')) + ' · مستخدم منه ' + ccQty(p.used, p.type) + (p.source === 'Sale' ? '<br><span style="color:#7A4F00;">لو الفاتورة اتعدلت بعد كده الكمية بترجع حسب الفاتورة.</span>' : '') : '';
+      ccpSourceChanged();
+      showErr('ccpError', '');
+      openModal('ccPkgModal');
+      setTimeout(() => document.getElementById(p ? 'ccpTotal' : 'ccpService').focus(), 50);
+    }
+    function ccpSourceChanged() {
+      const manual = document.getElementById('ccpSource').value === 'Manual';
+      document.getElementById('ccpNotesReq').textContent = !ccPkgEdit.id && manual ? '*' : '';
+      document.getElementById('ccpNotes').placeholder = manual ? 'سبب الإضافة: هدية، تعويض...' : 'اختياري';
+      document.getElementById('ccpTotalHint').textContent = ccPkgEdit.id ? (ccPkgEdit.used ? 'مينفعش تقل عن ' + ccNum(ccPkgEdit.used) + ' (المستخدم)' : '')
+        : (manual ? '' : 'اكتب الفاضل للعميل بس (مثلاً اشترى 10,000 واستخدم 9,500 قبل السيستم ← اكتب 500).');
+    }
+    function ccpServiceChanged() {
+      const s = ccSvc(document.getElementById('ccpService').value);
+      if (!s || !CC_UNIT[s.type]) return;
+      document.getElementById('ccpType').value = s.type;
+      document.getElementById('ccpMode').value = s.mode === 'Single' ? 'Single' : 'Multi';
+      if (s.validity && !document.getElementById('ccpExpiry').value) document.getElementById('ccpExpiry').value = ccAddDays(document.getElementById('ccpDate').value || ccToday(), s.validity);
+    }
+    async function ccSavePkg() {
+      const data = {
+        id: ccPkgEdit.id, client: CC.card.client.name, source: document.getElementById('ccpSource').value,
+        service: document.getElementById('ccpService').value.trim(), type: document.getElementById('ccpType').value,
+        mode: document.getElementById('ccpMode').value, total: document.getElementById('ccpTotal').value.trim(),
+        date: document.getElementById('ccpDate').value, expiry: document.getElementById('ccpExpiry').value, notes: document.getElementById('ccpNotes').value.trim()
+      };
+      if (!data.id && !data.service) { showErr('ccpError', 'اختار الخدمة.'); return; }
+      if (!(Number(data.total) > 0)) { showErr('ccpError', 'اكتب الكمية.'); return; }
+      if (!data.id && data.source === 'Manual' && !data.notes) { showErr('ccpError', 'اكتب سبب الإضافة.'); return; }
+      const btn = document.getElementById('ccpSave'), orig = btn.innerHTML;
+      showErr('ccpError', '');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+      try { const res = await svPost({ action: 'ccSavePackage', data }); closeModal('ccPkgModal'); ccSetCard(res); toast(res.message || 'تم الحفظ'); }
+      catch (e) { showErr('ccpError', e.message || 'تعذر الحفظ'); }
+      finally { btn.disabled = false; btn.innerHTML = orig; }
+    }
+    async function ccDeletePkg(id) {
+      const p = ccPkg(id);
+      if (!p || !confirm('حذف رصيد "' + p.service + '" (' + ccQty(p.total, p.type) + ')؟')) return;
+      try { const res = await svPost({ action: 'ccDeletePackage', id }); ccSetCard(res); toast(res.message || 'تم الحذف'); }
+      catch (e) { toast(e.message || 'تعذر الحذف', true); }
+    }
+
+    // ── تحويل رصيد لعميل تاني (للمدير)
+    function ccOpenTransfer(id) {
+      const p = ccPkg(id);
+      if (!p) return;
+      ccTrPkg = p;
+      const me = CC.card.client.name.toLowerCase();
+      document.getElementById('ccClientList').innerHTML = (clientsData || []).filter(c => String(c['Client Name'] || '').trim().toLowerCase() !== me)
+        .map(c => '<option value="' + esc(String(c['Client Name']).trim()) + '">' + esc(c['Client Number'] || '') + '</option>').join('');
+      document.getElementById('cctInfo').innerHTML = '<b>' + esc(p.service) + '</b> من ' + esc(CC.card.client.name) + ' — الفاضل ' + ccQty(p.remaining, p.type) + (p.expiry ? ' · ينتهي ' + ccDate(p.expiry) : '');
+      document.getElementById('cctTo').value = '';
+      document.getElementById('cctQty').value = p.remaining;
+      document.getElementById('cctQty').disabled = p.mode === 'Single';
+      document.getElementById('cctHint').textContent = p.mode === 'Single' ? 'الرصيد ده بيتستخدم مرة واحدة — بيتحول كله.' : 'العميل التاني بياخد رصيد بنفس الخدمة وتاريخ الانتهاء.';
+      document.getElementById('cctNotes').value = '';
+      showErr('cctError', '');
+      openModal('ccTrModal');
+      setTimeout(() => document.getElementById('cctTo').focus(), 50);
+    }
+    async function ccSaveTransfer() {
+      const data = { packageId: ccTrPkg.id, toClient: document.getElementById('cctTo').value.trim(), qty: document.getElementById('cctQty').value.trim(), notes: document.getElementById('cctNotes').value.trim() };
+      if (!data.toClient) { showErr('cctError', 'اختار العميل اللي هيتحول له الرصيد.'); return; }
+      if (!(Number(data.qty) > 0)) { showErr('cctError', 'اكتب الكمية.'); return; }
+      if (Number(data.qty) > Number(ccTrPkg.remaining)) { showErr('cctError', 'الكمية أكبر من الفاضل.'); return; }
+      if (!confirm('تحويل ' + ccQty(data.qty, ccTrPkg.type) + ' من ' + CC.card.client.name + ' إلى ' + data.toClient + '؟')) return;
+      const btn = document.getElementById('cctSave'), orig = btn.innerHTML;
+      showErr('cctError', '');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحويل...';
+      try { const res = await svPost({ action: 'ccTransfer', data }); closeModal('ccTrModal'); ccSetCard(res); toast('تم تحويل الرصيد إلى ' + data.toClient); }
+      catch (e) { showErr('cctError', e.message || 'تعذر التحويل'); }
+      finally { btn.disabled = false; btn.innerHTML = orig; }
+    }
+
+    // ── المتابعة في نافذة الخدمة (إدارة الخدمات)
+    function trackLabel(s, short) {
+      if (!s || !s.trackType) return '';
+      if (s.trackType === 'Visit') return (short ? '' : 'بطاقة: ') + 'زيارة';
+      return (short ? '' : 'بطاقة: ') + (s.trackQty !== '' && s.trackQty !== undefined ? ccNum(s.trackQty) + ' ' : '') + CC_UNIT[s.trackType] + ' / ' + (CC_MODE_AR[s.trackMode] || '')
+        + (short && s.validityDays ? ' / ' + s.validityDays + ' يوم' : '');
+    }
+    function trackTypeChanged(px) {
+      px = px || 'svc';
+      const $ = id => document.getElementById(px + id);
+      const t = $('TrackType').value, counted = !!CC_UNIT[t];
+      $('TrackModeWrap').style.display = counted ? '' : 'none';
+      $('TrackNums').style.display = counted ? '' : 'none';
+      $('TrackUnit').textContent = counted ? '(' + CC_UNIT[t] + ')' : '';
+      const q = Number($('TrackQty').value) || 0, m = $('TrackMode').value, u = CC_UNIT[t] || '';
+      let h = '';
+      if (!t) h = 'الصنف مش بيظهر في بطاقة العميل (زي المنتجات).';
+      else if (t === 'Visit') h = 'كل مرة يتباع بينزل زيارة في بطاقة العميل (مستنية تأكيد) عشان تتضاف عليها ملاحظات.';
+      else if (m === 'Instant') h = 'بيتسجل جلسة بنفس الكمية اللي في الفاتورة (زي بالنبضة: 130 في الفاتورة = جلسة 130 ' + u + ').';
+      else if (!q) h = 'من غير كمية = الرصيد بدون حد (بيتسجل المستخدم بس). اكتب الكمية عشان السيستم يمنع التعدي.';
+      else if (m === 'Single') h = 'العميل ياخد لحد ' + ccNum(q) + ' ' + u + ' في جلسة واحدة، والفاضل بيتقفل. لو اشترى 2 = رصيدين منفصلين.';
+      else h = 'العميل ياخد ' + ccNum(q) + ' ' + u + ' يستخدمهم على كذا مرة. لو اشترى 2 = رصيد واحد ' + ccNum(q * 2) + '.';
+      $('TrackHint').textContent = h;
+    }
+
+    // ═══════════════════════════ تاب "اليوم": البطاقات المستنية تأكيد ═══════════════════════════
+    let ccDay = null;   // البطاقة المفتوحة في نافذة التأكيد
+    async function ccLoadToday(keep) {
+      const req = ++CC.req;
+      const body = document.getElementById('ccBody');
+      if (!keep || !CC.dayData) body.innerHTML = ccLoading();
+      try {
+        const res = await ccGet({ action: 'clientCards', day: CC.day || ccToday() });
+        if (req === CC.req) ccSetToday(res);
+      } catch (e) {
+        if (req === CC.req) body.innerHTML = '<div class="empty" style="color:var(--danger);">' + esc(e.message) + '</div>';
+      }
+    }
+    function ccSetToday(res) {
+      CC.dayData = res; CC.overview = res;
+      if (res.services && res.services.length) CC.services = res.services;
+      CC.isManager = !!res.isManager;
+      CC.day = res.day;
+      if (CC.view === 'today') ccRenderToday();
+    }
+    function ccSetDay(v) { CC.day = v || ccToday(); ccLoadToday(); }
+    function ccSetDaySection(s) { CC.daySection = s; ccRenderToday(); }
+    function ccRenderToday() {
+      const d = CC.dayData, isToday = d.day === d.today;
+      const inSec = it => CC.daySection === 'all' || it.speciality === CC.daySection;
+      const groups = d.groups.map(g => Object.assign({}, g, { items: g.items.filter(inSec) })).filter(g => g.items.length);
+      const pend = groups.filter(g => g.items.some(i => i.status === 'Pending'));
+      const done = groups.filter(g => !g.items.some(i => i.status === 'Pending'));
+      const nPend = pend.reduce((s, g) => s + g.items.filter(i => i.status === 'Pending').length, 0);
+      const nDone = groups.reduce((s, g) => s + g.items.filter(i => i.status === 'Confirmed').length, 0);
+      let html = '<div class="cc-daybar"><div class="cc-chips">' + CC_SECTIONS.map(s => '<button type="button" class="cc-chip' + (CC.daySection === s[0] ? ' on' : '') + '" data-s="' + esc(s[0]) + '" onclick="ccSetDaySection(this.dataset.s)">' + s[1] + '</button>').join('') + '</div>'
+        + '<div class="cc-daypick"><input type="date" id="ccDayInput" value="' + esc(d.day) + '" onchange="ccSetDay(this.value)">'
+        + (isToday ? '' : '<button type="button" class="cc-chip" onclick="ccSetDay(\'\')">النهارده</button>') + '</div></div>';
+      html += '<div class="cc-stats"><div class="st warn"><b>' + nPend + '</b><span>مستنية تأكيد</span></div><div class="st"><b>' + nDone + '</b><span>اتأكدت ' + (isToday ? 'النهارده' : ccDate(d.day)) + '</span></div></div>';
+      html += '<div class="cc-h"><span><i class="fas fa-hourglass-half"></i> مستنية تأكيد</span></div>';
+      html += pend.length ? '<div class="cc-grps">' + pend.map(ccGroupHtml).join('') + '</div>' : '<div class="cc-empty-sm"><i class="fas fa-check-circle"></i> مفيش بطاقات مستنية تأكيد</div>';
+      html += '<div class="cc-h"><span><i class="fas fa-check-double"></i> اتأكدت ' + (isToday ? 'النهارده' : 'يوم ' + ccDate(d.day)) + '</span></div>';
+      html += done.length ? '<div class="cc-grps">' + done.map(ccGroupHtml).join('') + '</div>' : '<div class="cc-empty-sm">لسه مفيش بطاقات اتأكدت' + (isToday ? ' النهارده' : '') + '</div>';
+      document.getElementById('ccBody').innerHTML = html;
+    }
+    function ccGroupHtml(g) {
+      const pending = g.items.filter(i => i.status === 'Pending').length;
+      const badge = pending ? (g.overdue ? '<span class="cc-badge expired">متأخرة</span>' : '<span class="cc-badge warn">مستنية (' + pending + ')</span>') : '<span class="cc-badge">اتأكدت</span>';
+      const icon = st => st === 'Pending' ? '<i class="fas fa-hourglass-half" style="color:#C5A059;"></i>' : st === 'Skipped' ? '<i class="fas fa-minus-circle" style="color:#9A937D;"></i>' : '<i class="fas fa-check-circle" style="color:var(--primary-green);"></i>';
+      const lines = g.items.map(i => '<div class="ln">' + icon(i.status) + ' <span>' + esc(i.service) + '</span>'
+        + (i.status === 'Skipped' ? ' <span class="cc-sub">' + (i.pkg ? 'مفيش جلسة' : 'اتحولت رصيد') + '</span>' : (i.qty !== '' ? ' <span class="cc-sub">' + ccQty(i.qty, i.pkgType) + '</span>' : '')) + '</div>').join('');
+      const users = [...new Set(g.items.map(i => i.user).filter(Boolean))].join('، ');
+      const conf = [...new Set(g.items.map(i => i.confirmedBy).filter(Boolean))].join('، ');
+      return '<div class="cc-grp' + (pending ? (g.overdue ? ' late' : ' pend') : ' ok') + '" data-k="' + esc(g.key) + '" onclick="ccOpenDay(this.dataset.k)">'
+        + '<div class="top"><div><div class="nm">' + esc(g.client) + '</div><div class="cc-sub">' + ccDate(g.date) + (g.invoices.length ? ' · فاتورة ' + g.invoices.map(esc).join('، ') : ' · من البطاقة') + '</div></div>' + badge + '</div>'
+        + '<div class="lns">' + lines + '</div>'
+        + '<div class="cc-sub">سجّل: ' + esc(users || '—') + (conf ? ' · أكّد: ' + esc(conf) : '') + '</div></div>';
+    }
+
+    // ── نافذة البطاقة: تكملة البيانات والتأكيد
+    function ccOpenDay(key) {
+      const g = CC.dayData && CC.dayData.groups.find(x => x.key === key);
+      if (!g) return;
+      ccDay = { from: 'today', client: g.client, date: g.date };
+      ccRenderDayModal(g.items.slice());
+    }
+    function ccOpenDayForClient() {
+      const items = CC.card.visits.filter(v => v.status === 'Pending').sort((a, b) => a.date.localeCompare(b.date));
+      if (!items.length) return;
+      ccDay = { from: 'card', client: CC.card.client.name, date: items[0].date };
+      ccRenderDayModal(items);
+    }
+    function ccRenderDayModal(items) {
+      ccDay.items = items;
+      ccFillLists();
+      const me = String(authUser && authUser.name || '').toLowerCase();
+      const editable = items.filter(i => i.status === 'Pending');
+      document.getElementById('ccDayTitle').innerHTML = '<i class="fas fa-id-card" style="color:var(--gold-accent);"></i> بطاقة ' + esc(ccDay.client) + ' — ' + ccDate(ccDay.date);
+      document.getElementById('ccDayBody').innerHTML = items.map(v => ccDayItemHtml(v, me)).join('');
+      const canEd = can('ClientCards', 'edit');
+      document.getElementById('ccdNote').innerHTML = !editable.length ? '<i class="fas fa-check-circle"></i> كل الجلسات اللي هنا اتأكدت.'
+        : !canEd ? '<i class="fas fa-lock"></i> التأكيد محتاج صلاحية تعديل على بطاقات العملاء.'
+        : '<i class="fas fa-info-circle"></i> كمّل البيانات واضغط تأكيد — بعدها بتنزل في سجل المتابعة وبتتخصم من الرصيد.';
+      document.getElementById('ccdSave').style.display = editable.length && canEd ? '' : 'none';
+      document.getElementById('ccdConfirm').style.display = editable.length && canEd ? '' : 'none';
+      document.getElementById('ccdConfirm').disabled = false;
+      document.getElementById('ccdOverride').style.display = 'none';
+      document.getElementById('ccdReason').value = '';
+      showErr('ccdError', '');
+      document.querySelectorAll('#ccDayBody .dc-qty').forEach(el => ccDayCheck(el));
+      openModal('ccDayModal');
+    }
+    function ccDayItemHtml(v, me) {
+      const p = v.pkgInfo, pending = v.status === 'Pending', canEd = pending && can('ClientCards', 'edit');
+      const avail = p && p.total !== '' ? cashRoundJs(p.remaining + (pending && v.qty !== '' ? Number(v.qty) : 0)) : '';
+      const st = pending ? '<span class="cc-badge warn">مستنية تأكيد</span>' : v.status === 'Skipped' ? '<span class="cc-badge done">' + (v.pkg ? 'مفيش جلسة' : 'اتحولت رصيد') + '</span>' : '<span class="cc-badge">اتأكدت</span>';
+      let h = '<div class="dc-item ' + (pending ? 'pend' : 'ok') + '" data-id="' + esc(v.id) + '" data-avail="' + avail + '" data-unit="' + esc(p ? p.unit : '') + '">'
+        + '<div class="dc-top"><div><div class="cc-svc">' + esc(v.service) + '</div><div class="cc-sub">' + esc(ccSecName(v.speciality)) + ' · ' + (v.source === 'Sale' ? 'فاتورة ' + esc(v.invoice) : 'من البطاقة') + ' · سجّلها ' + esc(v.user || '—') + '</div></div>' + st + '</div>';
+      if (p) h += '<div class="dc-pkg"><i class="fas fa-box-open"></i> ' + esc(p.service) + ': ' + (p.total === '' ? 'بدون حد' : 'متاح ' + ccQty(avail, p.type) + ' من ' + ccNum(p.total)) + ' · ' + (CC_MODE_AR[p.mode] || '')
+        + (p.expiry ? ' · ' + (p.status === 'expired' ? '<b style="color:var(--danger);">انتهى ' + ccDate(p.expiry) + '</b>' : 'ينتهي ' + ccDate(p.expiry)) : '') + '</div>';
+      if (canEd) {
+        const instant = p && p.mode === 'Instant';
+        h += '<div class="dc-grid">'
+          + '<div class="field"><label>النوع</label><input type="text" class="dc-type" list="ccTypeList" value="' + esc(v.type) + '"></div>'
+          + (p ? '<div class="field"><label>الكمية المستخدمة (' + esc(p.unit) + ') *</label><input type="text" class="dc-qty" inputmode="decimal" value="' + esc(v.qty === '' && p.type === 'Sessions' ? 1 : v.qty) + '" oninput="ccDayCheck(this)" placeholder="' + (instant ? '' : 'مثال: 520') + '"></div>' : '')
+          + '<div class="field"><label>الدكتور / الأخصائية</label><input type="text" class="dc-staff" list="ccStaffList" value="' + esc(v.staff) + '"></div>'
+          + '<div class="field"><label>المتابعة الجاية</label><input type="date" class="dc-next" value="' + esc(v.next) + '"></div></div>'
+          + '<div class="field"><label>الملاحظات</label><textarea class="dc-notes" rows="3" placeholder="المنطقة، إعدادات الجهاز، نوع البشرة، الحقن المستخدم، رد فعل البشرة...">' + esc(v.notes) + '</textarea></div>'
+          + (p && !instant ? '<label class="check-row dc-skipw"><input type="checkbox" class="dc-skip" onchange="ccDaySkip(this)"> مفيش جلسة النهارده (العميل اشترى الرصيد بس)</label>' : '')
+          + (!p && v.source === 'Sale' ? '<label class="check-row dc-skipw"><input type="checkbox" class="dc-skip" onchange="ccDaySkip(this)"> متعملتش النهارده — تفضل رصيد للعميل يستخدمها بعدين</label>' : '')
+          + '<div class="dc-warn"></div>';
+      } else {
+        h += '<div class="dc-view">'
+          + (v.status !== 'Skipped' && v.qty !== '' ? '<div><b>الكمية:</b> ' + ccQty(v.qty, v.pkgType) + '</div>' : '')
+          + (v.staff ? '<div><b>الدكتور / الأخصائية:</b> ' + esc(v.staff) + '</div>' : '')
+          + (v.notes ? '<div><b>الملاحظات:</b> ' + ccText(v.notes) + '</div>' : '')
+          + (v.next ? '<div><b>المتابعة الجاية:</b> ' + ccDate(v.next) + '</div>' : '')
+          + (v.override ? '<div class="cc-ovr">سبب التجاوز: ' + esc(v.override) + '</div>' : '')
+          + (v.confirmedBy ? '<div class="cc-sub"><i class="fas fa-check"></i> أكدها ' + esc(v.confirmedBy) + ' — ' + esc(v.confirmedAt) + '</div>' : '') + '</div>';
+      }
+      return h + '</div>';
+    }
+    function cashRoundJs(n) { return Math.round(Number(n) * 100) / 100; }
+    function ccDaySkip(cb) {
+      const el = cb.closest('.dc-item'), q = el.querySelector('.dc-qty');
+      if (q) { q.disabled = cb.checked; if (cb.checked) q.value = ''; }
+      el.classList.toggle('skip', cb.checked);
+      ccDayCheck(q || cb);
+    }
+    function ccDayCheck(input) {
+      const el = input.closest('.dc-item'), warn = el.querySelector('.dc-warn');
+      if (!warn) return;
+      const q = el.querySelector('.dc-qty'), avail = el.dataset.avail;
+      const skip = el.querySelector('.dc-skip') && el.querySelector('.dc-skip').checked;
+      const qty = q ? Number(q.value) : 0;
+      let msg = '';
+      if (q && !skip && q.value.trim() !== '' && avail !== '' && qty > Number(avail)) msg = 'الكمية أكبر من المتاح (' + ccNum(avail) + ' ' + el.dataset.unit + ')' + (CC.isManager ? ' — هتحتاج تكتب سبب التجاوز' : ' — التجاوز للمدير بس');
+      warn.textContent = msg;
+      if (msg && CC.isManager) document.getElementById('ccdOverride').style.display = 'block';
+    }
+    function ccDayCollect(forConfirm) {
+      const reason = document.getElementById('ccdOverride').style.display === 'block' ? document.getElementById('ccdReason').value.trim() : '';
+      const out = [];
+      document.querySelectorAll('#ccDayBody .dc-item').forEach(el => {
+        const v = ccDay.items.find(i => i.id === el.dataset.id);
+        if (!v || v.status !== 'Pending' || !el.querySelector('.dc-notes')) return;
+        const f = s => el.querySelector(s);
+        out.push({ id: v.id, date: v.date, type: f('.dc-type').value.trim(), qty: f('.dc-qty') ? f('.dc-qty').value.trim() : '',
+          staff: f('.dc-staff').value.trim(), notes: f('.dc-notes').value, next: f('.dc-next').value,
+          skip: !!(f('.dc-skip') && f('.dc-skip').checked), override: reason, _svc: v.service, _pkg: !!v.pkg });
+      });
+      return out;
+    }
+    async function ccDaySubmit(mode) {
+      const items = ccDayCollect(mode === 'confirm');
+      if (!items.length) { showErr('ccdError', 'مفيش جلسات تتأكد هنا.'); return; }
+      if (mode === 'confirm') {
+        const miss = items.filter(i => i._pkg && !i.skip && !i.qty);
+        if (miss.length) { showErr('ccdError', 'اكتب الكمية المستخدمة في: ' + miss.map(i => i._svc).join('، ') + ' — أو علّم "مفيش جلسة النهارده".'); return; }
+        if (!confirm('تأكيد ' + items.length + ' جلسة لـ ' + ccDay.client + '؟ بعد التأكيد التعديل للمدير بس.')) return;
+      }
+      if (document.getElementById('ccdOverride').style.display === 'block' && !document.getElementById('ccdReason').value.trim() && document.querySelector('#ccDayBody .dc-warn:not(:empty)')) {
+        showErr('ccdError', 'اكتب سبب التجاوز.'); document.getElementById('ccdReason').focus(); return;
+      }
+      const btn = document.getElementById(mode === 'confirm' ? 'ccdConfirm' : 'ccdSave'), orig = btn.innerHTML;
+      showErr('ccdError', '');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+      try {
+        const view = ccDay.from === 'today' ? 'today' : 'card';
+        const res = await svPost({ action: 'ccDayCard', mode, items: items.map(i => { const o = Object.assign({}, i); delete o._svc; delete o._pkg; return o; }), view, day: CC.day || '' });
+        closeModal('ccDayModal');
+        if (view === 'today') ccSetToday(res); else ccSetCard(res);
+        toast(res.message || 'تم');
+      } catch (e) {
+        const m = e.message || 'تعذر الحفظ';
+        if (/^OVERRIDE\|/.test(m)) {
+          document.getElementById('ccdOverride').style.display = 'block';
+          document.getElementById('ccdOverrideMsg').innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + esc(m.replace(/^OVERRIDE\|/, '')) + '. تقدر تكمل كمدير بس لازم تكتب السبب.';
+          showErr('ccdError', 'اكتب سبب التجاوز واضغط تاني.');
+          document.getElementById('ccdReason').focus();
+        } else showErr('ccdError', m);
+      } finally { btn.disabled = false; btn.innerHTML = orig; }
+    }
+    function ccDayOpenClient() { const n = ccDay.client; closeModal('ccDayModal'); ccShowClient(n); }
+
+    // ═══════════════════════════ الأصناف ═══════════════════════════
+    // جدول لكل الخدمات والمنتجات (نفس شيت Services): إضافة بتأكيد إن الاسم مش موجود، إيقاف، وحذف لو ملوش حركات
+    let ITEMS = { items: [], folders: [] }, itEdit = null;
+    async function loadItems() {
+      const body = document.getElementById('itBody');
+      if (!ITEMS.items.length) body.innerHTML = '<tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr>';
+      try { setItems(await ccGet({ action: 'items' })); }
+      catch (e) { body.innerHTML = '<tr><td colspan="8" class="empty" style="color:var(--danger);">' + esc(e.message) + '</td></tr>'; }
+    }
+    function setItems(res) {
+      ITEMS = { items: res.items || [], folders: res.folders || [] };
+      const fill = (id, vals, first) => { const el = document.getElementById(id), cur = el.value;
+        el.innerHTML = '<option value="">' + first + '</option>' + vals.map(v => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join(''); el.value = vals.indexOf(cur) !== -1 ? cur : ''; };
+      const uniq = k => [...new Set(ITEMS.items.map(i => i[k]).filter(Boolean))].sort();
+      fill('itSpec', uniq('speciality'), 'كل التخصصات');
+      fill('itCat', uniq('salesCategory'), 'كل التصنيفات');
+      document.getElementById('itAddBtn').style.display = can('Items', 'add') ? '' : 'none';
+      renderItems();
+    }
+    function renderItems() {
+      const q = itKey(document.getElementById('itSearch').value);
+      const sp = document.getElementById('itSpec').value, ct = document.getElementById('itCat').value, stt = document.getElementById('itState').value;
+      const rows = ITEMS.items.filter(i => (!q || itKey(i.name).indexOf(q) !== -1 || itArNorm(i.name).indexOf(itArNorm(q)) !== -1)
+        && (!sp || i.speciality === sp) && (!ct || i.salesCategory === ct) && (!stt || (stt === 'on' ? i.active : !i.active)));
+      const money = v => v === '' || v === null || v === undefined ? '—' : (isNaN(Number(v)) ? esc(v) : ccNum(v));
+      document.getElementById('itCount').textContent = rows.length + ' صنف' + (rows.length !== ITEMS.items.length ? ' من ' + ITEMS.items.length : '') + ' · موقوف: ' + ITEMS.items.filter(i => !i.active).length;
+      document.getElementById('itBody').innerHTML = rows.map(i => {
+        const mv = i.moves.total ? [i.moves.sales ? ccNum(i.moves.sales) + ' فاتورة' : '', i.moves.cards ? ccNum(i.moves.cards) + ' بطاقة' : ''].filter(Boolean).join(' · ') : '—';
+        const acts = (can('Items', 'edit') ? '<button class="icon-btn" title="تعديل" data-i="' + esc(i.id) + '" onclick="openItemModal(this.dataset.i)"><i class="fas fa-pen"></i></button>'
+            + '<button class="icon-btn" title="' + (i.active ? 'إيقاف' : 'تشغيل') + '" data-i="' + esc(i.id) + '" onclick="toggleItem(this.dataset.i)"><i class="fas ' + (i.active ? 'fa-pause' : 'fa-play') + '"></i></button>' : '')
+          + (can('Items', 'delete') ? '<button class="icon-btn danger" title="' + (i.moves.total ? 'عليه حركات — وقّفه بدل الحذف' : 'حذف') + '" data-i="' + esc(i.id) + '" onclick="deleteItem(this.dataset.i)"' + (i.moves.total ? ' style="opacity:.4;"' : '') + '><i class="fas fa-trash"></i></button>' : '');
+        return '<tr class="' + (i.active ? '' : 'it-off') + '"><td class="wide"><div class="cc-svc">' + esc(i.name) + '</div><div class="cc-sub">' + esc(i.folder) + (i.online ? ' · <span style="color:var(--primary-green);">ظاهر للعملاء</span>' : '') + '</div></td>'
+          + '<td data-l="التخصص / التصنيف">' + esc(ccSecName(i.speciality)) + '<div class="cc-sub">' + esc(i.salesCategory || '—') + '</div></td>'
+          + '<td data-l="السعر">' + money(i.price) + '</td><td data-l="التكلفة">' + money(i.cost) + '</td>'
+          + '<td data-l="المتابعة">' + esc(trackLabel(i, true) || '—') + '</td><td data-l="الحركات">' + mv + '</td>'
+          + '<td data-l="الحالة"><span class="cc-badge' + (i.active ? '' : ' expired') + '">' + (i.active ? 'شغال' : 'موقوف') + '</span></td>'
+          + '<td class="wide"><div class="mg-actions">' + acts + '</div></td></tr>';
+      }).join('') || '<tr><td colspan="8" class="empty">مفيش أصناف مطابقة</td></tr>';
+    }
+    // المقارنة: "باكدج 1000" = "باكدج 1,000" (موجود) — "وجة" ≈ "وجه" (قريب: تحذير بس)
+    function itKey(s) { return String(s || '').toLowerCase().replace(/,/g, '').replace(/\s+/g, ' ').trim(); }
+    function itArNorm(s) { return itKey(s).replace(/[ً-ْـ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ''); }
+    function itLev(a, b) {
+      if (Math.abs(a.length - b.length) > 2) return 9;
+      const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+      for (let j = 1; j <= b.length; j++) d[0][j] = j;
+      for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      return d[a.length][b.length];
+    }
+    function itCheckName() {
+      const name = document.getElementById('itName').value, box = document.getElementById('itNameWarn');
+      const k = itKey(name), n = itArNorm(name);
+      if (!k) { box.style.display = 'none'; return null; }
+      const others = ITEMS.items.filter(i => i.id !== (itEdit && itEdit.id));
+      const exact = others.find(i => itKey(i.name) === k);
+      if (exact) {
+        box.className = 'it-warn err'; box.style.display = 'block';
+        box.innerHTML = '<i class="fas fa-times-circle"></i> الصنف ده موجود قبل كده: <b>' + esc(exact.name) + '</b>' + (exact.active ? '' : ' (موقوف — تقدر تشغّله من الجدول)');
+        return exact;
+      }
+      const sim = others.filter(i => { const m = itArNorm(i.name); return m === n || (n.length >= 4 && m.length >= 4 && (m.indexOf(n) !== -1 || n.indexOf(m) !== -1)) || (n.length >= 4 && itLev(m, n) <= (n.length >= 8 ? 2 : 1)); }).slice(0, 6);
+      if (sim.length) {
+        box.className = 'it-warn'; box.style.display = 'block';
+        box.innerHTML = '<i class="fas fa-exclamation-triangle"></i> فيه أصناف أسماءها قريبة — اتأكد إنه مش نفس الصنف: ' + sim.map(i => '<b>' + esc(i.name) + '</b>' + (i.active ? '' : ' (موقوف)')).join('، ');
+      } else box.style.display = 'none';
+      return null;
+    }
+    function openItemModal(id) {
+      const it = id ? ITEMS.items.find(x => x.id === id) : null;
+      itEdit = { id: it ? it.id : '' };
+      document.getElementById('itModalTitle').innerHTML = '<i class="fas fa-box" style="color:var(--gold-accent);"></i> ' + (it ? 'تعديل صنف: ' + esc(it.name) : 'صنف جديد');
+      const nm = document.getElementById('itName');
+      nm.value = it ? it.name : '';
+      nm.readOnly = !!(it && it.moves.total);
+      document.getElementById('itNameHint').textContent = it && it.moves.total ? 'الصنف عليه ' + it.moves.total + ' حركة — الاسم مينفعش يتغير (الفواتير القديمة متسجلة بيه). لو محتاج اسم جديد: وقّفه واعمل صنف جديد.' : '';
+      document.getElementById('itFolder').innerHTML = '<option value="">بدون مجلد — Products (مخفي عن العملاء)</option>'
+        + ITEMS.folders.map(f => '<option value="' + esc(f.id) + '">' + esc(f.path) + (f.active ? '' : ' (مخفي)') + '</option>').join('');
+      const prodFolder = ITEMS.folders.find(f => /^products$/i.test(f.path));
+      document.getElementById('itFolder').value = it && !(prodFolder && it.category === prodFolder.id) ? it.category : '';
+      const specs = [...new Set(salesSpecialities().concat(ITEMS.items.map(i => i.speciality).filter(Boolean)))].sort();
+      document.getElementById('itSpecSel').innerHTML = '<option value="">-- اختر التخصص --</option>' + specs.map(x => '<option value="' + esc(x) + '">' + esc(x) + '</option>').join('');
+      document.getElementById('itSpecSel').value = it ? it.speciality : '';
+      document.getElementById('itCatList').innerHTML = [...new Set(ITEMS.items.map(i => i.salesCategory).filter(Boolean))].sort().map(x => '<option value="' + esc(x) + '">').join('');
+      const set = (k, v) => { document.getElementById(k).value = v === undefined || v === null ? '' : v; };
+      set('itSalesCat', it ? it.salesCategory : ''); set('itPrice', it ? it.price : ''); set('itCost', it ? it.cost : '');
+      set('itTeam', it ? it.teamPrice : ''); set('itFamily', it ? it.familyPrice : '');
+      set('itTrackType', it ? it.trackType : ''); set('itTrackMode', it && it.trackMode ? it.trackMode : 'Multi');
+      set('itTrackQty', it ? it.trackQty : ''); set('itValidity', it ? it.validityDays : '');
+      document.getElementById('itActive').checked = it ? it.active : true;
+      document.getElementById('itOnline').checked = it ? it.online : false;
+      trackTypeChanged('it');
+      itCheckName();
+      showErr('itError', '');
+      openModal('itModal');
+      setTimeout(() => nm.focus(), 50);
+    }
+    async function saveItem() {
+      const name = document.getElementById('itName').value.trim();
+      if (!name) { showErr('itError', 'اكتب اسم الصنف.'); return; }
+      if (itCheckName()) { showErr('itError', 'الاسم ده موجود قبل كده.'); return; }
+      if (!document.getElementById('itSpecSel').value) { showErr('itError', 'اختار التخصص.'); return; }
+      const g = id => document.getElementById(id).value.trim();
+      const data = { id: itEdit.id, name, category: g('itFolder'), speciality: g('itSpecSel'), salesCategory: g('itSalesCat'),
+        price: g('itPrice'), cost: g('itCost'), teamPrice: g('itTeam'), familyPrice: g('itFamily'),
+        trackType: g('itTrackType'), trackMode: g('itTrackMode'), trackQty: g('itTrackQty'), validityDays: g('itValidity'),
+        active: document.getElementById('itActive').checked, online: document.getElementById('itOnline').checked };
+      const btn = document.getElementById('itSave'), orig = btn.innerHTML;
+      showErr('itError', '');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+      try { const res = await svPost({ action: 'saveItem', data }); closeModal('itModal'); setItems(res); toast(res.message || 'تم الحفظ'); itAfterChange(); }
+      catch (e) { showErr('itError', e.message || 'تعذر الحفظ'); }
+      finally { btn.disabled = false; btn.innerHTML = orig; }
+    }
+    async function toggleItem(id) {
+      const it = ITEMS.items.find(x => x.id === id);
+      if (!it || (it.active && !confirm('إيقاف "' + it.name + '"؟ مش هيظهر في شاشة الفاتورة ولا للعملاء (الفواتير القديمة مش بتتأثر).'))) return;
+      try { const res = await svPost({ action: 'toggleItem', id }); setItems(res); toast(res.message); itAfterChange(); }
+      catch (e) { toast(e.message || 'تعذر', true); }
+    }
+    async function deleteItem(id) {
+      const it = ITEMS.items.find(x => x.id === id);
+      if (!it) return;
+      if (it.moves.total) { toast('"' + it.name + '" عليه ' + it.moves.total + ' حركة — مينفعش يتحذف. وقّفه بدل الحذف.', true); return; }
+      if (!confirm('حذف "' + it.name + '" نهائي؟')) return;
+      try { const res = await svPost({ action: 'deleteItem', id }); setItems(res); toast(res.message); itAfterChange(); }
+      catch (e) { toast(e.message || 'تعذر الحذف', true); }
+    }
+    // الأصناف اتغيرت: قايمة الفاتورة والكتالوج يتحدثوا
+    function itAfterChange() {
+      try { loadCatalog(); } catch (_) {}
+      if (typeof refreshStaffData === 'function') refreshStaffData().catch(() => {});
+    }
 
     // ═══════════════════════════ النوافذ ═══════════════════════════
     function openModal(id) { document.getElementById(id).classList.add('active'); }
