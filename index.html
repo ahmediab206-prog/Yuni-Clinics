@@ -512,6 +512,7 @@
   .cx-badge { display:inline-block; padding:3px 9px; border-radius:12px; font-size:11px; font-weight:700; }
   .cx-t-Opening { background:#E8EAF6; color:#283593; } .cx-t-Sale { background:#E5F0EC; color:#184232; }
   .cx-t-Collection { background:#E0F2F1; color:#00695C; } .cx-t-Expense { background:#FDECEA; color:#C5221F; }
+  .cx-t-Advance { background:#EDE9FF; color:#4B32C3; }
   .cx-t-Transfer { background:#FFF3CD; color:#7A4F00; } .cx-t-Adjustment { background:#EEE; color:#444; }
   .cx-ledger-foot { margin-top:10px; background:#FAF8F5; border:1px solid var(--border-color); border-radius:10px; padding:11px 14px; display:flex; gap:22px; flex-wrap:wrap; font-size:13px; font-weight:700; }
   .cx-empty { text-align:center; color:#999; padding:22px !important; }
@@ -1512,6 +1513,13 @@
                 <input type="number" id="expPOS" class="expense-pay-part" min="0" placeholder="0" value="0" oninput="calculateExpenseTotal()">
               </div>
             </div>
+            <div style="margin-top:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <label for="expCashFrom" style="font-size:13px; font-weight:700; color:var(--primary-green); white-space:nowrap;"><i class="fas fa-hand-holding-usd"></i> النقدي يتصرف من</label>
+              <select id="expCashFrom" style="flex:1; min-width:180px; max-width:320px; padding:9px 12px; font-size:14px;">
+                <option value="me">عهدتي</option>
+                <option value="safe">الخزنة</option>
+              </select>
+            </div>
           </div>
 
           <div class="form-group full-width">
@@ -1643,7 +1651,7 @@
             </select>
           </div>
           <!-- Value Type Toggle -->
-          <div class="form-group full-width">
+          <div class="form-group full-width" id="payrollValueTypeGroup">
             <label class="section-title">نوع القيمة</label>
             <div style="display:flex; gap:12px; margin-top:4px;">
               <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; font-weight:600;">
@@ -1665,6 +1673,40 @@
           <div class="form-group" id="payrollAmountGroup" style="display:none;">
             <label class="section-title" for="payrollAmount">المبلغ (Payroll - Amount)</label>
             <input type="number" id="payrollAmount" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <!-- السلفة: المبلغ موزّع على طرق الدفع (بتتخصم من النقدية) -->
+          <div class="form-group full-width" id="payrollAdvanceGroup" style="display:none;">
+            <label class="section-title">مبلغ السلفة موزّع على طرق الدفع</label>
+            <div class="payment-grid">
+              <div class="payment-field">
+                <label>نقدي (Cash)</label>
+                <input type="number" id="prAdvCash" class="payroll-adv-part" min="0" placeholder="0" value="0" oninput="calculatePayrollAdvanceTotal()">
+              </div>
+              <div class="payment-field">
+                <label>محفظة إلكترونية (Wallet)</label>
+                <input type="number" id="prAdvWallet" class="payroll-adv-part" min="0" placeholder="0" value="0" oninput="calculatePayrollAdvanceTotal()">
+              </div>
+              <div class="payment-field">
+                <label>انستاباي (InstaPay)</label>
+                <input type="number" id="prAdvInsta" class="payroll-adv-part" min="0" placeholder="0" value="0" oninput="calculatePayrollAdvanceTotal()">
+              </div>
+              <div class="payment-field">
+                <label>POS (فيزا / ماكينة)</label>
+                <input type="number" id="prAdvPOS" class="payroll-adv-part" min="0" placeholder="0" value="0" oninput="calculatePayrollAdvanceTotal()">
+              </div>
+            </div>
+            <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; background:var(--light-green); border-radius:10px; padding:10px 14px; font-weight:700; color:var(--primary-green);">
+              <span>إجمالي السلفة</span>
+              <span id="payrollAdvanceTotal">0.00 ج.م</span>
+            </div>
+            <div style="margin-top:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <label for="prAdvCashFrom" style="font-size:13px; font-weight:700; color:var(--primary-green); white-space:nowrap;"><i class="fas fa-hand-holding-usd"></i> النقدي يتصرف من</label>
+              <select id="prAdvCashFrom" style="flex:1; min-width:180px; max-width:320px; padding:9px 12px; font-size:14px;">
+                <option value="me">عهدتي</option>
+                <option value="safe">الخزنة</option>
+              </select>
+            </div>
+            <div style="font-size:12px; color:#777; margin-top:8px;"><i class="fas fa-info-circle"></i> السلفة بتتسجل خارج في شاشة النقدية.</div>
           </div>
 
           <div class="buttons-wrapper">
@@ -2128,7 +2170,7 @@
             <div class="f"><label>العهدة / الخزنة</label><select id="cxFCustodian" onchange="cxApplyFilters()"><option value="">الكل</option></select></div>
             <div class="f"><label>نوع الحركة</label>
               <select id="cxFType" onchange="cxApplyFilters()">
-                <option value="">الكل</option><option value="Sale">مبيعات</option><option value="Collection">تحصيل</option><option value="Expense">مصروف</option><option value="Transfer">تحويل</option><option value="Adjustment">تسوية</option><option value="Opening">رصيد أول المدة</option>
+                <option value="">الكل</option><option value="Sale">مبيعات</option><option value="Collection">تحصيل</option><option value="Expense">مصروف</option><option value="Advance">سلفة</option><option value="Transfer">تحويل</option><option value="Adjustment">تسوية</option><option value="Opening">رصيد أول المدة</option>
               </select></div>
             <div class="f wide"><label>بحث</label><input type="text" id="cxFSearch" placeholder="بيان / رقم مرجع / مستخدم..." oninput="cxApplyFilters()"></div>
             <div><button class="cx-btn alt" onclick="cxResetFilters()"><i class="fas fa-undo"></i> مسح</button></div>
@@ -4264,6 +4306,7 @@
         cash: cash,
         wallet: wallet,
         instaPay: insta,
+        cashFrom: document.getElementById('expCashFrom').value,
         pos: pos,
         total: total,
         user: currentUser
@@ -7401,14 +7444,35 @@
     const prNumericCols = ['pr_days', 'pr_amount'];
     const prDateCols    = ['pr_action_date', 'pr_payroll_date'];
 
-    function onPayrollValueTypeChange() {
-      const val = document.querySelector('input[name="payrollValueType"]:checked')?.value;
-      document.getElementById('payrollDaysGroup').style.display   = (val === 'days')   ? '' : 'none';
-      document.getElementById('payrollAmountGroup').style.display = (val === 'amount') ? '' : 'none';
+    function isPayrollAdvance() {
+      return document.getElementById('payrollType').value.trim() === 'سلفة';
     }
 
+    function onPayrollValueTypeChange() {
+      const adv = isPayrollAdvance();
+      const val = document.querySelector('input[name="payrollValueType"]:checked')?.value;
+      document.getElementById('payrollDaysGroup').style.display   = (!adv && val === 'days')   ? '' : 'none';
+      document.getElementById('payrollAmountGroup').style.display = (!adv && val === 'amount') ? '' : 'none';
+    }
+
+    // السلفة: مفيش أيام ولا مبلغ واحد — المبلغ بيتوزع على طرق الدفع وبيتخصم من النقدية
     function onPayrollTypeChange() {
-      // يمكن إضافة منطق مستقبلي هنا
+      const adv = isPayrollAdvance();
+      document.getElementById('payrollValueTypeGroup').style.display = adv ? 'none' : '';
+      document.getElementById('payrollAdvanceGroup').style.display   = adv ? '' : 'none';
+      onPayrollValueTypeChange();
+    }
+
+    function getPayrollAdvanceParts() {
+      const v = id => Math.max(0, parseFloat(document.getElementById(id).value) || 0);
+      return { cash: v('prAdvCash'), wallet: v('prAdvWallet'), instaPay: v('prAdvInsta'), pos: v('prAdvPOS') };
+    }
+
+    function calculatePayrollAdvanceTotal() {
+      const p = getPayrollAdvanceParts();
+      const total = p.cash + p.wallet + p.instaPay + p.pos;
+      document.getElementById('payrollAdvanceTotal').innerText = total.toFixed(2) + ' ج.م';
+      return total;
     }
 
     function populatePayrollEmployees() {
@@ -7450,7 +7514,10 @@
       document.getElementById('payrollDays').value = '';
       document.getElementById('payrollAmount').value = '';
       document.getElementById('payrollRadioDays').checked = true;
-      onPayrollValueTypeChange();
+      document.querySelectorAll('.payroll-adv-part').forEach(el => { el.value = 0; });
+      document.getElementById('prAdvCashFrom').value = 'me';
+      calculatePayrollAdvanceTotal();
+      onPayrollTypeChange();
     }
 
     async function submitPayroll() {
@@ -7461,12 +7528,16 @@
       const statement   = document.getElementById('payrollStatement').value.trim();
       const employee    = document.getElementById('payrollEmployee').value.trim();
       const valueType   = document.querySelector('input[name="payrollValueType"]:checked')?.value;
-      const days        = valueType === 'days'   ? (parseFloat(document.getElementById('payrollDays').value)   || 0) : 0;
-      const amount      = valueType === 'amount' ? (parseFloat(document.getElementById('payrollAmount').value) || 0) : 0;
+      const isAdvance   = (type === 'سلفة');
+      const advParts    = isAdvance ? getPayrollAdvanceParts() : { cash: 0, wallet: 0, instaPay: 0, pos: 0 };
+      const days        = (!isAdvance && valueType === 'days')   ? (parseFloat(document.getElementById('payrollDays').value)   || 0) : 0;
+      const amount      = isAdvance ? (advParts.cash + advParts.wallet + advParts.instaPay + advParts.pos)
+                        : (valueType === 'amount' ? (parseFloat(document.getElementById('payrollAmount').value) || 0) : 0);
 
       if (!payrollDate) { alert('يرجى تحديد Payroll Date.'); return; }
       if (!type)        { alert('يرجى اختيار النوع.');        return; }
       if (!employee)    { alert('يرجى اختيار الموظف.');       return; }
+      if (isAdvance && amount === 0) { alert('يرجى إدخال مبلغ السلفة على طريقة دفع واحدة على الأقل.'); return; }
       if (days === 0 && amount === 0) { alert('يرجى إدخال قيمة (أيام أو مبلغ).'); return; }
 
       const btn = document.getElementById('payrollSubmitBtn');
@@ -7481,7 +7552,12 @@
           statement,
           employee,
           days,
-          amount
+          amount,
+          cash: advParts.cash,
+          wallet: advParts.wallet,
+          instaPay: advParts.instaPay,
+          pos: advParts.pos,
+          cashFrom: isAdvance ? document.getElementById('prAdvCashFrom').value : ''
         });
         const result = await res.json();
         if (result.status !== 'success') throw new Error(result.message);
