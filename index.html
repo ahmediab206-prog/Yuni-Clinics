@@ -135,6 +135,7 @@
     .checkbox-item:hover { background-color: #E8E2CE; }
     .checkbox-item div { display: flex; align-items: center; gap: 8px; }
     .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary-green); cursor: pointer; }
+    .offer-tag { display: inline-block; font-size: 11px; font-weight: 800; color: #B5470B; background: #FFE8D6; border: 1px solid #F5C9A8; padding: 1px 7px; border-radius: 10px; margin-inline-start: 6px; white-space: nowrap; vertical-align: middle; }
     .price-tag { font-size: 12px; color: var(--primary-green); font-weight: 700; background: var(--light-green); padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
     
     .extras-grid { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 12px; background-color: #FAF8F5; padding: 16px; border-radius: 12px; border: 1.5px solid var(--border-color); }
@@ -672,6 +673,9 @@
     .svx .pr-input.failed { border-color: var(--danger); background: #FDECEA; }
     .svx .team-cell { font-weight: 700; color: #7A4F00; white-space: nowrap; }
     .svx th.team-col { background: #F6EDD5; color: #7A4F00; }
+    .svx th.offer-col { background: #FFE8D6; color: #B5470B; }
+    .svx .pr-hidden { display: inline-block; font-size: 10.5px; font-weight: 800; color: #7A6F55; background: #F1EFEA; border-radius: 8px; padding: 1px 7px; margin-inline-start: 4px; white-space: nowrap; }
+    .svx .offer-cell { font-weight: 700; color: #B5470B; white-space: nowrap; }
     .svx .mg-team { font-size: 11px; color: #7A4F00; font-weight: 700; margin-top: 3px; }
     .svx .m-path { display: none; font-size: 11px; color: #9A937D; margin-top: 2px; }
     .svx .count-note { font-size: 12px; color: #9A937D; margin-top: 10px; }
@@ -1095,11 +1099,12 @@
               <option value="price">السعر العادي</option>
               <option value="teamPrice">سعر التيم</option>
               <option value="familyPrice">سعر أهل التيم</option>
+              <option value="offerPrice">سعر العرض</option>
             </select></div>
         </div>
         <div class="table-container">
           <table class="prices-table">
-            <thead><tr><th>الكاتيجوري</th><th>اسم الخدمة</th><th>السعر</th><th class="team-col">سعر التيم</th><th class="team-col">سعر أهل التيم</th></tr></thead>
+            <thead><tr><th>الكاتيجوري</th><th>اسم الخدمة</th><th>السعر</th><th class="team-col">سعر التيم</th><th class="team-col">سعر أهل التيم</th><th class="offer-col">عرض</th></tr></thead>
             <tbody id="prBody"></tbody>
           </table>
         </div>
@@ -2657,13 +2662,15 @@
           <div class="field"><label>سعر التيم</label><input type="text" id="svcTeamPrice" inputmode="decimal" placeholder="اختياري"></div>
           <div class="field"><label>سعر أهل التيم</label><input type="text" id="svcFamilyPrice" inputmode="decimal" placeholder="اختياري"></div>
         </div>
+        <div class="field"><label>سعر العرض</label><input type="text" id="svcOfferPrice" inputmode="decimal" placeholder="اختياري — مثال: 250"><div class="hint">بيظهر جنب اسم الخدمة في شاشة الفاتورة "عرض 250" — والخدمة بتنزل بسعرها الأساسي. فاضي = مفيش عرض.</div></div>
         <div class="hint" style="margin-top:-6px;"><i class="fas fa-lock"></i> سعر التيم وسعر أهل التيم بيظهروا للموظفين بس في قائمة الأسعار — العملاء مش بيشوفوهم.</div>
         <div class="field"><label>المجلد (مكانها في موقع العملاء) *</label><select id="svcCategory" onchange="fillSalesFromFolder()"></select></div>
         <div class="sales-box">
           <div class="lbl"><i class="fas fa-cash-register"></i> بيانات المبيعات (بتتسجل في الفواتير)</div>
           <div class="three">
             <div class="field"><label>التخصص *</label><select id="svcSpeciality"></select></div>
-            <div class="field"><label>تصنيف المبيعات</label><input type="text" id="svcSalesCategory" list="svcSalesCategoryList" placeholder="مثال: Laser"><datalist id="svcSalesCategoryList"></datalist></div>
+            <div class="field"><label>تصنيف المبيعات *</label><select id="svcSalesCategory" onchange="salesCatChanged('svcSalesCategory')"></select>
+              <input type="text" id="svcSalesCategoryNew" placeholder="اكتب اسم التصنيف الجديد" style="display:none; margin-top:6px;"></div>
             <div class="field"><label>التكلفة</label><input type="text" id="svcCost" inputmode="decimal" placeholder="اختياري"></div>
           </div>
           <div class="hint" style="margin-top:6px;">التخصص بيحدد الخدمة تظهر مع مين في شاشة الفاتورة (لازم يطابق قسم الطبيب أو الأخصائية).</div>
@@ -2896,7 +2903,8 @@
         <div class="it-warn" id="itNameWarn" style="display:none;"></div>
         <div class="two">
           <div class="field"><label>التخصص *</label><select id="itSpecSel"></select><div class="hint">بيحدد الصنف يظهر مع مين في الفاتورة.</div></div>
-          <div class="field"><label>تصنيف المبيعات</label><input type="text" id="itSalesCat" list="itCatList" placeholder="مثال: Laser / Products"><datalist id="itCatList"></datalist></div>
+          <div class="field"><label>تصنيف المبيعات *</label><select id="itSalesCat" onchange="salesCatChanged('itSalesCat')"></select>
+            <input type="text" id="itSalesCatNew" placeholder="اكتب اسم التصنيف الجديد" style="display:none; margin-top:6px;"></div>
         </div>
         <div class="field"><label>المجلد (مكانه في موقع العملاء)</label><select id="itFolder"></select></div>
         <div class="two">
@@ -2907,6 +2915,7 @@
           <div class="field"><label>سعر التيم</label><input type="text" id="itTeam" inputmode="decimal" placeholder="اختياري"></div>
           <div class="field"><label>سعر أهل التيم</label><input type="text" id="itFamily" inputmode="decimal" placeholder="اختياري"></div>
         </div>
+        <div class="field"><label>سعر العرض</label><input type="text" id="itOffer" inputmode="decimal" placeholder="اختياري — مثال: 250"><div class="hint">بيظهر جنب اسم الصنف في شاشة الفاتورة "عرض 250" — والصنف بينزل بسعره الأساسي. فاضي = مفيش عرض.</div></div>
         <div class="sales-box track-box">
           <div class="lbl"><i class="fas fa-id-card"></i> المتابعة في بطاقة العميل</div>
           <div class="two">
@@ -3622,6 +3631,7 @@
         let cat = "خدمات عامة";
         let name = "";
         let price = 0;
+        let offer = '';
 
         Object.keys(item).forEach(k => {
           const ck = k.trim();
@@ -3629,6 +3639,7 @@
           if (ck === 'Item/Service Category' || ck === 'التصنيف') cat = item[k];
           if (ck === 'Item/Service' || ck === 'اسم الخدمة') name = item[k];
           if (ck === 'Item/Service Price' || ck === 'السعر') price = parseFloat(item[k]) || 0;
+          if (ck === 'Offer Price') offer = String(item[k] === null || item[k] === undefined ? '' : item[k]).trim();
         });
 
         const target = targetSpeciality.toLowerCase();
@@ -3636,7 +3647,7 @@
         if (itemSpeciality === target || itemSpeciality.includes(target) || (target.includes('laser') && itemSpeciality.includes('laser'))) {
           if (name) {
             if (!categories[cat]) categories[cat] = [];
-            categories[cat].push({ name, price, speciality: itemSpecialityRaw, category: cat });
+            categories[cat].push({ name, price, offer, speciality: itemSpecialityRaw, category: cat });
           }
         }
       });
@@ -3675,7 +3686,7 @@
             <label class="checkbox-item">
               <div>
                 <input type="checkbox" class="service-cb" value="${srv.name}" data-price="${srv.price}" data-speciality="${srv.speciality || ''}" data-category="${srv.category || ''}">
-                <span>${srv.name}</span>
+                <span>${srv.name}</span>${srv.offer !== '' ? `<span class="offer-tag" title="سعر العرض — الصنف بينزل في الفاتورة بسعره الأساسي">عرض ${srv.offer}</span>` : ''}
               </div>
               <span class="price-tag">${srv.price} ج.م</span>
             </label>
@@ -8438,9 +8449,10 @@
     function renderPricesPage() {
       const sel = document.getElementById('prFolder');
       const cur = sel.value;
-      sel.innerHTML = '<option value="">كل الخدمات</option>' + treeOrder(false).map(x =>
-        '<option value="' + esc(x.c.id) + '">' + '   '.repeat(x.depth) + esc(x.c.name) + '</option>').join('');
-      sel.value = IDX.catVisible(cur) ? cur : '';
+      // كل المجلدات اللي فيها أصناف متاحة للبيع — حتى المخفية من الموقع (زي Products)
+      sel.innerHTML = '<option value="">كل الخدمات</option>' + treeOrder(true).map(x =>
+        '<option value="' + esc(x.c.id) + '">' + '   '.repeat(x.depth) + esc(x.c.name) + (IDX.catVisible(x.c.id) ? '' : ' (مخفي من الموقع)') + '</option>').join('');
+      sel.value = IDX.cat[cur] ? cur : '';
       renderPrices();
     }
     // المجموعات: كل مجلد فيه خدمات مباشرة (بترتيب الشجرة) + خدماته بعد الفلتر
@@ -8448,9 +8460,11 @@
       const folder = document.getElementById('prFolder').value;
       const q = document.getElementById('prSearch').value.trim().toLowerCase();
       const groups = [];
-      treeOrder(false).forEach(x => {
+      treeOrder(true).forEach(x => {
         if (folder && !pathOf(x.c.id).some(p => p.id === folder)) return;
-        const items = catServices(x.c.id, false).filter(s => !q || (s.name + ' ' + pathText(s.category)).toLowerCase().indexOf(q) !== -1);
+        // كل صنف متاح في المبيعات (الموقوف بس اللي مش بيظهر)
+        const items = catServices(x.c.id, true).filter(s => s.enabled !== false && (s.enabled !== undefined || s.active))
+          .filter(s => !q || (s.name + ' ' + pathText(s.category)).toLowerCase().indexOf(q) !== -1);
         if (items.length) groups.push({ cat: x.c, path: pathText(x.c.id), items });
       });
       return groups;
@@ -8469,11 +8483,12 @@
       groups.forEach(g => {
         g.items.forEach(s => {
           count++;
-          html += '<tr><td class="path-cell">' + esc(g.path) + '</td><td><a style="color:inherit; cursor:pointer;" onclick="go(\'s/' + esc(s.id) + '\')">' + esc(s.name) + '</a><div class="m-path">' + esc(g.path) + '</div></td>'
-            + priceCell(s, 'price', 'price-cell') + priceCell(s, 'teamPrice', 'team-cell') + priceCell(s, 'familyPrice', 'team-cell') + '</tr>';
+          const onSite = s.active && IDX.catVisible(s.category);
+          html += '<tr><td class="path-cell">' + esc(g.path) + '</td><td>' + (onSite ? '<a style="color:inherit; cursor:pointer;" onclick="go(\'s/' + esc(s.id) + '\')">' + esc(s.name) + '</a>' : esc(s.name) + ' <span class="pr-hidden" title="الصنف متاح في المبيعات بس مش ظاهر للعملاء في الموقع">مخفي من الموقع</span>') + '<div class="m-path">' + esc(g.path) + '</div></td>'
+            + priceCell(s, 'price', 'price-cell') + priceCell(s, 'teamPrice', 'team-cell') + priceCell(s, 'familyPrice', 'team-cell') + priceCell(s, 'offerPrice', 'offer-cell') + '</tr>';
         });
       });
-      body.innerHTML = html || '<tr><td colspan="5" class="empty">لا توجد خدمات مطابقة</td></tr>';
+      body.innerHTML = html || '<tr><td colspan="6" class="empty">لا توجد خدمات مطابقة</td></tr>';
       document.getElementById('prCount').textContent = count + ' خدمة';
       document.getElementById('prPreview').textContent = buildPriceMessage(groups) || '—';
     }
@@ -8481,7 +8496,7 @@
     function buildPriceMessage(groups) {
       if (!groups.length) return '';
       const field = document.getElementById('prMsgPrice').value || 'price';
-      const label = { price: '', teamPrice: ' (أسعار التيم)', familyPrice: ' (أسعار أهل التيم)' }[field] || '';
+      const label = { price: '', teamPrice: ' (أسعار التيم)', familyPrice: ' (أسعار أهل التيم)', offerPrice: ' (عروض)' }[field] || '';
       const lines = ['*' + PRICE_MSG_TITLE + label + '*'];
       groups.forEach(g => {
         lines.push('', '*' + g.path + '*');
@@ -8587,6 +8602,7 @@
           + '<td class="price-cell">' + esc(priceText(s.price))
           + ((s.teamPrice !== '' && s.teamPrice !== undefined) || (s.familyPrice !== '' && s.familyPrice !== undefined)
               ? '<div class="mg-team">تيم: ' + esc(teamText(s.teamPrice)) + ' · أهل: ' + esc(teamText(s.familyPrice)) + '</div>' : '')
+          + (s.offerPrice !== '' && s.offerPrice !== undefined ? '<div class="mg-team" style="color:#B5470B;">عرض: ' + esc(teamText(s.offerPrice)) + '</div>' : '')
           + (s.cost !== '' && s.cost !== undefined ? '<div class="mg-team" style="color:#6B6655;">تكلفة: ' + esc(teamText(s.cost)) + '</div>' : '') + '</td>'
           + '<td>' + st + '</td>'
           + '<td><div class="mg-actions">'
@@ -8691,6 +8707,7 @@
       document.getElementById('svcPrice').value = s ? s.price : '';
       document.getElementById('svcTeamPrice').value = s && s.teamPrice !== undefined ? s.teamPrice : '';
       document.getElementById('svcFamilyPrice').value = s && s.familyPrice !== undefined ? s.familyPrice : '';
+      document.getElementById('svcOfferPrice').value = s && s.offerPrice !== undefined ? s.offerPrice : '';
       document.getElementById('svcDesc').value = s ? s.description : '';
       document.getElementById('svcSuitable').value = s ? s.suitable : '';
       document.getElementById('svcNotes').value = s ? s.notes : '';
@@ -8758,14 +8775,15 @@
       if (!name) { showErr('svcError', 'يرجى كتابة اسم الخدمة.'); return; }
       if (!category) { showErr('svcError', 'يرجى اختيار المجلد.'); return; }
       if (!document.getElementById('svcSpeciality').value) { showErr('svcError', 'يرجى اختيار التخصص (للمبيعات).'); return; }
+      if (!readSalesCat('svcSalesCategory')) { showErr('svcError', document.getElementById('svcSalesCategory').value === '__new' ? 'اكتب اسم التصنيف الجديد.' : 'يرجى اختيار تصنيف المبيعات.'); return; }
       if (svcEdit.uploading) { showErr('svcError', 'استنى لحد ما الرفع يخلص.'); return; }
       runSave('svcSave', 'svcError', { action: 'saveService', data: {
         id: svcEdit.id, name, category, price: document.getElementById('svcPrice').value.trim(),
-        teamPrice: document.getElementById('svcTeamPrice').value.trim(), familyPrice: document.getElementById('svcFamilyPrice').value.trim(),
+        teamPrice: document.getElementById('svcTeamPrice').value.trim(), familyPrice: document.getElementById('svcFamilyPrice').value.trim(), offerPrice: document.getElementById('svcOfferPrice').value.trim(),
         description: document.getElementById('svcDesc').value, suitable: document.getElementById('svcSuitable').value,
         notes: document.getElementById('svcNotes').value, media: svcEdit.media,
         cost: document.getElementById('svcCost').value.trim(),
-        speciality: document.getElementById('svcSpeciality').value, salesCategory: document.getElementById('svcSalesCategory').value.trim(),
+        speciality: document.getElementById('svcSpeciality').value, salesCategory: readSalesCat('svcSalesCategory'),
         enabled: document.getElementById('svcEnabled').checked, online: document.getElementById('svcOnline').checked,
         trackType: document.getElementById('svcTrackType').value, trackMode: document.getElementById('svcTrackMode').value,
         trackQty: document.getElementById('svcTrackQty').value.trim(), validityDays: document.getElementById('svcValidity').value.trim()
@@ -8827,9 +8845,37 @@
       const list = salesSpecialities();
       if (spec && list.indexOf(spec) === -1) list.push(spec);
       sel.innerHTML = '<option value="">-- اختر التخصص --</option>' + list.map(x => '<option value="' + esc(x) + '"' + (x === spec ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
-      const cats = [...new Set(DATA.services.map(s => s.salesCategory).filter(Boolean))].sort();
-      document.getElementById('svcSalesCategoryList').innerHTML = cats.map(x => '<option value="' + esc(x) + '">').join('');
-      document.getElementById('svcSalesCategory').value = salesCat || '';
+      fillSalesCatSelect('svcSalesCategory', salesCat);
+    }
+    // تصنيف المبيعات: قايمة بالموجود + "تصنيف جديد" بيفتح خانة تكتب فيها
+    function allSalesCats() {
+      const all = (DATA.services || []).map(s => s.salesCategory).concat((typeof ITEMS !== 'undefined' ? ITEMS.items : []).map(i => i.salesCategory));
+      const seen = {}, out = [];
+      all.forEach(c => { c = String(c || '').trim(); if (c && !seen[c.toLowerCase()]) { seen[c.toLowerCase()] = 1; out.push(c); } });
+      return out.sort((a, b) => a.localeCompare(b));
+    }
+    function fillSalesCatSelect(id, val) {
+      const list = allSalesCats();
+      if (val && !list.some(c => c.toLowerCase() === String(val).toLowerCase())) list.push(val);
+      const sel = document.getElementById(id);
+      sel.innerHTML = '<option value="">-- اختر التصنيف --</option>' + list.map(x => '<option value="' + esc(x) + '">' + esc(x) + '</option>').join('')
+        + '<option value="__new">+ تصنيف جديد…</option>';
+      sel.value = val ? (list.find(c => c.toLowerCase() === String(val).toLowerCase()) || '') : '';
+      document.getElementById(id + 'New').value = '';
+      salesCatChanged(id);
+    }
+    function salesCatChanged(id) {
+      const isNew = document.getElementById(id).value === '__new';
+      const inp = document.getElementById(id + 'New');
+      inp.style.display = isNew ? '' : 'none';
+      if (isNew) setTimeout(() => inp.focus(), 30);
+    }
+    // القيمة النهائية (ولو التصنيف الجديد مكتوب زي واحد موجود بياخد الموجود)
+    function readSalesCat(id) {
+      const v = document.getElementById(id).value;
+      if (v !== '__new') return v;
+      const n = document.getElementById(id + 'New').value.trim().replace(/\s+/g, ' ');
+      return allSalesCats().find(c => c.toLowerCase() === n.toLowerCase()) || n;
     }
     // لما تختار مجلد لخدمة جديدة: التخصص والتصنيف بيتملوا من أكتر حاجة متكررة في نفس المجلد
     function fillSalesFromFolder() {
@@ -10010,7 +10056,7 @@
           + (can('Items', 'delete') ? '<button class="icon-btn danger" title="' + (i.moves.total ? 'عليه حركات — وقّفه بدل الحذف' : 'حذف') + '" data-i="' + esc(i.id) + '" onclick="deleteItem(this.dataset.i)"' + (i.moves.total ? ' style="opacity:.4;"' : '') + '><i class="fas fa-trash"></i></button>' : '');
         return '<tr class="' + (i.active ? '' : 'it-off') + '"><td class="wide"><div class="cc-svc">' + esc(i.name) + '</div><div class="cc-sub">' + esc(i.folder) + (i.online ? ' · <span style="color:var(--primary-green);">ظاهر للعملاء</span>' : '') + '</div></td>'
           + '<td data-l="التخصص / التصنيف">' + esc(ccSecName(i.speciality)) + '<div class="cc-sub">' + esc(i.salesCategory || '—') + '</div></td>'
-          + '<td data-l="السعر">' + money(i.price) + '</td><td data-l="التكلفة">' + money(i.cost) + '</td>'
+          + '<td data-l="السعر">' + money(i.price) + (i.offerPrice !== '' && i.offerPrice !== undefined ? '<div><span class="offer-tag" style="margin:0;">عرض ' + money(i.offerPrice) + '</span></div>' : '') + '</td><td data-l="التكلفة">' + money(i.cost) + '</td>'
           + '<td data-l="المتابعة">' + esc(trackLabel(i, true) || '—') + '</td><td data-l="الحركات">' + mv + '</td>'
           + '<td data-l="الحالة"><span class="cc-badge' + (i.active ? '' : ' expired') + '">' + (i.active ? 'شغال' : 'موقوف') + '</span></td>'
           + '<td class="wide"><div class="mg-actions">' + acts + '</div></td></tr>';
@@ -10059,10 +10105,10 @@
       const specs = [...new Set(salesSpecialities().concat(ITEMS.items.map(i => i.speciality).filter(Boolean)))].sort();
       document.getElementById('itSpecSel').innerHTML = '<option value="">-- اختر التخصص --</option>' + specs.map(x => '<option value="' + esc(x) + '">' + esc(x) + '</option>').join('');
       document.getElementById('itSpecSel').value = it ? it.speciality : '';
-      document.getElementById('itCatList').innerHTML = [...new Set(ITEMS.items.map(i => i.salesCategory).filter(Boolean))].sort().map(x => '<option value="' + esc(x) + '">').join('');
+      fillSalesCatSelect('itSalesCat', it ? it.salesCategory : '');
       const set = (k, v) => { document.getElementById(k).value = v === undefined || v === null ? '' : v; };
-      set('itSalesCat', it ? it.salesCategory : ''); set('itPrice', it ? it.price : ''); set('itCost', it ? it.cost : '');
-      set('itTeam', it ? it.teamPrice : ''); set('itFamily', it ? it.familyPrice : '');
+      set('itPrice', it ? it.price : ''); set('itCost', it ? it.cost : '');
+      set('itTeam', it ? it.teamPrice : ''); set('itFamily', it ? it.familyPrice : ''); set('itOffer', it ? it.offerPrice : '');
       set('itTrackType', it ? it.trackType : ''); set('itTrackMode', it && it.trackMode ? it.trackMode : 'Multi');
       set('itTrackQty', it ? it.trackQty : ''); set('itValidity', it ? it.validityDays : '');
       document.getElementById('itActive').checked = it ? it.active : true;
@@ -10078,9 +10124,10 @@
       if (!name) { showErr('itError', 'اكتب اسم الصنف.'); return; }
       if (itCheckName()) { showErr('itError', 'الاسم ده موجود قبل كده.'); return; }
       if (!document.getElementById('itSpecSel').value) { showErr('itError', 'اختار التخصص.'); return; }
+      if (!readSalesCat('itSalesCat')) { showErr('itError', document.getElementById('itSalesCat').value === '__new' ? 'اكتب اسم التصنيف الجديد.' : 'اختار تصنيف المبيعات.'); return; }
       const g = id => document.getElementById(id).value.trim();
-      const data = { id: itEdit.id, name, category: g('itFolder'), speciality: g('itSpecSel'), salesCategory: g('itSalesCat'),
-        price: g('itPrice'), cost: g('itCost'), teamPrice: g('itTeam'), familyPrice: g('itFamily'),
+      const data = { id: itEdit.id, name, category: g('itFolder'), speciality: g('itSpecSel'), salesCategory: readSalesCat('itSalesCat'),
+        price: g('itPrice'), cost: g('itCost'), teamPrice: g('itTeam'), familyPrice: g('itFamily'), offerPrice: g('itOffer'),
         trackType: g('itTrackType'), trackMode: g('itTrackMode'), trackQty: g('itTrackQty'), validityDays: g('itValidity'),
         active: document.getElementById('itActive').checked, online: document.getElementById('itOnline').checked };
       const btn = document.getElementById('itSave'), orig = btn.innerHTML;
