@@ -135,6 +135,12 @@
     .checkbox-item:hover { background-color: #E8E2CE; }
     .checkbox-item div { display: flex; align-items: center; gap: 8px; }
     .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary-green); cursor: pointer; }
+    /* صنف عليه عرض: الخانة كلها بلون العرض */
+    .checkbox-item.has-offer { background: #FFF3EA; border-color: #F5C9A8; }
+    .checkbox-item.has-offer:hover { background: #FFE8D6; }
+    .checkbox-item.has-offer > div > span:not(.offer-tag) { color: #B5470B; font-weight: 700; }
+    .checkbox-item.has-offer .price-tag { background: #FFE8D6; color: #B5470B; }
+    .checkbox-item.has-offer:has(input:checked) { background: #FFE0C7; border-color: #E9A877; }
     .offer-tag { display: inline-block; font-size: 11px; font-weight: 800; color: #B5470B; background: #FFE8D6; border: 1px solid #F5C9A8; padding: 1px 7px; border-radius: 10px; margin-inline-start: 6px; white-space: nowrap; vertical-align: middle; }
     .price-tag { font-size: 12px; color: var(--primary-green); font-weight: 700; background: var(--light-green); padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
     
@@ -3617,6 +3623,12 @@
       document.getElementById('tabsContainer').innerHTML = '<div class="empty-msg">يرجى اختيار طبيب أو أخصائي أولاً لعرض الخدمات المتاحة</div>';
     }
 
+    // العرض بيظهر بس لو فيه قيمة ومش صفر (فاضي أو 0 = مفيش عرض)
+    function hasOffer(v) {
+      const t = String(v === null || v === undefined ? '' : v).trim();
+      return t !== '' && Number(t.replace(/,/g, '')) !== 0;
+    }
+
     function renderFilteredServices(targetSpeciality) {
       const tabsHeader = document.getElementById('tabsHeader');
       const tabsContainer = document.getElementById('tabsContainer');
@@ -3683,10 +3695,10 @@
 
         categories[catName].forEach(srv => {
           contentDiv.innerHTML += `
-            <label class="checkbox-item">
+            <label class="checkbox-item${hasOffer(srv.offer) ? ' has-offer' : ''}">
               <div>
                 <input type="checkbox" class="service-cb" value="${srv.name}" data-price="${srv.price}" data-speciality="${srv.speciality || ''}" data-category="${srv.category || ''}">
-                <span>${srv.name}</span>${srv.offer !== '' ? `<span class="offer-tag" title="سعر العرض — الصنف بينزل في الفاتورة بسعره الأساسي">عرض ${srv.offer}</span>` : ''}
+                <span>${srv.name}</span>${hasOffer(srv.offer) ? `<span class="offer-tag" title="سعر العرض — الصنف بينزل في الفاتورة بسعره الأساسي">عرض ${srv.offer}</span>` : ''}
               </div>
               <span class="price-tag">${srv.price} ج.م</span>
             </label>
@@ -8602,7 +8614,7 @@
           + '<td class="price-cell">' + esc(priceText(s.price))
           + ((s.teamPrice !== '' && s.teamPrice !== undefined) || (s.familyPrice !== '' && s.familyPrice !== undefined)
               ? '<div class="mg-team">تيم: ' + esc(teamText(s.teamPrice)) + ' · أهل: ' + esc(teamText(s.familyPrice)) + '</div>' : '')
-          + (s.offerPrice !== '' && s.offerPrice !== undefined ? '<div class="mg-team" style="color:#B5470B;">عرض: ' + esc(teamText(s.offerPrice)) + '</div>' : '')
+          + (hasOffer(s.offerPrice) ? '<div class="mg-team" style="color:#B5470B;">عرض: ' + esc(teamText(s.offerPrice)) + '</div>' : '')
           + (s.cost !== '' && s.cost !== undefined ? '<div class="mg-team" style="color:#6B6655;">تكلفة: ' + esc(teamText(s.cost)) + '</div>' : '') + '</td>'
           + '<td>' + st + '</td>'
           + '<td><div class="mg-actions">'
@@ -10056,7 +10068,7 @@
           + (can('Items', 'delete') ? '<button class="icon-btn danger" title="' + (i.moves.total ? 'عليه حركات — وقّفه بدل الحذف' : 'حذف') + '" data-i="' + esc(i.id) + '" onclick="deleteItem(this.dataset.i)"' + (i.moves.total ? ' style="opacity:.4;"' : '') + '><i class="fas fa-trash"></i></button>' : '');
         return '<tr class="' + (i.active ? '' : 'it-off') + '"><td class="wide"><div class="cc-svc">' + esc(i.name) + '</div><div class="cc-sub">' + esc(i.folder) + (i.online ? ' · <span style="color:var(--primary-green);">ظاهر للعملاء</span>' : '') + '</div></td>'
           + '<td data-l="التخصص / التصنيف">' + esc(ccSecName(i.speciality)) + '<div class="cc-sub">' + esc(i.salesCategory || '—') + '</div></td>'
-          + '<td data-l="السعر">' + money(i.price) + (i.offerPrice !== '' && i.offerPrice !== undefined ? '<div><span class="offer-tag" style="margin:0;">عرض ' + money(i.offerPrice) + '</span></div>' : '') + '</td><td data-l="التكلفة">' + money(i.cost) + '</td>'
+          + '<td data-l="السعر">' + money(i.price) + (hasOffer(i.offerPrice) ? '<div><span class="offer-tag" style="margin:0;">عرض ' + money(i.offerPrice) + '</span></div>' : '') + '</td><td data-l="التكلفة">' + money(i.cost) + '</td>'
           + '<td data-l="المتابعة">' + esc(trackLabel(i, true) || '—') + '</td><td data-l="الحركات">' + mv + '</td>'
           + '<td data-l="الحالة"><span class="cc-badge' + (i.active ? '' : ' expired') + '">' + (i.active ? 'شغال' : 'موقوف') + '</span></td>'
           + '<td class="wide"><div class="mg-actions">' + acts + '</div></td></tr>';
