@@ -798,6 +798,22 @@
     .svx .perm-row.off { background: #FAF8F5; }
     .svx .perm-row.off .perm-tab-name { color: #A39C85; }
     .svx .perm-row select { width: 190px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; font-weight: 700; background: #FFF; }
+    .svx .perm-name { min-width: 0; flex: 1; }
+    .svx .perm-acts { display: flex; gap: 5px; flex-shrink: 0; flex-wrap: wrap; }
+    .svx .perm-acts .pa { display: inline-flex; align-items: center; gap: 5px; border: 1.5px solid var(--border-color); border-radius: 8px; padding: 5px 9px; font-size: 12.5px; font-weight: 700; color: #A39C85; cursor: pointer; background: #fff; user-select: none; }
+    .svx .perm-acts .pa input { width: 15px; height: 15px; margin: 0; accent-color: var(--primary-green); cursor: pointer; }
+    .svx .perm-acts .pa.on.pa-view { border-color: var(--primary-green); color: var(--primary-green); background: #EAF2EC; }
+    .svx .perm-acts .pa.on.pa-add, .svx .perm-acts .pa.on.pa-edit { border-color: #C9A24B; color: #7A4F00; background: #FFF7E6; }
+    .svx .perm-acts .pa.on.pa-delete { border-color: #E3A7A3; color: #C5221F; background: #FFF4F3; }
+    .svx .perm-acts input:disabled { cursor: not-allowed; }
+    .svx .perm-row.sub { background: #FCFBF7; padding-right: 26px; }
+    .svx .perm-row.sub .perm-tab-name { font-size: 13px; font-weight: 600; }
+    .svx .perm-row.sub .perm-tab-name i { color: #C9BFA6; margin-left: 4px; font-size: 11px; }
+    .svx .perm-inherit { display: block; font-size: 11px; color: #9A937D; margin-top: 2px; }
+    .svx .perm-inherit a { color: #7A4F00; font-weight: 700; }
+    .svx .perm-subbtn { display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; border: 1px dashed var(--border-color); background: #fff; color: #7A8279; border-radius: 7px; padding: 3px 9px; font-size: 11.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .svx .perm-subbtn.has { border-color: #C9A24B; color: #7A4F00; background: #FFF7E6; }
+    .svx .perm-subs { border-bottom: 1px solid #EEE8DA; }
     .svx .perm-row select.lv-none { color: #A39C85; }
     .svx .perm-row select.lv-view { color: var(--primary-green); }
     .svx .perm-row select.lv-add, .svx .perm-row select.lv-edit { color: #7A4F00; background: #FFFBF0; }
@@ -833,6 +849,7 @@
       .svx .perm-table th, .svx .perm-table td { padding: 7px 3px; font-size: 12px; }
       .svx .perm-row { flex-wrap: wrap; }
       .svx .perm-row select { width: 100%; }
+      .svx .perm-acts { width: 100%; } .svx .perm-acts .pa { flex: 1; justify-content: center; padding: 6px 4px; }
     }
 
     /* ═══ بطاقات العملاء ═══ */
@@ -931,6 +948,15 @@
     .svx .dc-warn { font-size: 12.5px; color: var(--danger); font-weight: 700; }
     .svx .dc-warn:empty { display: none; }
     .svx .dc-view { font-size: 13.5px; line-height: 1.8; color: #444; }
+    .row-menu { position: fixed; z-index: 4000; display: none; min-width: 200px; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.15); padding: 6px; }
+    .row-menu .rm-title { font-size: 12px; font-weight: 800; color: #9A937D; padding: 6px 10px 4px; border-bottom: 1px dashed var(--border-color); margin-bottom: 4px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .row-menu button { display: flex; align-items: center; gap: 10px; width: 100%; border: none; background: none; padding: 9px 10px; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--primary-green); cursor: pointer; text-align: right; }
+    .row-menu button:hover { background: var(--light-green); }
+    .row-menu button i { width: 18px; text-align: center; color: var(--gold-accent); }
+    tr.has-menu { cursor: context-menu; }
+    .bal-name { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .row-dots { border: none; background: none; color: #9A937D; cursor: pointer; padding: 2px 8px; border-radius: 6px; font-size: 14px; }
+    .row-dots:hover { background: var(--light-green); color: var(--primary-green); }
     .spec-toggle { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
     .spec-btn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; background: var(--light-green); border: 2px solid var(--border-color); border-radius: 10px; padding: 9px 16px; font-weight: 700; font-size: 14px; color: var(--primary-green); font-family: inherit; transition: all .2s; }
     .spec-btn:hover { border-color: var(--primary-green); }
@@ -1238,7 +1264,7 @@
 
     <!-- ═══ التخصصات ═══ -->
     <section id="pageSpecs" class="view-page svx">
-      <div class="card">
+      <div class="card" id="spSpecsCard">
         <div class="page-head">
           <h2><i class="fas fa-stethoscope"></i> التخصصات</h2>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -1255,7 +1281,7 @@
         </div>
         <div class="hint" style="margin-top:10px; font-size:12px; color:#9A937D;"><i class="fas fa-info-circle"></i> الحذف بس للتخصص اللي ملوش أصناف ولا فواتير — غير كده يتوقف. لو غيّرت اسم التخصص بيتغير في كل الأصناف والفواتير القديمة.</div>
       </div>
-      <div class="card" style="margin-top:16px;">
+      <div class="card" id="spEmpCard" style="margin-top:16px;">
         <div class="page-head">
           <h2><i class="fas fa-users"></i> الموظفين المتكودين</h2>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -1997,7 +2023,7 @@
           <div class="table-header" style="margin-bottom:16px;">
             <div>
               <h3 style="font-size:17px;">أرصدة العملاء</h3>
-              <p style="font-size: 12px; color: #666; margin-top: 4px;">ملخص إجمالي المبيعات والمسدد والمتبقي لكل عميل</p>
+              <p style="font-size: 12px; color: #666; margin-top: 4px;">ملخص إجمالي المبيعات والمسدد والمتبقي لكل عميل — كليك يمين على العميل (أو ⋮) لتعديل بياناته أو فتح بطاقته</p>
             </div>
             <div style="display: flex; gap: 10px; align-items: center;">
               <button type="button" class="btn-small" onclick="fetchBalancesData()"><i class="fas fa-sync-alt"></i> تحديث</button>
@@ -2825,9 +2851,11 @@
           <div class="perm-tools">
             <select id="permCopyFrom" onchange="permCopy(this)"><option value="">نسخ الصلاحيات من مستخدم...</option></select>
             <button type="button" class="btn alt" style="padding:8px 12px; font-size:13px;" onclick="permSetAll('none')"><i class="fas fa-ban"></i> قفل الكل</button>
+            <button type="button" class="btn alt" style="padding:8px 12px; font-size:13px;" onclick="permSetAll('view')"><i class="fas fa-eye"></i> عرض بس للكل</button>
+            <button type="button" class="btn alt" style="padding:8px 12px; font-size:13px;" onclick="permSetAll('full')"><i class="fas fa-check-double"></i> كل الصلاحيات</button>
           </div>
           <div class="perm-list" id="permBody"></div>
-          <div class="hint">"مقفول" = الشاشة مش بتظهر له خالص.</div>
+          <div class="hint">من غير "عرض" الشاشة مش بتظهر له خالص. علّم أي خليط (مثلاً عرض + إضافة + حذف من غير تعديل). الشاشات اللي جواها تابات: افتح "التابات اللي جوه" وحدد لكل تاب — اللي مش هتغيره بيمشي زي الشاشة.</div>
           <div class="hint" id="usExtraTabs"></div>
         </div>
         <div class="modal-error" id="usError"></div>
@@ -3266,7 +3294,7 @@
         fetchLogsData();
       } else if (pageId === 'pageBalances') {
         document.getElementById('btnPageBalances').classList.add('active');
-        fetchBalancesData();
+        initBalancesPage();
       } else if (pageId === 'pageCash') {
         document.getElementById('btnPageCash').classList.add('active');
         cxLoad();
@@ -3598,6 +3626,12 @@
     function can(tab, action) {
       const p = authUser && authUser.permissions[tab];
       return !!(p && p.view === true && p[action] === true);
+    }
+    // تاب جوه شاشة (زي Balances/Cash) — لو مفيش صلاحية متحددة ليه بياخد صلاحية الشاشة
+    function canSub(tab, sub, action) {
+      const k = tab + '/' + sub, perms = authUser && authUser.permissions;
+      if (perms && perms[k]) return can(tab, 'view') && can(k, action);
+      return can(tab, action);
     }
     function apiPost(payload) {
       return fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
@@ -5684,7 +5718,7 @@
     let balancesSortDir = 'asc';
 
     function fetchBalancesData() {
-      if (!can('Balances', 'view')) return;
+      if (!canSub('Balances', 'Clients', 'view')) return;
       if (!SCRIPT_URL) return;
       const tbody = document.getElementById('balancesTableBody');
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري تحميل البيانات...</td></tr>';
@@ -5780,17 +5814,54 @@
         tr.innerHTML = `
           <td>${idx + 1}</td>
           <td>${row.id || '-'}</td>
-          <td><strong>${row.name}</strong></td>
+          <td><div class="bal-name"><strong>${row.name}</strong>${balMenuItems(row).length ? '<button type="button" class="row-dots" title="خيارات العميل"><i class="fas fa-ellipsis-v"></i></button>' : ''}</div></td>
           <td>${row.totalSales.toFixed(2)}</td>
           <td>${row.totalPaid.toFixed(2)}</td>
           <td style="${remainStyle}">${row.remaining.toFixed(2)}</td>
         `;
+        // كليك يمين على العميل: تعديل بياناته أو فتح بطاقته (وعلى الموبايل زرار ⋮)
+        if (balMenuItems(row).length) {
+          tr.classList.add('has-menu');
+          tr.addEventListener('contextmenu', e => { e.preventDefault(); showRowMenu(e.clientX, e.clientY, balMenuItems(row), row.name); });
+          const dots = tr.querySelector('.row-dots');
+          if (dots) dots.addEventListener('click', e => { e.stopPropagation(); const r = dots.getBoundingClientRect(); showRowMenu(r.left, r.bottom + 4, balMenuItems(row), row.name); });
+        }
         tbody.appendChild(tr);
       });
 
       document.getElementById('foot_bal_totalSales').innerHTML = `<strong>${sumSales.toFixed(2)}</strong>`;
       document.getElementById('foot_bal_totalPaid').innerHTML = `<strong>${sumPaid.toFixed(2)}</strong>`;
       document.getElementById('foot_bal_remaining').innerHTML = `<strong style="${sumRemaining > 0 ? 'color:red' : ''}">${sumRemaining.toFixed(2)}</strong>`;
+    }
+
+    // ── قايمة كليك يمين (عامة)
+    function balClientInfo(row) {
+      const r = (clientsData || []).find(c => (row.id && String(c['Client ID'] || '').trim() === String(row.id).trim()) || String(c['Client Name'] || '').trim() === row.name);
+      return r ? { name: String(r['Client Name'] || row.name).trim(), phone: String(r['Client Number'] || ''), phone2: String(r['Client Number 2'] || ''), address: String(r['Client Address'] || '') }
+        : { name: row.name, phone: '', phone2: '', address: '' };
+    }
+    function balMenuItems(row) {
+      const out = [];
+      if (canSub('ClientCards', 'Clients', 'view')) out.push({ icon: 'fa-id-card', label: 'فتح بطاقة العميل', run: () => { switchPage('pageClients'); ccShowClient(row.name); } });
+      if (canSub('ClientCards', 'Clients', 'edit')) out.push({ icon: 'fa-user-edit', label: 'تعديل بيانات العميل', run: () => ccOpenClientEdit(balClientInfo(row), 'balances') });
+      return out;
+    }
+    function showRowMenu(x, y, items, title) {
+      let m = document.getElementById('rowMenu');
+      if (!m) {
+        m = document.createElement('div'); m.id = 'rowMenu'; m.className = 'row-menu'; document.body.appendChild(m);
+        const hide = () => { m.style.display = 'none'; };
+        document.addEventListener('click', e => { if (!m.contains(e.target)) hide(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') hide(); });
+        window.addEventListener('scroll', hide, true);
+        window.addEventListener('resize', hide);
+      }
+      m.innerHTML = (title ? '<div class="rm-title">' + escCart(title) + '</div>' : '') + items.map((it, i) => '<button type="button" data-i="' + i + '"><i class="fas ' + it.icon + '"></i> ' + it.label + '</button>').join('');
+      m.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { m.style.display = 'none'; items[+b.dataset.i].run(); }));
+      m.style.display = 'block';
+      const w = m.offsetWidth, h = m.offsetHeight;
+      m.style.left = Math.max(8, Math.min(x - (document.dir === 'rtl' || document.documentElement.dir === 'rtl' ? w : 0), innerWidth - w - 8)) + 'px';
+      m.style.top = Math.max(8, Math.min(y, innerHeight - h - 8)) + 'px';
     }
 
     // ============================================================
@@ -5985,9 +6056,20 @@
     let cashFullSales    = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 }; // إجمالي المبيعات لكل طريقة دفع
     let cashFullExpenses = { Cash: 0, Wallet: 0, InstaPay: 0, POS: 0 }; // إجمالي المصروفات لكل طريقة دفع
 
+    // تابين الأرصدة حسب الصلاحية (أرصدة العملاء / النقدية)
+    function initBalancesPage() {
+      const cOk = canSub('Balances', 'Clients', 'view'), kOk = canSub('Balances', 'Cash', 'view');
+      document.getElementById('balTabClients').style.display = cOk ? '' : 'none';
+      document.getElementById('balTabCash').style.display = kOk ? '' : 'none';
+      const cur = document.getElementById('balTabCash').classList.contains('active') ? 'cash' : 'clients';
+      switchBalTab(cur === 'cash' ? (kOk ? 'cash' : 'clients') : (cOk ? 'clients' : 'cash'));
+    }
     function switchBalTab(tab) {
-      document.querySelectorAll('.bal-tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.bal-tab-content').forEach(c => c.classList.remove('active'));
+      if (tab === 'clients' && !canSub('Balances', 'Clients', 'view')) tab = 'cash';
+      if (tab === 'cash' && !canSub('Balances', 'Cash', 'view')) tab = canSub('Balances', 'Clients', 'view') ? 'clients' : '';
+      document.querySelectorAll('#pageBalances .bal-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#pageBalances .bal-tab-content').forEach(c => c.classList.remove('active'));
+      if (!tab) return;
       if (tab === 'clients') {
         document.getElementById('balTabClients').classList.add('active');
         document.getElementById('balTabClientsContent').classList.add('active');
@@ -6130,7 +6212,7 @@
     let isCashLoading = false;
 
     async function loadCashSummary() {
-      if (!can('Balances', 'view')) return;
+      if (!canSub('Balances', 'Cash', 'view')) return;
       const from = document.getElementById('cashDateFrom').value;
       let to = cashPeriodMode === 'day'
         ? from
@@ -6148,7 +6230,7 @@
         closeBtn.disabled = true;
       } else {
         multiNotice.classList.remove('show');
-        closeBtn.disabled = !can('Balances', 'add');
+        closeBtn.disabled = !canSub('Balances', 'Cash', 'add');
       }
 
       // إظهار مؤشر التحميل — الأرقام الظاهرة حالياً قديمة لحد ما التحميل يخلص
@@ -6185,7 +6267,7 @@
         document.getElementById('cashSummaryGrid').classList.remove('is-loading');
         document.getElementById('cashGrandTotal').closest('.cash-total-bar').classList.remove('is-loading');
         // نعيد ضبط حالة زرار الإغلاق بعد انتهاء التحميل
-        closeBtn.disabled = isMultiDay ? true : !can('Balances', 'add');
+        closeBtn.disabled = isMultiDay ? true : !canSub('Balances', 'Cash', 'add');
       }
     }
 
@@ -6307,7 +6389,7 @@
     let pendingCloseDayNeedsPassword = false;
 
     function openCloseDayModal() {
-      if (!can('Balances', 'add')) return;
+      if (!canSub('Balances', 'Cash', 'add')) return;
       if (isCashLoading) { alert('لسه جاري تحميل وحساب الأرقام، برجاء الانتظار لحظة ثم المحاولة مرة أخرى.'); return; }
       const from = document.getElementById('cashDateFrom').value;
       if (!from) { alert('يرجى تحديد اليوم أولاً.'); return; }
@@ -6638,6 +6720,11 @@
     // خدمات سريعة — رسالة التقفيل (الاستقبال) + بيانات عملاء اليوم (الكول سنتر)
     // ============================================================
     function initServicesPage() {
+      const a = canSub('Services', 'Closing', 'view'), b = canSub('Services', 'Clients', 'view');
+      document.getElementById('svcTabBtnClosing').style.display = a ? '' : 'none';
+      document.getElementById('svcTabBtnClients').style.display = b ? '' : 'none';
+      const curC = document.getElementById('svcTabBtnClients').classList.contains('active');
+      switchServicesTab(curC ? 'Clients' : 'Closing');
       const today = new Date();
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -6650,6 +6737,7 @@
     }
 
     function switchServicesTab(tab) {
+      if (!canSub('Services', tab, 'view')) { const other = tab === 'Closing' ? 'Clients' : 'Closing'; if (!canSub('Services', other, 'view')) return; tab = other; }
       document.querySelectorAll('#pageServices .bal-tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('#pageServices .bal-tab-content').forEach(c => c.classList.remove('active'));
       document.getElementById('svcTabBtn' + tab).classList.add('active');
@@ -7024,7 +7112,7 @@
     }
 
     async function confirmCloseDay() {
-      if (!can('Balances', 'add')) return;
+      if (!canSub('Balances', 'Cash', 'add')) return;
       const from = document.getElementById('cashDateFrom').value;
       const amounts = getCashAmounts();
       const grand = amounts.Cash + amounts.Wallet + amounts.InstaPay + amounts.POS;
@@ -9056,11 +9144,11 @@
     // ═══════════════════════════ المستخدمين والصلاحيات ═══════════════════════════
     const TAB_LABELS = {
       Sales: ['إضافة حركة جديدة', 'تسجيل الفواتير'], Collect: ['تحصيلات', 'تحصيل وحجز'],
-      ClientCards: ['بطاقات العملاء', 'إضافة = تسجيل جلسة · تعديل = تكملة وتأكيد البطاقات · حذف = حذف جلسة مستنية — بعد التأكيد والأرصدة والتحويل للمدير بس'],
+      ClientCards: ['بطاقات العملاء', 'التابات اللي جوه بتاخد نفس الصلاحية إلا لو حددتها — تعديل الجلسات بعد التأكيد والأرصدة والتحويل للمدير بس'],
       Items: ['الأصناف', 'إضافة = صنف جديد · تعديل = تعديل وإيقاف · حذف = حذف صنف ملوش حركات'],
       Specialities: ['التخصصات', 'إضافة = تخصص جديد · تعديل = الموظفين والإيقاف · حذف = تخصص ملوش أصناف ولا فواتير'],
       Transactions: ['استعراض البيانات', 'تعديل = تعديل فاتورة · حذف = حذف فاتورة'], Logs: ['السجل', ''],
-      Balances: ['الأرصدة', 'إضافة = إغلاق اليوم'], Expenses: ['المصروفات', ''], Payroll: ['Payroll', 'السلف والخصومات'],
+      Balances: ['الأرصدة', 'أرصدة العملاء + النقدية (إضافة = إغلاق اليوم)'], Expenses: ['المصروفات', ''], Payroll: ['Payroll', 'السلف والخصومات'],
       Services: ['خدمات سريعة', ''], Cash: ['النقدية والعهد', 'إضافة = تحويل / تسوية / رصيد أول المدة'],
       PriceList: ['قائمة الأسعار', 'عرض = الأسعار وسعر التيم · تعديل = تعديل الأسعار من الجدول'],
       Catalog: ['إدارة الخدمات', 'المجلدات والخدمات والصور'], Users: ['المستخدمين والصلاحيات', 'الشاشة دي']
@@ -9080,7 +9168,7 @@
       }
     }
     function setUsers(res) {
-      USERS = { users: res.users || [], tabs: res.tabs || [], employees: res.employees || [], masterSet: res.masterSet };
+      USERS = { users: res.users || [], tabs: res.tabs || [], subTabs: res.subTabs || {}, employees: res.employees || [], masterSet: res.masterSet };
       const f = document.getElementById('usTabFilter'), cur = f.value;
       f.innerHTML = '<option value="">كل التابات</option>' + USERS.tabs.map(t => '<option value="' + t + '">' + esc((TAB_LABELS[t] || [t])[0]) + '</option>').join('');
       f.value = cur;
@@ -9133,7 +9221,7 @@
       const perms = u ? u.permissions : {};
       document.getElementById('permCopyFrom').innerHTML = '<option value="">نسخ الصلاحيات من مستخدم...</option>'
         + USERS.users.filter(x => !u || x.name !== u.name).map(x => '<option value="' + esc(x.name) + '">' + esc(x.name) + (x.job ? ' — ' + esc(x.job) : '') + '</option>').join('');
-      renderPermRows(u ? u.permissions : {});
+      renderPermRows(u ? u.permissions : {}, u ? u.customSubs : []);
       showErr('usError', '');
       openModal('userModal');
       setTimeout(() => document.getElementById('usName').focus(), 50);
@@ -9145,51 +9233,113 @@
       const put = (id, v) => { const el = document.getElementById(id); if (!userEdit.original || !el.value) el.value = v || ''; };
       put('usId', e.id); put('usJob', e.job); put('usCategory', e.category);
     }
-    // ── الصلاحيات: اختيار واحد لكل شاشة بدل 4 علامات
-    const PERM_LEVELS = [
-      ['none', 'مقفول', {}],
-      ['view', 'عرض بس', { view: true }],
-      ['add', 'عرض + إضافة', { view: true, add: true }],
-      ['edit', 'عرض + إضافة + تعديل', { view: true, add: true, edit: true }],
-      ['full', 'كل الصلاحيات', { view: true, add: true, edit: true, delete: true }]
-    ];
-    function permLevel(p) {
-      if (!p || !p.view) return 'none';
-      const k = (p.add ? 'A' : '') + (p.edit ? 'E' : '') + (p.delete ? 'D' : '');
-      return { '': 'view', 'A': 'add', 'AE': 'edit', 'AED': 'full' }[k] || 'custom';
+    // ── الصلاحيات: لكل شاشة عرض / إضافة / تعديل / حذف (أي خليط) — ولو الشاشة جواها تابات: صلاحية لكل تاب
+    const PERM_ACT_AR = { view: 'عرض', add: 'إضافة', edit: 'تعديل', delete: 'حذف' };
+    const SUB_HINTS = {
+      'ClientCards/Today': 'تعديل = تكملة وتأكيد الجلسات المستنية', 'ClientCards/Clients': 'تعديل = بيانات العميل · إضافة/تعديل/حذف = الأرصدة والتحويل (للمدير)',
+      'ClientCards/Visits': 'إضافة = تسجيل جلسة · تعديل · حذف جلسة مستنية', 'ClientCards/Invoices': 'عرض الفواتير والمدفوعات والرصيد المالي في البطاقة',
+      'Balances/Clients': 'عرض أرصدة العملاء', 'Balances/Cash': 'إضافة = إغلاق اليوم',
+      'Services/Closing': '', 'Services/Clients': '',
+      'Specialities/Specs': 'إضافة/تعديل/حذف التخصصات', 'Specialities/Employees': 'إضافة = موظف جديد · تعديل = بياناته والإيقاف'
+    };
+    function permActsHtml(p, dis) {
+      return '<div class="perm-acts">' + PERM_ACTS.map(a => '<label class="pa pa-' + a + (p[a] ? ' on' : '') + '"><input type="checkbox" data-a="' + a + '"' + (p[a] ? ' checked' : '') + (dis ? ' disabled' : '')
+        + ' onchange="permTick(this)"><span>' + PERM_ACT_AR[a] + '</span></label>').join('') + '</div>';
     }
-    function customLabel(p) { return 'مخصص: عرض' + (p.add ? '، إضافة' : '') + (p.edit ? '، تعديل' : '') + (p.delete ? '، حذف' : ''); }
-    function renderPermRows(perms) {
+    function renderPermRows(perms, customSubs) {
+      perms = perms || {}; customSubs = customSubs || [];
+      const subs = USERS.subTabs || {};
       document.getElementById('permBody').innerHTML = orderedTabs().map(t => {
         const p = perms[t] || {};
-        const lv = permLevel(p);
         const lbl = TAB_LABELS[t] || [t, ''];
-        const opts = PERM_LEVELS.map(l => '<option value="' + l[0] + '"' + (l[0] === lv ? ' selected' : '') + '>' + l[1] + '</option>').join('')
-          + (lv === 'custom' ? '<option value="custom" selected>' + esc(customLabel(p)) + '</option>' : '');
-        return '<div class="perm-row' + (lv === 'none' ? ' off' : '') + '" data-tab="' + t + '" data-custom="' + esc(JSON.stringify(lv === 'custom' ? p : {})) + '">'
-          + '<div><span class="perm-tab-name">' + esc(lbl[0]) + '</span>' + (lbl[1] ? '<span class="perm-tab-hint">' + esc(lbl[1]) + '</span>' : '') + '</div>'
-          + '<select class="lv-' + lv + '" onchange="permChanged(this)">' + opts + '</select></div>';
+        const list = subs[t] || [];
+        const nCustom = list.filter(x => customSubs.indexOf(t + '/' + x[0]) !== -1).length;
+        let h = '<div class="perm-row' + (p.view ? '' : ' off') + '" data-tab="' + t + '">'
+          + '<div class="perm-name"><span class="perm-tab-name">' + esc(lbl[0]) + '</span>' + (lbl[1] ? '<span class="perm-tab-hint">' + esc(lbl[1]) + '</span>' : '')
+          + (list.length ? '<button type="button" class="perm-subbtn' + (nCustom ? ' has' : '') + '" onclick="permToggleSubs(\'' + t + '\')"><i class="fas fa-layer-group"></i> التابات اللي جوه (' + list.length + ')' + (nCustom ? ' · ' + nCustom + ' مخصص' : '') + ' <i class="fas fa-chevron-down"></i></button>' : '')
+          + '</div>' + permActsHtml(p, false) + '</div>';
+        if (list.length) {
+          h += '<div class="perm-subs" data-parent="' + t + '"' + (nCustom ? '' : ' style="display:none;"') + '>' + list.map(x => {
+            const k = t + '/' + x[0], custom = customSubs.indexOf(k) !== -1;
+            const sp = custom ? (perms[k] || {}) : p;
+            return '<div class="perm-row sub' + (sp.view && p.view ? '' : ' off') + '" data-tab="' + k + '" data-custom="' + (custom ? 1 : 0) + '">'
+              + '<div class="perm-name"><span class="perm-tab-name"><i class="fas fa-level-up-alt fa-rotate-90"></i> ' + esc(x[1]) + '</span>'
+              + (SUB_HINTS[k] ? '<span class="perm-tab-hint">' + esc(SUB_HINTS[k]) + '</span>' : '')
+              + '<span class="perm-inherit">' + (custom ? '<a href="javascript:void(0)" onclick="permResetSub(\'' + k + '\')">مخصص — رجّعه زي الشاشة</a>' : 'زي الشاشة') + '</span></div>'
+              + permActsHtml(sp, !p.view) + '</div>';
+          }).join('') + '</div>';
+        }
+        return h;
       }).join('');
     }
-    function permChanged(sel) {
-      sel.className = 'lv-' + sel.value;
-      sel.closest('.perm-row').classList.toggle('off', sel.value === 'none');
+    function permRowVals(row) { const o = {}; row.querySelectorAll('.perm-acts input').forEach(i => { o[i.dataset.a] = i.checked; }); return o; }
+    function permSetRow(row, vals, dis) {
+      row.querySelectorAll('.perm-acts input').forEach(i => {
+        i.checked = !!vals[i.dataset.a];
+        if (dis !== undefined) i.disabled = dis;
+        i.parentNode.classList.toggle('on', i.checked);
+      });
+      row.classList.toggle('off', !vals.view || !!dis);
+    }
+    // علامة: إضافة/تعديل/حذف بتعلّم "عرض" — وشيل "عرض" بيقفل الباقي
+    function permTick(cb) {
+      const row = cb.closest('.perm-row');
+      const v = permRowVals(row);
+      if (cb.dataset.a !== 'view' && cb.checked) v.view = true;
+      if (cb.dataset.a === 'view' && !cb.checked) PERM_ACTS.forEach(a => { v[a] = false; });
+      permSetRow(row, v);
+      if (row.classList.contains('sub')) {
+        row.dataset.custom = '1';
+        row.querySelector('.perm-inherit').innerHTML = '<a href="javascript:void(0)" onclick="permResetSub(\'' + row.dataset.tab + '\')">مخصص — رجّعه زي الشاشة</a>';
+        permSubCount(row.dataset.tab.split('/')[0]);
+      } else permSyncSubs(row.dataset.tab);
+    }
+    // التابات اللي جوه اللي مش مخصصة بتمشي ورا الشاشة — ومن غير عرض الشاشة كلها مقفولة
+    function permSyncSubs(t) {
+      const box = document.querySelector('.perm-subs[data-parent="' + t + '"]');
+      if (!box) return;
+      const p = permRowVals(document.querySelector('.perm-row[data-tab="' + t + '"]'));
+      box.querySelectorAll('.perm-row.sub').forEach(r => {
+        if (r.dataset.custom === '1') permSetRow(r, permRowVals(r), !p.view);
+        else permSetRow(r, p, !p.view);
+      });
+    }
+    function permResetSub(k) {
+      const r = document.querySelector('.perm-row[data-tab="' + k + '"]');
+      r.dataset.custom = '0';
+      r.querySelector('.perm-inherit').textContent = 'زي الشاشة';
+      permSyncSubs(k.split('/')[0]);
+      permSubCount(k.split('/')[0]);
+    }
+    function permSubCount(t) {
+      const btn = document.querySelector('.perm-row[data-tab="' + t + '"] .perm-subbtn');
+      if (!btn) return;
+      const n = document.querySelectorAll('.perm-subs[data-parent="' + t + '"] .perm-row[data-custom="1"]').length;
+      const total = document.querySelectorAll('.perm-subs[data-parent="' + t + '"] .perm-row').length;
+      btn.classList.toggle('has', !!n);
+      btn.innerHTML = '<i class="fas fa-layer-group"></i> التابات اللي جوه (' + total + ')' + (n ? ' · ' + n + ' مخصص' : '') + ' <i class="fas fa-chevron-down"></i>';
+    }
+    function permToggleSubs(t) {
+      const box = document.querySelector('.perm-subs[data-parent="' + t + '"]');
+      if (box) box.style.display = box.style.display === 'none' ? '' : 'none';
     }
     function permSetAll(level) {
-      document.querySelectorAll('#permBody select').forEach(sel => { sel.value = level; permChanged(sel); });
+      const v = level === 'full' ? { view: true, add: true, edit: true, delete: true } : level === 'view' ? { view: true } : {};
+      document.querySelectorAll('#permBody .perm-row:not(.sub)').forEach(r => { permSetRow(r, v); });
+      document.querySelectorAll('#permBody .perm-row.sub').forEach(r => { r.dataset.custom = '0'; r.querySelector('.perm-inherit').textContent = 'زي الشاشة'; });
+      Object.keys(USERS.subTabs || {}).forEach(t => { permSyncSubs(t); permSubCount(t); });
     }
     function permCopy(sel) {
       const src = USERS.users.find(x => x.name === sel.value);
-      if (src) { renderPermRows(src.permissions); toast('اتنسخت صلاحيات ' + src.name + ' — راجعها واحفظ'); }
+      if (src) { renderPermRows(src.permissions, src.customSubs); toast('اتنسخت صلاحيات ' + src.name + ' — راجعها واحفظ'); }
       sel.value = '';
     }
+    // التاب اللي جوه بيتبعت بس لو مخصص — غير كده السيرفر بيديله صلاحية الشاشة
     function readPermRows() {
       const out = {};
       document.querySelectorAll('#permBody .perm-row').forEach(row => {
-        const v = row.querySelector('select').value;
-        if (v === 'custom') { try { out[row.dataset.tab] = JSON.parse(row.dataset.custom || '{}'); } catch (_) { out[row.dataset.tab] = {}; } return; }
-        const lv = PERM_LEVELS.find(l => l[0] === v);
-        out[row.dataset.tab] = Object.assign({ view: false, add: false, edit: false, delete: false }, lv ? lv[2] : {});
+        if (row.classList.contains('sub') && row.dataset.custom !== '1') return;
+        out[row.dataset.tab] = Object.assign({ view: false, add: false, edit: false, delete: false }, permRowVals(row));
       });
       return out;
     }
@@ -9508,6 +9658,13 @@
     // ── فتح التاب: لو فيه عميل مفتوح بتتحدث بطاقته، غير كده الصفحة الرئيسية
     function ccInit() {
       if (!clientsData || !clientsData.length) refreshClients().catch(() => {});
+      // التابين حسب الصلاحية
+      const tOk = canSub('ClientCards', 'Today', 'view'), cOk = canSub('ClientCards', 'Clients', 'view');
+      document.getElementById('ccvwToday').style.display = tOk ? '' : 'none';
+      document.getElementById('ccvwClients').style.display = cOk ? '' : 'none';
+      if (CC.view === 'today' && !tOk && cOk) CC.view = 'clients';
+      if (CC.view === 'clients' && !cOk && tOk) CC.view = 'today';
+      if (!tOk && !cOk) { document.getElementById('ccBody').innerHTML = '<div class="cc-empty-sm"><i class="fas fa-lock"></i> مفيش صلاحية على تابات البطاقات.</div>'; return; }
       ccSetView(CC.view);
     }
     // تابين جوه البطاقات: "اليوم" (البطاقات المستنية تأكيد واللي اتأكدت) و"العملاء" (البحث والبطاقة)
@@ -9520,8 +9677,10 @@
       else if (CC.client) ccOpen(CC.client, true);
       else ccHome();
     }
-    function ccShowClient(name) { CC.view = 'clients'; document.getElementById('ccvwToday').classList.remove('on'); document.getElementById('ccvwClients').classList.add('on');
-      document.getElementById('ccClientsBar').style.display = ''; ccOpen(name); }
+    function ccShowClient(name) {
+      if (!canSub('ClientCards', 'Clients', 'view')) { toast('مالكش صلاحية على بطاقات العملاء', true); return; }
+      CC.view = 'clients'; document.getElementById('ccvwToday').classList.remove('on'); document.getElementById('ccvwClients').classList.add('on');
+      document.getElementById('ccClientsBar').style.display = ''; document.getElementById('ccvwClients').style.display = ''; ccOpen(name); }
     async function ccHome() {
       CC.client = ''; CC.card = null;
       const req = ++CC.req;
@@ -9626,19 +9785,23 @@
       const visits = d.visits.filter(inSec).filter(v => v.status === 'Confirmed');
       const pendingV = d.visits.filter(v => v.status === 'Pending');
       const bal = Number(c.balance) || 0;
+      const canInv = d.canInvoices !== false && canSub('ClientCards', 'Invoices', 'view');
+      const canVis = d.canVisits !== false && canSub('ClientCards', 'Visits', 'view');
+      if (CC.tab === 'visits' && !canVis && canInv) CC.tab = 'invoices';
+      if (CC.tab === 'invoices' && !canInv && canVis) CC.tab = 'visits';
       const balHtml = bal > 0 ? '<span class="cc-bal due"><i class="fas fa-exclamation-circle"></i> عليها ' + ccNum(bal) + ' ' + CURRENCY + '</span>'
         : bal < 0 ? '<span class="cc-bal credit"><i class="fas fa-check-circle"></i> ليها ' + ccNum(-bal) + ' ' + CURRENCY + '</span>'
         : '<span class="cc-bal">رصيد مالي: 0</span>';
       let html = '<div class="cc-head"><div><div class="cc-name">' + esc(c.name) + '</div><div class="cc-sub">'
         + [c.phone, c.phone2, c.address, c.id].filter(Boolean).map(esc).join(' · ') + '</div></div>'
-        + '<div class="cc-head-side">' + balHtml + '<div class="cc-acts">'
-        + (can('ClientCards', 'edit') ? '<button class="btn alt" onclick="ccOpenClientEdit()" title="تعديل الاسم والرقم والعنوان"><i class="fas fa-user-edit"></i> تعديل العميل</button>' : '')
-        + (can('ClientCards', 'add') ? '<button class="btn" onclick="ccOpenVisit(\'\')"><i class="fas fa-plus"></i> جلسة / زيارة</button>' : '')
-        + (mgr && can('ClientCards', 'add') ? '<button class="btn alt" onclick="ccOpenPkg(\'\')"><i class="fas fa-box-open"></i> إضافة رصيد</button>' : '')
+        + '<div class="cc-head-side">' + (canInv ? balHtml : '') + '<div class="cc-acts">'
+        + (canSub('ClientCards', 'Clients', 'edit') ? '<button class="btn alt" onclick="ccOpenClientEdit()" title="تعديل الاسم والرقم والعنوان"><i class="fas fa-user-edit"></i> تعديل العميل</button>' : '')
+        + (canSub('ClientCards', 'Visits', 'add') ? '<button class="btn" onclick="ccOpenVisit(\'\')"><i class="fas fa-plus"></i> جلسة / زيارة</button>' : '')
+        + (mgr && canSub('ClientCards', 'Clients', 'add') ? '<button class="btn alt" onclick="ccOpenPkg(\'\')"><i class="fas fa-box-open"></i> إضافة رصيد</button>' : '')
         + '</div></div></div>';
       if (pendingV.length) html += '<div class="cc-pend"><div><i class="fas fa-hourglass-half"></i> <b>' + pendingV.length + ' جلسة مستنية تأكيد</b><div class="cc-sub">'
         + pendingV.map(v => esc(v.service) + ' (' + ccDate(v.date) + ')').join('، ') + '</div></div>'
-        + (can('ClientCards', 'edit') ? '<button class="btn" onclick="ccOpenDayForClient()"><i class="fas fa-check-double"></i> فتح للتأكيد</button>' : '') + '</div>';
+        + (canSub('ClientCards', 'Today', 'edit') ? '<button class="btn" onclick="ccOpenDayForClient()"><i class="fas fa-check-double"></i> فتح للتأكيد</button>' : '') + '</div>';
       html += '<div class="cc-chips">' + ccSections().map(s => '<button type="button" class="cc-chip' + (CC.section === s[0] ? ' on' : '') + '" data-s="' + esc(s[0]) + '" onclick="ccSetSection(this.dataset.s)">' + s[1] + '</button>').join('') + '</div>';
       // الأرصدة
       html += '<div class="cc-h"><span><i class="fas fa-box-open"></i> الأرصدة' + (pk.filter(live).length ? ' (' + pk.filter(live).length + ')' : '') + '</span>'
@@ -9646,16 +9809,17 @@
       html += shown.length ? '<div class="cc-pkgs">' + shown.map(ccPkgHtml).join('') + '</div>'
         : '<div class="cc-empty-sm">' + (pk.length ? 'كل الأرصدة خلصت' : 'مفيش أرصدة للعميل ده') + '</div>';
       // سجل المتابعة / الفواتير
-      html += '<div class="cc-tabs"><button type="button" class="cc-tab' + (CC.tab === 'visits' ? ' on' : '') + '" onclick="ccSetTab(\'visits\')"><i class="fas fa-notes-medical"></i> سجل المتابعة (' + visits.length + ')</button>'
-        + '<button type="button" class="cc-tab' + (CC.tab === 'invoices' ? ' on' : '') + '" onclick="ccSetTab(\'invoices\')"><i class="fas fa-file-invoice"></i> الفواتير والمدفوعات (' + d.invoices.length + ')</button></div>';
+      html += '<div class="cc-tabs">' + (canVis ? '<button type="button" class="cc-tab' + (CC.tab === 'visits' ? ' on' : '') + '" onclick="ccSetTab(\'visits\')"><i class="fas fa-notes-medical"></i> سجل المتابعة (' + visits.length + ')</button>' : '')
+        + (canInv ? '<button type="button" class="cc-tab' + (CC.tab === 'invoices' ? ' on' : '') + '" onclick="ccSetTab(\'invoices\')"><i class="fas fa-file-invoice"></i> الفواتير والمدفوعات (' + d.invoices.length + ')</button>' : '') + '</div>';
+      
       const xp = file => '<div class="xp-bar"><button type="button" class="xp-btn xl" onclick="exportExcel(' + ccXpIdx(file) + ', this)"><i class="fas fa-file-excel"></i> Excel</button>'
         + '<button type="button" class="xp-btn pdf" onclick="exportPdf(' + ccXpIdx(file) + ')"><i class="fas fa-file-pdf"></i> PDF</button></div>';
       if (CC.tab === 'visits') {
-        html += visits.length ? xp('Client-Visits') + '<div class="table-container"><table class="cc-table" id="ccVisitsTable"><thead><tr><th>التاريخ</th><th>الخدمة</th><th>النوع</th><th>الكمية</th><th>الدكتور / الأخصائية</th><th>الملاحظات</th><th>المتابعة الجاية</th><th>إجراءات</th></tr></thead><tbody>'
+        html += !canVis ? '' : visits.length ? xp('Client-Visits') + '<div class="table-container"><table class="cc-table" id="ccVisitsTable"><thead><tr><th>التاريخ</th><th>الخدمة</th><th>النوع</th><th>الكمية</th><th>الدكتور / الأخصائية</th><th>الملاحظات</th><th>المتابعة الجاية</th><th>إجراءات</th></tr></thead><tbody>'
           + visits.map(ccVisitRow).join('') + '</tbody></table></div>'
           : '<div class="cc-empty-sm">مفيش زيارات متسجلة' + (CC.section !== 'all' ? ' في القسم ده' : '') + '</div>';
       } else {
-        html += d.invoices.length ? xp('Client-Invoices') + '<div class="table-container"><table class="cc-table" id="ccInvTable"><thead><tr><th>التاريخ</th><th>رقم</th><th>الخدمات</th><th>الصافي</th><th>المدفوع</th><th>طريقة الدفع</th><th>الدكتور / الأخصائية</th></tr></thead><tbody>'
+        html += !canInv ? '' : d.invoices.length ? xp('Client-Invoices') + '<div class="table-container"><table class="cc-table" id="ccInvTable"><thead><tr><th>التاريخ</th><th>رقم</th><th>الخدمات</th><th>الصافي</th><th>المدفوع</th><th>طريقة الدفع</th><th>الدكتور / الأخصائية</th></tr></thead><tbody>'
           + d.invoices.map(i => '<tr><td data-l="التاريخ">' + ccDate(i.date) + '</td><td data-l="رقم">' + esc(i.num) + '</td>'
             + '<td data-l="الخدمات" class="wide">' + (i.items.length ? i.items.map(esc).join('، ') : '<span class="cc-tag">' + esc(/حجز/.test(i.kind) ? 'حجز' : 'تحصيل') + '</span>') + (i.notes ? '<div class="cc-sub">' + esc(i.notes) + '</div>' : '') + '</td>'
             + '<td data-l="الصافي">' + ccNum(i.net) + '</td><td data-l="المدفوع">' + ccNum(i.paid) + '</td><td data-l="طريقة الدفع">' + esc(i.methods || '—') + '</td>'
@@ -9684,10 +9848,10 @@
         p.expiry ? (p.status === 'expired' ? 'انتهى ' : 'ينتهي ') + ccDate(p.expiry) : 'مالوش انتهاء'].filter(Boolean).join(' · ');
       const open = p.status === 'open';
       const acts = [];
-      if (can('ClientCards', 'add') && (open || (mgr && p.status === 'expired'))) acts.push('<button class="btn" data-p="' + esc(p.id) + '" onclick="ccOpenVisit(this.dataset.p)"><i class="fas fa-plus"></i> جلسة</button>');
-      if (mgr && can('ClientCards', 'add') && open && p.total !== '') acts.push('<button class="btn alt" data-p="' + esc(p.id) + '" onclick="ccOpenTransfer(this.dataset.p)"><i class="fas fa-exchange-alt"></i> تحويل</button>');
-      if (mgr && can('ClientCards', 'edit')) acts.push('<button class="btn alt" data-p="' + esc(p.id) + '" onclick="ccOpenPkg(this.dataset.p)" title="تعديل الكمية أو الصلاحية"><i class="fas fa-pen"></i></button>');
-      if (mgr && can('ClientCards', 'delete') && (p.source === 'Opening' || p.source === 'Manual' || p.source === 'Credit') && !p.used && !p.sessions && !p.pending) acts.push('<button class="btn alt" style="color:var(--danger);" data-p="' + esc(p.id) + '" onclick="ccDeletePkg(this.dataset.p)" title="حذف"><i class="fas fa-trash"></i></button>');
+      if (canSub('ClientCards', 'Visits', 'add') && (open || (mgr && p.status === 'expired'))) acts.push('<button class="btn" data-p="' + esc(p.id) + '" onclick="ccOpenVisit(this.dataset.p)"><i class="fas fa-plus"></i> جلسة</button>');
+      if (mgr && canSub('ClientCards', 'Clients', 'add') && open && p.total !== '') acts.push('<button class="btn alt" data-p="' + esc(p.id) + '" onclick="ccOpenTransfer(this.dataset.p)"><i class="fas fa-exchange-alt"></i> تحويل</button>');
+      if (mgr && canSub('ClientCards', 'Clients', 'edit')) acts.push('<button class="btn alt" data-p="' + esc(p.id) + '" onclick="ccOpenPkg(this.dataset.p)" title="تعديل الكمية أو الصلاحية"><i class="fas fa-pen"></i></button>');
+      if (mgr && canSub('ClientCards', 'Clients', 'delete') && (p.source === 'Opening' || p.source === 'Manual' || p.source === 'Credit') && !p.used && !p.sessions && !p.pending) acts.push('<button class="btn alt" style="color:var(--danger);" data-p="' + esc(p.id) + '" onclick="ccDeletePkg(this.dataset.p)" title="حذف"><i class="fas fa-trash"></i></button>');
       return '<div class="cc-pkg st-' + p.status + '"><div class="top"><div><div class="svc">' + esc(p.service) + '</div><div class="cc-sub">' + esc(ccSecName(p.speciality)) + ' · ' + esc(p.id) + '</div></div>' + badge + '</div>'
         + dots + '<div class="cc-nums">' + nums + '</div>'
         + '<div class="cc-meta">' + meta + (p.notes ? '<br>' + esc(p.notes) : '') + '</div>'
@@ -9699,8 +9863,8 @@
         + (v.confirmedBy ? '<div class="cc-sub"><i class="fas fa-check"></i> أكدها ' + esc(v.confirmedBy) + '</div>' : '');
       // بعد التأكيد: التعديل والحذف للمدير بس
       const locked = v.source === 'Transfer' || !CC.isManager;
-      const acts = (!locked && can('ClientCards', 'edit') ? '<button class="icon-btn" title="تعديل / ملاحظات" data-v="' + esc(v.id) + '" onclick="ccEditVisit(this.dataset.v)"><i class="fas fa-pen"></i></button>' : '')
-        + (!locked && can('ClientCards', 'delete') ? '<button class="icon-btn danger" title="حذف" data-v="' + esc(v.id) + '" onclick="ccDeleteVisit(this.dataset.v)"><i class="fas fa-trash"></i></button>' : '');
+      const acts = (!locked && canSub('ClientCards', 'Visits', 'edit') ? '<button class="icon-btn" title="تعديل / ملاحظات" data-v="' + esc(v.id) + '" onclick="ccEditVisit(this.dataset.v)"><i class="fas fa-pen"></i></button>' : '')
+        + (!locked && canSub('ClientCards', 'Visits', 'delete') ? '<button class="icon-btn danger" title="حذف" data-v="' + esc(v.id) + '" onclick="ccDeleteVisit(this.dataset.v)"><i class="fas fa-trash"></i></button>' : '');
       return '<tr><td data-l="التاريخ">' + ccDate(v.date) + '</td>'
         + '<td data-l="الخدمة" class="wide"><div class="cc-svc">' + esc(v.service) + '</div><div class="cc-sub">' + esc(ccSecName(v.speciality)) + (v.pkg ? ' · ' + esc(v.pkg) : '') + ' ' + tags + '</div></td>'
         + '<td data-l="النوع">' + esc(v.type || '—') + '</td><td data-l="الكمية">' + ccVisitQty(v) + '</td>'
@@ -9711,9 +9875,12 @@
     }
     function ccSetSection(s) { CC.section = s; ccRenderCard(); }
     // تعديل العميل: الاسم (بيتغير في كل القديم) والأرقام والعنوان
-    function ccOpenClientEdit() {
-      const c = CC.card && CC.card.client;
+    // تعديل العميل — من بطاقته أو من الأرصدة (كليك يمين)
+    let CCE = null;   // { name, from: 'card' | 'balances' }
+    function ccOpenClientEdit(c, from) {
+      c = c || (CC.card && CC.card.client);
       if (!c) return;
+      CCE = { name: c.name, from: from || 'card' };
       document.getElementById('cceName').value = c.name;
       document.getElementById('ccePhone').value = c.phone || '';
       document.getElementById('ccePhone2').value = c.phone2 || '';
@@ -9723,7 +9890,7 @@
       setTimeout(() => document.getElementById('cceName').focus(), 50);
     }
     async function ccSaveClientEdit() {
-      const c = CC.card.client;
+      const c = { name: CCE.name };
       const data = { orig: c.name, name: document.getElementById('cceName').value.trim(), phone: document.getElementById('ccePhone').value.trim(),
         phone2: document.getElementById('ccePhone2').value.trim(), address: document.getElementById('cceAddress').value.trim() };
       if (!data.name) { showErr('cceError', 'اكتب اسم العميل.'); return; }
@@ -9735,8 +9902,11 @@
       btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
       try {
         const res = await svPost({ action: 'ccEditClient', data });
-        closeModal('ccClientModal'); ccSetCard(res); document.getElementById('ccSearch').value = res.client.name; toast(res.message || 'تم الحفظ');
+        closeModal('ccClientModal'); toast(res.message || 'تم الحفظ');
+        // البطاقة مفتوحة على نفس العميل → تتحدث
+        if (CCE.from === 'card' || (CC.card && CC.card.client && CC.card.client.name === c.name)) { ccSetCard(res); document.getElementById('ccSearch').value = res.client.name; }
         if (typeof refreshClients === 'function') refreshClients().catch(() => {});
+        if (CCE.from === 'balances' && typeof fetchBalancesData === 'function') fetchBalancesData();
       } catch (e) { showErr('cceError', e.message || 'تعذر الحفظ'); }
       finally { btn.disabled = false; btn.innerHTML = orig; }
     }
@@ -10099,9 +10269,9 @@
       const editable = items.filter(i => i.status === 'Pending');
       document.getElementById('ccDayTitle').innerHTML = '<i class="fas fa-id-card" style="color:var(--gold-accent);"></i> بطاقة ' + esc(ccDay.client) + ' — ' + ccDate(ccDay.date);
       document.getElementById('ccDayBody').innerHTML = items.map(v => ccDayItemHtml(v, me)).join('');
-      const canEd = can('ClientCards', 'edit');
+      const canEd = canSub('ClientCards', 'Today', 'edit');
       document.getElementById('ccdNote').innerHTML = !editable.length ? '<i class="fas fa-check-circle"></i> كل الجلسات اللي هنا اتأكدت.'
-        : !canEd ? '<i class="fas fa-lock"></i> التأكيد محتاج صلاحية تعديل على بطاقات العملاء.'
+        : !canEd ? '<i class="fas fa-lock"></i> التأكيد محتاج صلاحية تعديل على تاب "اليوم" في بطاقات العملاء.'
         : '<i class="fas fa-info-circle"></i> كمّل البيانات واضغط تأكيد — بعدها بتنزل في سجل المتابعة وبتتخصم من الرصيد.';
       document.getElementById('ccdSave').style.display = editable.length && canEd ? '' : 'none';
       document.getElementById('ccdConfirm').style.display = editable.length && canEd ? '' : 'none';
@@ -10113,7 +10283,7 @@
       openModal('ccDayModal');
     }
     function ccDayItemHtml(v, me) {
-      const p = v.pkgInfo, pending = v.status === 'Pending', canEd = pending && can('ClientCards', 'edit');
+      const p = v.pkgInfo, pending = v.status === 'Pending', canEd = pending && canSub('ClientCards', 'Today', 'edit');
       const avail = p && p.total !== '' ? cashRoundJs(p.remaining + (pending && v.qty !== '' ? Number(v.qty) : 0)) : '';
       const st = pending ? '<span class="cc-badge warn">مستنية تأكيد</span>' : v.status === 'Skipped' ? '<span class="cc-badge done">' + (v.pkg ? 'مفيش جلسة' : 'اتحولت رصيد') + '</span>' : '<span class="cc-badge">اتأكدت</span>';
       let h = '<div class="dc-item ' + (pending ? 'pend' : 'ok') + '" data-id="' + esc(v.id) + '" data-avail="' + avail + '" data-unit="' + esc(p ? p.unit : '') + '">'
@@ -10368,16 +10538,19 @@
       setSpecs(SPPAGE.specialities.map(s => Object.assign({}, s)));
       renderEmps();
       renderSpecToggle();
-      document.getElementById('spAddBtn').style.display = can('Specialities', 'add') ? '' : 'none';
+      document.getElementById('spAddBtn').style.display = canSub('Specialities', 'Specs', 'add') ? '' : 'none';
+      document.getElementById('spSpecsCard').style.display = canSub('Specialities', 'Specs', 'view') ? '' : 'none';
+      document.getElementById('spEmpCard').style.display = canSub('Specialities', 'Employees', 'view') ? '' : 'none';
+      document.getElementById('spEmpCard').style.marginTop = canSub('Specialities', 'Specs', 'view') ? '16px' : '0';
       const who = (list, label) => list.length ? '<div><b>' + label + ' (' + list.length + '):</b> ' + esc(list.slice(0, 8).join('، ')) + (list.length > 8 ? ' <span class="muted">+' + (list.length - 8) + '</span>' : '') + '</div>' : '';
       const rule = (jobs, names) => [jobs.length ? 'وظيفة: ' + jobs.join('، ') : '', names.length ? 'بالاسم: ' + names.length : ''].filter(Boolean).join(' · ');
       document.getElementById('spBody').innerHTML = SPPAGE.specialities.map(s => {
         const u = s.usage || {}, st = s.staff || { doctors: [], specialists: [] };
         const rules = [s.type !== 'Specialist' ? rule(s.docJobs, s.docNames) : '', s.type !== 'Doctor' ? rule(s.specJobs, s.specNames) : ''].filter(Boolean).join(' | ');
         const used = (u.items || 0) + (u.history || 0);
-        const acts = (can('Specialities', 'edit') ? '<button class="icon-btn" title="تعديل" data-i="' + esc(s.id) + '" onclick="openSpecModal(this.dataset.i)"><i class="fas fa-pen"></i></button>'
+        const acts = (canSub('Specialities', 'Specs', 'edit') ? '<button class="icon-btn" title="تعديل" data-i="' + esc(s.id) + '" onclick="openSpecModal(this.dataset.i)"><i class="fas fa-pen"></i></button>'
             + '<button class="icon-btn" title="' + (s.active ? 'إيقاف' : 'تشغيل') + '" data-i="' + esc(s.id) + '" onclick="toggleSpec(this.dataset.i)"><i class="fas ' + (s.active ? 'fa-pause' : 'fa-play') + '"></i></button>' : '')
-          + (can('Specialities', 'delete') ? '<button class="icon-btn danger" title="' + (used ? 'عليه أصناف أو فواتير — وقّفه بدل الحذف' : 'حذف') + '" data-i="' + esc(s.id) + '" onclick="deleteSpec(this.dataset.i)"' + (used ? ' style="opacity:.4;"' : '') + '><i class="fas fa-trash"></i></button>' : '');
+          + (canSub('Specialities', 'Specs', 'delete') ? '<button class="icon-btn danger" title="' + (used ? 'عليه أصناف أو فواتير — وقّفه بدل الحذف' : 'حذف') + '" data-i="' + esc(s.id) + '" onclick="deleteSpec(this.dataset.i)"' + (used ? ' style="opacity:.4;"' : '') + '><i class="fas fa-trash"></i></button>' : '');
         return '<tr class="' + (s.active ? '' : 'it-off') + '"><td class="wide"><div class="cc-svc">' + esc(s.ar || s.name) + '</div><div class="cc-sub">' + esc(s.name) + ' · ترتيب ' + esc(s.sort) + '</div></td>'
           + '<td data-l="النوع"><span class="cc-badge">' + (SP_TYPE_AR[s.type] || s.type) + '</span></td>'
           + '<td data-l="بيظهر في الفاتورة" class="sp-staff">' + (who(st.doctors, 'أطباء') + who(st.specialists, 'متخصصين') || '<span style="color:var(--danger);">مفيش حد</span>') + '<div class="muted">' + esc(rules) + '</div></td>'
@@ -10470,6 +10643,7 @@
     function openSpecModal(id) {
       const s = id ? SPPAGE.specialities.find(x => x.id === id) : null;
       spEdit = { id: s ? s.id : '' };
+      document.querySelectorAll('#spModal .sp-addbtn').forEach(b => { b.style.display = canSub('Specialities', 'Employees', 'add') ? '' : 'none'; });
       document.getElementById('spModalTitle').innerHTML = '<i class="fas fa-stethoscope" style="color:var(--gold-accent);"></i> ' + (s ? 'تعديل تخصص: ' + esc(s.ar || s.name) : 'تخصص جديد');
       const nm = document.getElementById('spName');
       nm.value = s ? s.name : '';
@@ -10555,8 +10729,8 @@
       const rows = all.filter(e => (!q || specLow(e.name + ' ' + e.id).indexOf(q) !== -1) && (!jb || jobKey(e.job) === jobKey(jb)) && (!st || (st === 'on' ? e.active !== false : e.active === false)))
         .sort((a, b) => a.job.localeCompare(b.job) || a.name.localeCompare(b.name));
       document.getElementById('emCount').textContent = rows.length + ' موظف' + (rows.length !== all.length ? ' من ' + all.length : '') + ' · موقوف: ' + all.filter(e => e.active === false).length;
-      const canEdit = can('Specialities', 'edit');
-      document.getElementById('emAddBtn').style.display = can('Specialities', 'add') || canEdit ? '' : 'none';
+      const canEdit = canSub('Specialities', 'Employees', 'edit');
+      document.getElementById('emAddBtn').style.display = canSub('Specialities', 'Employees', 'add') ? '' : 'none';
       document.getElementById('emBody').innerHTML = rows.map(e => {
         const m = e.moves || {};
         const mv = [m.sales ? ccNum(m.sales) + ' مبيعات' : '', m.payroll ? ccNum(m.payroll) + ' مرتبات' : '', m.cards ? ccNum(m.cards) + ' بطاقات' : '', m.user ? 'مستخدم' : ''].filter(Boolean).join(' · ') || '—';
