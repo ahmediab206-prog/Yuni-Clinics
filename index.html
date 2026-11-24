@@ -931,6 +931,43 @@
     .svx .dc-warn { font-size: 12.5px; color: var(--danger); font-weight: 700; }
     .svx .dc-warn:empty { display: none; }
     .svx .dc-view { font-size: 13.5px; line-height: 1.8; color: #444; }
+    .spec-toggle { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .spec-btn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; background: var(--light-green); border: 2px solid var(--border-color); border-radius: 10px; padding: 9px 16px; font-weight: 700; font-size: 14px; color: var(--primary-green); font-family: inherit; transition: all .2s; }
+    .spec-btn:hover { border-color: var(--primary-green); }
+    .spec-btn.on { background: var(--primary-green); color: #fff; border-color: var(--primary-green); }
+    .spec-btn .cnt { background: var(--gold-accent); color: #fff; border-radius: 10px; font-size: 11px; padding: 1px 7px; }
+    .spec-btn.on .cnt { background: #fff; color: var(--primary-green); }
+    .cart-spec { display: block; font-size: 11px; color: #9A937D; font-weight: 500; margin-top: 2px; }
+    .svx .sp-box { border: 1.5px solid var(--border-color); border-radius: 12px; padding: 12px; margin-top: 4px; background: #FCFBF7; }
+    .svx .sp-box .lbl { font-weight: 800; color: var(--primary-green); margin-bottom: 8px; }
+    .svx .sp-box .sub { font-size: 12px; color: #9A937D; margin: 8px 0 6px; font-weight: 700; }
+    .svx .sp-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+    .svx .sp-checks.names { max-height: 250px; overflow: auto; padding: 2px 4px 2px 2px; }
+    .svx .sp-checks label { display: flex; align-items: center; gap: 7px; min-width: 0; border: 1.5px solid var(--border-color); border-radius: 8px; padding: 6px 9px; font-size: 13px; cursor: pointer; background: #fff; }
+    .svx .sp-checks label span.n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .svx .sp-checks label.on { border-color: var(--primary-green); background: #EAF2EC; color: var(--primary-green); font-weight: 700; }
+    .svx .sp-checks label small { color: #9A937D; font-weight: 600; font-size: 11px; background: #F3F0E6; border-radius: 8px; padding: 0 6px; }
+    .svx .sp-checks input { accent-color: var(--primary-green); flex: none; }
+    .svx .sp-checks .grp { grid-column: 1 / -1; font-size: 12px; font-weight: 800; color: var(--primary-green); border-bottom: 1px dashed var(--border-color); padding: 6px 2px 3px; display: flex; justify-content: space-between; }
+    .svx .sp-checks .grp:first-child { padding-top: 0; }
+    .svx .sp-checks .grp small { background: none; color: #9A937D; }
+    .svx .sp-tools { display: flex; gap: 8px; align-items: center; margin: 8px 0 6px; flex-wrap: wrap; }
+    .svx .sp-tools .sub { margin: 0; flex: 1; }
+    .svx .sp-tools input { width: 190px; max-width: 100%; padding: 6px 10px; font-size: 13px; border-radius: 8px; }
+    .svx .sp-addbtn { border: 1.5px dashed var(--primary-green); background: #fff; color: var(--primary-green); border-radius: 8px; padding: 6px 11px; font-weight: 700; font-size: 12.5px; cursor: pointer; font-family: inherit; }
+    .svx .sp-newemp { display: none; grid-template-columns: 2fr 1.4fr 1fr auto; gap: 6px; align-items: end; background: #F6F3EA; border-radius: 10px; padding: 10px; margin-top: 8px; }
+    .svx .sp-newemp.open { display: grid; }
+    .svx .sp-newemp label { font-size: 11.5px; font-weight: 700; color: #7A8279; display: block; margin-bottom: 3px; }
+    .svx .sp-newemp input, .svx .sp-newemp select { width: 100%; padding: 7px 9px; font-size: 13px; border-radius: 8px; }
+    .svx .sp-newemp .err { grid-column: 1 / -1; color: var(--danger); font-size: 12.5px; display: none; }
+    @media (max-width: 600px) { .svx .sp-newemp { grid-template-columns: 1fr 1fr; } .svx .sp-checks { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); } }
+    .svx .sp-preview { font-size: 12.5px; color: #4E5A53; margin-top: 8px; line-height: 1.8; }
+    .svx .sp-types { display: flex; gap: 8px; flex-wrap: wrap; }
+    .svx .sp-types label { flex: 1; min-width: 120px; display: flex; align-items: center; gap: 8px; border: 2px solid var(--border-color); border-radius: 10px; padding: 9px 12px; cursor: pointer; font-weight: 700; color: var(--primary-green); background: #fff; }
+    .svx .sp-types label.on { border-color: var(--primary-green); background: #EAF2EC; }
+    .svx .sp-types input { accent-color: var(--primary-green); }
+    .svx .sp-staff { font-size: 12.5px; line-height: 1.7; }
+    .svx .sp-staff .muted { color: #9A937D; }
     .svx .it-warn { background: #FFF8E6; border: 1px solid #E8DCC0; color: #7A4F00; border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.8; }
     .svx .it-warn.err { background: #FDECEC; border-color: #F5C6CB; color: var(--danger); }
     .svx .it-table tr.it-off td { opacity: .55; }
@@ -1064,6 +1101,9 @@
           <button class="nav-btn" id="btnPageItems" onclick="switchPage('pageItems')">
             <i class="fas fa-boxes"></i> الأصناف
           </button>
+          <button class="nav-btn" id="btnPageSpecs" onclick="switchPage('pageSpecs')">
+            <i class="fas fa-stethoscope"></i> التخصصات
+          </button>
           <button class="nav-btn" id="btnPageUsers" onclick="switchPage('pageUsers')">
             <i class="fas fa-user-shield"></i> المستخدمين والصلاحيات
           </button>
@@ -1196,6 +1236,48 @@
       </div>
     </section>
 
+    <!-- ═══ التخصصات ═══ -->
+    <section id="pageSpecs" class="view-page svx">
+      <div class="card">
+        <div class="page-head">
+          <h2><i class="fas fa-stethoscope"></i> التخصصات</h2>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn" id="spAddBtn" onclick="openSpecModal('')"><i class="fas fa-plus"></i> تخصص جديد</button>
+            <button class="btn alt" onclick="loadSpecs()" title="تحديث"><i class="fas fa-sync-alt"></i></button>
+          </div>
+        </div>
+        <div class="hint" style="margin:-4px 0 12px; font-size:13px; color:#7A8279;"><i class="fas fa-info-circle"></i> كل تخصص شغال بيبقى زرار في شاشة الفاتورة بأصنافه، وقصاد كل صنف بيظهر بس الموظفين اللي محددينهم هنا (أطباء أو متخصصين أو الاتنين).</div>
+        <div class="table-container">
+          <table class="cc-table sp-table">
+            <thead><tr><th>التخصص</th><th>النوع</th><th>بيظهر في الفاتورة</th><th>الأصناف</th><th>الحالة</th><th style="text-align:left;">إجراءات</th></tr></thead>
+            <tbody id="spBody"></tbody>
+          </table>
+        </div>
+        <div class="hint" style="margin-top:10px; font-size:12px; color:#9A937D;"><i class="fas fa-info-circle"></i> الحذف بس للتخصص اللي ملوش أصناف ولا فواتير — غير كده يتوقف. اسم التخصص (الإنجليزي) مينفعش يتغير لو عليه فواتير، والاسم بالعربي يتغير براحتك.</div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="page-head">
+          <h2><i class="fas fa-users"></i> الموظفين المتكودين</h2>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn" id="emAddBtn" onclick="openEmpModal(-1)"><i class="fas fa-user-plus"></i> موظف جديد</button>
+          </div>
+        </div>
+        <div class="filters">
+          <div class="f"><label>بحث</label><input type="text" id="emSearch" placeholder="اسم الموظف أو الكود..." oninput="renderEmps()"></div>
+          <div class="f half"><label>الوظيفة</label><select id="emJob" onchange="renderEmps()"></select></div>
+          <div class="f half"><label>الحالة</label><select id="emState" onchange="renderEmps()"><option value="">الكل</option><option value="on" selected>شغال</option><option value="off">موقوف</option></select></div>
+        </div>
+        <div class="cc-sub" id="emCount" style="margin:-4px 0 8px;"></div>
+        <div class="table-container">
+          <table class="cc-table em-table">
+            <thead><tr><th>الموظف</th><th>الوظيفة</th><th>الكود</th><th>القسم</th><th>الحركات</th><th>الحالة</th><th style="text-align:left;">إجراءات</th></tr></thead>
+            <tbody id="emBody"></tbody>
+          </table>
+        </div>
+        <div class="hint" style="margin-top:10px; font-size:12px; color:#9A937D;"><i class="fas fa-info-circle"></i> الموظف الموقوف مش بيظهر في الفاتورة ولا التخصصات (بيفضل في المرتبات لحسابه الأخير). اسم الموظف مينفعش يتغير لو عليه حركات — الوظيفة والكود والقسم بيتغيروا براحتك.</div>
+      </div>
+    </section>
+
     <!-- ═══ بطاقات العملاء ═══ -->
     <section id="pageClients" class="view-page svx">
       <div class="card">
@@ -1255,19 +1337,10 @@
 
           <!-- قسم الموظفين — radio فقط لتحديد أي أصناف تظهر -->
           <div class="form-group full-width">
-            <label class="section-title">اختر نوع الخدمة لعرض الأصناف</label>
+            <label class="section-title">اختر التخصص لعرض أصنافه</label>
 
-            <!-- ── اختيار النوع: طبيب / متخصص ── -->
-            <div id="staffTypeToggle" style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
-              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; background:var(--light-green); border:2px solid var(--border-color); border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; color:var(--primary-green); transition:all .2s;" id="lblTypeDoctor">
-                <input type="radio" name="staffTypeRadio" value="doctor" id="radioDoctor" style="accent-color:var(--primary-green); width:18px; height:18px;" onchange="onStaffTypeChange()">
-                <i class="fas fa-user-md"></i> طبيب
-              </label>
-              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; background:var(--light-green); border:2px solid var(--border-color); border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; color:var(--primary-green); transition:all .2s;" id="lblTypeSpecialist">
-                <input type="radio" name="staffTypeRadio" value="specialist" id="radioSpecialist" style="accent-color:var(--primary-green); width:18px; height:18px;" onchange="onStaffTypeChange()">
-                <i class="fas fa-spa"></i> متخصص
-              </label>
-            </div>
+            <!-- ── زرار لكل تخصص شغال (من تاب التخصصات) — تقدر تتنقل بينهم والأصناف المختارة بتفضل في الفاتورة ── -->
+            <div id="specToggle" class="spec-toggle"></div>
 
             <!-- containers الموظفين — مخفية تماماً، مش محتاجينها تتعرض -->
             <div id="doctorSection" style="display:none;">
@@ -1289,7 +1362,7 @@
             
             <div class="tabs-header" id="tabsHeader" style="margin-top: 10px;"></div>
             <div id="tabsContainer">
-              <div class="empty-msg">يرجى اختيار طبيب أو أخصائي أولاً لعرض الخدمات المتاحة</div>
+              <div class="empty-msg">اختار التخصص من فوق عشان تظهر أصنافه</div>
             </div>
 
             <!-- ── Cart جدول الخدمات المختارة ── -->
@@ -2959,6 +3032,90 @@
       </div>
     </div>
   </div>
+  <div class="modal-overlay" id="emModal">
+    <div class="modal-card" style="max-width:520px;">
+      <h3 id="emModalTitle"></h3>
+      <div class="fields">
+        <div class="field"><label>اسم الموظف *</label><input type="text" id="emName" autocomplete="off"><div class="hint" id="emNameHint"></div></div>
+        <div class="two">
+          <div class="field"><label>الوظيفة *</label><select id="emJobSel" onchange="document.getElementById('emJobText').style.display = this.value === '__new' ? '' : 'none'"></select>
+            <input type="text" id="emJobText" placeholder="اكتب الوظيفة الجديدة" style="display:none; margin-top:6px;"></div>
+          <div class="field"><label>الكود</label><input type="text" id="emId" placeholder="اختياري" autocomplete="off"></div>
+        </div>
+        <div class="field"><label>القسم</label><select id="emCat"></select><div class="hint">عمود Employee Category في شيت Data.</div></div>
+        <div class="modal-error" id="emError"></div>
+        <div class="modal-actions">
+          <button class="btn" id="emSave" onclick="saveEmp()"><i class="fas fa-save"></i> حفظ</button>
+          <button class="btn alt" onclick="closeModal('emModal')">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="spModal">
+    <div class="modal-card" style="max-width:680px;">
+      <h3 id="spModalTitle"></h3>
+      <div class="fields">
+        <div class="two">
+          <div class="field"><label>اسم التخصص *</label><input type="text" id="spName" placeholder="مثال: Laser" autocomplete="off"><div class="hint" id="spNameHint">ده اللي بيتسجل في الأصناف والمبيعات.</div></div>
+          <div class="field"><label>الاسم بالعربي</label><input type="text" id="spAr" placeholder="مثال: ليزر" autocomplete="off"><div class="hint">ده اللي بيظهر على الزرار في الفاتورة.</div></div>
+        </div>
+        <div class="field"><label>مين بيشتغل في التخصص؟ *</label>
+          <div class="sp-types" id="spTypes">
+            <label><input type="radio" name="spType" value="Doctor" onchange="spTypeChanged()"> <i class="fas fa-user-md"></i> أطباء</label>
+            <label><input type="radio" name="spType" value="Specialist" onchange="spTypeChanged()"> <i class="fas fa-spa"></i> متخصصين</label>
+            <label><input type="radio" name="spType" value="Both" onchange="spTypeChanged()"> <i class="fas fa-user-friends"></i> مشترك (الاتنين)</label>
+          </div>
+        </div>
+        <div class="sp-box" id="spDocBox">
+          <div class="lbl"><i class="fas fa-user-md"></i> الأطباء</div>
+          <div class="sub">بالوظيفة — كل اللي وظيفتهم كده (وأي حد يتضاف بعدين بنفس الوظيفة)</div>
+          <div class="sp-checks" id="spDocJobs"></div>
+          <div class="sp-tools">
+            <div class="sub">بالاسم — موظفين بعينهم</div>
+            <input type="text" id="spDocSearch" placeholder="ابحث باسم الموظف..." oninput="spFilter('spDocNames', this.value)" autocomplete="off">
+            <button type="button" class="sp-addbtn" onclick="spNewEmpToggle('Doc')"><i class="fas fa-user-plus"></i> موظف جديد</button>
+          </div>
+          <div class="sp-newemp" id="spDocNew">
+            <div><label>اسم الموظف *</label><input type="text" id="spDocNewName" autocomplete="off"></div>
+            <div><label>الوظيفة *</label><select id="spDocNewJob" onchange="spNewJobChanged('Doc')"></select><input type="text" id="spDocNewJobText" placeholder="اكتب الوظيفة" style="display:none; margin-top:4px;"></div>
+            <div><label>الكود</label><input type="text" id="spDocNewId" placeholder="اختياري" autocomplete="off"></div>
+            <div><button type="button" class="btn" id="spDocNewBtn" onclick="spAddEmployee('Doc')" style="padding:8px 14px;"><i class="fas fa-plus"></i> إضافة</button></div>
+            <div class="err" id="spDocNewErr"></div>
+          </div>
+          <div class="sp-checks names" id="spDocNames"></div>
+          <div class="sp-preview" id="spDocPrev"></div>
+        </div>
+        <div class="sp-box" id="spSpecBox">
+          <div class="lbl"><i class="fas fa-spa"></i> المتخصصين</div>
+          <div class="sub">بالوظيفة — كل اللي وظيفتهم كده (وأي حد يتضاف بعدين بنفس الوظيفة)</div>
+          <div class="sp-checks" id="spSpecJobs"></div>
+          <div class="sp-tools">
+            <div class="sub">بالاسم — موظفين بعينهم</div>
+            <input type="text" id="spSpecSearch" placeholder="ابحث باسم الموظف..." oninput="spFilter('spSpecNames', this.value)" autocomplete="off">
+            <button type="button" class="sp-addbtn" onclick="spNewEmpToggle('Spec')"><i class="fas fa-user-plus"></i> موظف جديد</button>
+          </div>
+          <div class="sp-newemp" id="spSpecNew">
+            <div><label>اسم الموظف *</label><input type="text" id="spSpecNewName" autocomplete="off"></div>
+            <div><label>الوظيفة *</label><select id="spSpecNewJob" onchange="spNewJobChanged('Spec')"></select><input type="text" id="spSpecNewJobText" placeholder="اكتب الوظيفة" style="display:none; margin-top:4px;"></div>
+            <div><label>الكود</label><input type="text" id="spSpecNewId" placeholder="اختياري" autocomplete="off"></div>
+            <div><button type="button" class="btn" id="spSpecNewBtn" onclick="spAddEmployee('Spec')" style="padding:8px 14px;"><i class="fas fa-plus"></i> إضافة</button></div>
+            <div class="err" id="spSpecNewErr"></div>
+          </div>
+          <div class="sp-checks names" id="spSpecNames"></div>
+          <div class="sp-preview" id="spSpecPrev"></div>
+        </div>
+        <div class="two">
+          <div class="field"><label>الترتيب</label><input type="text" id="spSort" inputmode="numeric" placeholder="ترتيب الزرار في الفاتورة"></div>
+          <div class="field" style="display:flex; align-items:flex-end;"><label class="check-row"><input type="checkbox" id="spActive" checked> شغال (زراره ظاهر في الفاتورة)</label></div>
+        </div>
+        <div class="modal-error" id="spError"></div>
+        <div class="modal-actions">
+          <button class="btn" id="spSave" onclick="saveSpec()"><i class="fas fa-save"></i> حفظ</button>
+          <button class="btn alt" onclick="closeModal('spModal')">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <datalist id="ccSvcList"></datalist><datalist id="ccTypeList"></datalist><datalist id="ccStaffList"></datalist><datalist id="ccClientList"></datalist>
     <div class="toast" id="svToast"></div>
   </div>
@@ -3115,6 +3272,9 @@
       } else if (pageId === 'pageItems') {
         document.getElementById('btnPageItems').classList.add('active');
         loadItems();
+      } else if (pageId === 'pageSpecs') {
+        document.getElementById('btnPageSpecs').classList.add('active');
+        loadSpecs();
       }
     }
 
@@ -3133,8 +3293,10 @@
         .then(response => {
           if (response.status === "success" && response.data) {
             globalData = response.data;
+            setSpecs(response.specialities);
             if (sessionStorage.getItem('yuni_user')) {
               populateStaffUI(globalData);
+              renderSpecToggle();
             }
             populatePayrollEmployees();
           }
@@ -3416,7 +3578,7 @@
     }
 
     let authUser = null;
-    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageClients:'ClientCards', pageItems:'Items', pageExpenses:'Expenses', pagePayroll:'Payroll', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances', pageServices:'Services', pageCash:'Cash', pagePrices:'PriceList', pageManage:'Catalog', pageUsers:'Users'};
+    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageClients:'ClientCards', pageItems:'Items', pageSpecs:'Specialities', pageExpenses:'Expenses', pagePayroll:'Payroll', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances', pageServices:'Services', pageCash:'Cash', pagePrices:'PriceList', pageManage:'Catalog', pageUsers:'Users'};
     function can(tab, action) {
       const p = authUser && authUser.permissions[tab];
       return !!(p && p.view === true && p[action] === true);
@@ -3458,7 +3620,7 @@
       document.getElementById('mainHeader').style.display = 'flex';
       document.getElementById('currentUserDisplay').innerText = user.name;
       document.querySelectorAll('.view-page, .nav-btn').forEach(el => el.classList.remove('active'));
-      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageClients:'btnPageClients',pageItems:'btnPageItems',pageExpenses:'btnPageExpenses',pagePayroll:'btnPagePayroll',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances',pageServices:'btnPageServices',pageCash:'btnPageCash',pagePrices:'btnPagePrices',pageManage:'btnPageManage',pageUsers:'btnPageUsers'};
+      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageClients:'btnPageClients',pageItems:'btnPageItems',pageSpecs:'btnPageSpecs',pageExpenses:'btnPageExpenses',pagePayroll:'btnPagePayroll',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances',pageServices:'btnPageServices',pageCash:'btnPageCash',pagePrices:'btnPagePrices',pageManage:'btnPageManage',pageUsers:'btnPageUsers'};
       Object.keys(PAGE_TABS).forEach(page => {
         const btn = document.getElementById(buttons[page]);
         if (!btn) return;
@@ -3528,6 +3690,7 @@
       data.forEach(item => {
         let name = "";
         let job = "";
+        if (!empActive(item)) return;   // موظف موقوف
         Object.keys(item).forEach(k => {
           const ck = k.trim();
           if (ck === 'Employee Name' || ck === 'اسم الموظف') name = item[k];
@@ -3572,55 +3735,93 @@
       }
     }
 
-    function handleStaffMutualExclusion(type) {
-      const docCBs = document.querySelectorAll('.doc-cb');
-      const specCBs = document.querySelectorAll('.spec-cb');
-      const docContainer = document.getElementById('doctorContainer');
-      const specContainer = document.getElementById('specialistContainer');
-
-      if (type === 'reset') {
-        docCBs.forEach(cb => { cb.checked = false; cb.disabled = false; });
-        specCBs.forEach(cb => { cb.checked = false; cb.disabled = false; });
-        docContainer.classList.remove('disabled');
-        specContainer.classList.remove('disabled');
-        // إعادة تعيين الـ radio buttons وستايل الـ labels
-        document.querySelectorAll('input[name="staffTypeRadio"]').forEach(r => r.checked = false);
-        document.getElementById('lblTypeDoctor').style.background      = 'var(--light-green)';
-        document.getElementById('lblTypeDoctor').style.color           = 'var(--primary-green)';
-        document.getElementById('lblTypeDoctor').style.borderColor     = 'var(--border-color)';
-        document.getElementById('lblTypeSpecialist').style.background  = 'var(--light-green)';
-        document.getElementById('lblTypeSpecialist').style.color       = 'var(--primary-green)';
-        document.getElementById('lblTypeSpecialist').style.borderColor = 'var(--border-color)';
-        clearServicesUI();
-        calculateAll();
-        return;
-      }
-
-      const anyDocChecked = Array.from(docCBs).some(cb => cb.checked);
-      const anySpecChecked = Array.from(specCBs).some(cb => cb.checked);
-
-      if (type === 'doc' && anyDocChecked) {
-        specCBs.forEach(cb => { cb.checked = false; cb.disabled = true; });
-        specContainer.classList.add('disabled');
-        renderFilteredServices('Laser & Dermatology');
-      } else if (type === 'spec' && anySpecChecked) {
-        docCBs.forEach(cb => { cb.checked = false; cb.disabled = true; });
-        docContainer.classList.add('disabled');
-        renderFilteredServices('Spa & Personal Care');
-      } else if (!anyDocChecked && !anySpecChecked) {
-        docCBs.forEach(cb => cb.disabled = false);
-        specCBs.forEach(cb => cb.disabled = false);
-        docContainer.classList.remove('disabled');
-        specContainer.classList.remove('disabled');
-        clearServicesUI();
-      }
-
-      calculateAll();
+    // ── التخصصات (من تاب التخصصات): كل تخصص زرار، ومين بيظهر قصاد أصنافه (أطباء / متخصصين / الاتنين)
+    let SPECS = [];          // [{ id, name, ar, type, docJobs, docNames, specJobs, specNames, sort, active }]
+    let SALE_SPEC = '';      // التخصص المفتوح في شاشة الفاتورة
+    const SALE_LAST_STAFF = {};  // آخر موظف اتختار في كل تخصص (بيتحط تلقائي للصنف اللي بعده)
+    function setSpecs(list) { if (Array.isArray(list)) SPECS = list; }
+    function specLow(v) { return String(v == null ? '' : v).replace(/\s+/g, ' ').trim().toLowerCase(); }
+    function jobKey(v) {
+      const s = String(v == null ? '' : v).trim().toLowerCase();
+      if (/^(doctor|dr\.?|طبيب|طبيبة|دكتور|دكتوره|دكتورة)$/.test(s)) return 'doctor';
+      if (/^(specialist|أخصائي|اخصائي|أخصائية|اخصائية|أخصائيه|اخصائيه|متخصص|متخصصة)$/.test(s)) return 'specialist';
+      return s;
     }
+    function specByName(n) { const k = specLow(n); return k ? SPECS.find(s => specLow(s.name) === k) || null : null; }
+    function specLabel(n) { const s = specByName(n); return s ? (s.ar || s.name) : (n || '—'); }
+    function activeSpecs() { return SPECS.filter(s => s.active).sort((a, b) => (a.sort - b.sort) || a.name.localeCompare(b.name)); }
+    // الموظف الموقوف (عمود Active = FALSE في شيت Data) مش بيظهر في الفاتورة والتخصصات
+    function empActive(r) { const v = r && r['Active']; return !(v === false || String(v == null ? '' : v).trim().toUpperCase() === 'FALSE'); }
+    function specEmployees() {
+      const out = [];
+      (typeof globalData !== 'undefined' ? globalData : []).forEach(r => {
+        const name = String(r['Employee Name'] || r['اسم الموظف'] || '').trim();
+        const job = String(r['Employee Job'] || r['الوظيفة'] || '').trim();
+        if (name && empActive(r) && !out.some(e => e.name === name && e.job === job)) out.push({ name, job });
+      });
+      return out;
+    }
+    // مين بيظهر في التخصص — لو التخصص مش متعرّف بيظهر كل الأطباء والمتخصصين
+    function specStaff(specName, emps) {
+      const sp = specByName(specName);
+      if (!sp) return { doctors: allDoctors.slice(), specialists: allSpecialists.slice() };
+      emps = emps || specEmployees();
+      const pick = (jobs, names) => {
+        const jk = (jobs || []).map(jobKey), nk = (names || []).map(specLow);
+        return [...new Set(emps.filter(e => e.active !== false && (jk.indexOf(jobKey(e.job)) !== -1 || nk.indexOf(specLow(e.name)) !== -1)).map(e => e.name))].sort((a, b) => a.localeCompare(b, 'ar'));
+      };
+      const doctors = sp.type !== 'Specialist' ? pick(sp.docJobs, sp.docNames) : [];
+      const specialists = sp.type !== 'Doctor' ? pick(sp.specJobs, sp.specNames).filter(n => doctors.indexOf(n) === -1) : [];
+      return { doctors, specialists };
+    }
+    function staffTypeFor(specName, name) {
+      if (!name) return '';
+      const st = specStaff(specName);
+      if (st.doctors.indexOf(name) !== -1) return 'doctor';
+      if (st.specialists.indexOf(name) !== -1) return 'specialist';
+      return allDoctors.indexOf(name) !== -1 ? 'doctor' : allSpecialists.indexOf(name) !== -1 ? 'specialist' : '';
+    }
+    // options لـ select الموظف: موظفين التخصص بس (+ الاسم المختار قبل كده لو مش منهم — فواتير قديمة)
+    function staffOptionsFor(specName, selected, emptyLabel) {
+      const st = specStaff(specName);
+      const o = v => escCart(v);
+      const opt = (n, t) => `<option value="${o(n)}" data-type="${t}"${n === selected ? ' selected' : ''}>${o(n)}</option>`;
+      let html = `<option value="">${emptyLabel || '-- اختر --'}</option>`;
+      if (st.doctors.length) html += '<optgroup label="الأطباء">' + st.doctors.map(n => opt(n, 'doctor')).join('') + '</optgroup>';
+      if (st.specialists.length) html += '<optgroup label="المتخصصون">' + st.specialists.map(n => opt(n, 'specialist')).join('') + '</optgroup>';
+      if (selected && st.doctors.indexOf(selected) === -1 && st.specialists.indexOf(selected) === -1) {
+        const t = allDoctors.indexOf(selected) !== -1 ? 'doctor' : allSpecialists.indexOf(selected) !== -1 ? 'specialist' : '';
+        html += '<optgroup label="خارج التخصص">' + `<option value="${o(selected)}" data-type="${t}" selected>${o(selected)}</option>` + '</optgroup>';
+      }
+      return html;
+    }
+    function renderSpecToggle() {
+      const box = document.getElementById('specToggle');
+      if (!box) return;
+      const list = activeSpecs();
+      if (SALE_SPEC && !list.some(s => s.name === SALE_SPEC)) SALE_SPEC = '';
+      const counts = {};
+      cartItems.forEach(it => { const k = specLow(it.speciality); counts[k] = (counts[k] || 0) + 1; });
+      const icon = t => t === 'Doctor' ? 'fa-user-md' : t === 'Specialist' ? 'fa-spa' : 'fa-user-friends';
+      box.innerHTML = list.length ? list.map(sp => `<button type="button" class="spec-btn${sp.name === SALE_SPEC ? ' on' : ''}" data-s="${escCart(sp.name)}" onclick="pickSaleSpec(this.dataset.s)" title="${escCart(sp.name)}">`
+        + `<i class="fas ${icon(sp.type)}"></i> ${escCart(sp.ar || sp.name)}${counts[specLow(sp.name)] ? `<span class="cnt">${counts[specLow(sp.name)]}</span>` : ''}</button>`).join('')
+        : '<span style="font-size:13px; color:#888;">مفيش تخصصات — ضيفها من تاب التخصصات</span>';
+    }
+    function pickSaleSpec(name) {
+      SALE_SPEC = name;
+      renderSpecToggle();
+      renderFilteredServices(name);
+      syncServiceChecks();
+    }
+    // الأصناف اللي في الفاتورة تفضل متعلّمة لما ترجع لتخصصها
+    function syncServiceChecks() { document.querySelectorAll('.service-cb').forEach(cb => { cb.checked = cartItems.has(cb.value); }); }
+    function resetSaleSpec() { SALE_SPEC = ''; renderSpecToggle(); clearServicesUI(); }
+    // (القديم) — الطبيب/المتخصص بقوا بيتحددوا من التخصص
+    function handleStaffMutualExclusion(type) { if (type === 'reset') resetSaleSpec(); calculateAll(); }
 
     function clearServicesUI() {
       document.getElementById('tabsHeader').innerHTML = '';
-      document.getElementById('tabsContainer').innerHTML = '<div class="empty-msg">يرجى اختيار طبيب أو أخصائي أولاً لعرض الخدمات المتاحة</div>';
+      document.getElementById('tabsContainer').innerHTML = '<div class="empty-msg">اختار التخصص من فوق عشان تظهر أصنافه</div>';
     }
 
     // العرض بيظهر بس لو فيه قيمة ومش صفر (فاضي أو 0 = مفيش عرض)
@@ -3647,16 +3848,16 @@
 
         Object.keys(item).forEach(k => {
           const ck = k.trim();
-          if (ck === 'Item/Service Speciality') { itemSpecialityRaw = item[k].toString().trim(); itemSpeciality = itemSpecialityRaw.toLowerCase(); }
+          if (ck === 'Item/Service Speciality') { itemSpecialityRaw = item[k].toString().trim(); itemSpeciality = specLow(itemSpecialityRaw); }
           if (ck === 'Item/Service Category' || ck === 'التصنيف') cat = item[k];
           if (ck === 'Item/Service' || ck === 'اسم الخدمة') name = item[k];
           if (ck === 'Item/Service Price' || ck === 'السعر') price = parseFloat(item[k]) || 0;
           if (ck === 'Offer Price') offer = String(item[k] === null || item[k] === undefined ? '' : item[k]).trim();
         });
 
-        const target = targetSpeciality.toLowerCase();
+        const target = specLow(targetSpeciality);
 
-        if (itemSpeciality === target || itemSpeciality.includes(target) || (target.includes('laser') && itemSpeciality.includes('laser'))) {
+        if (itemSpeciality === target) {
           if (name) {
             if (!categories[cat]) categories[cat] = [];
             categories[cat].push({ name, price, offer, speciality: itemSpecialityRaw, category: cat });
@@ -3731,66 +3932,6 @@
     let allDoctors    = [];
     let allSpecialists = [];
 
-    function getStaffOptions() {
-      // بناء قائمة options لـ select الموظف — تفلتر حسب النوع المختار
-      const selectedType = document.querySelector('input[name="staffTypeRadio"]:checked')?.value || '';
-      let opts = '<option value="">-- اختر --</option>';
-      if (selectedType === 'doctor') {
-        // لو اختار طبيب — يظهر الدكاترة بس
-        if (allDoctors.length) {
-          opts += `<optgroup label="الأطباء">`;
-          allDoctors.forEach(d => { opts += `<option value="${escCart(d)}" data-type="doctor">${escCart(d)}</option>`; });
-          opts += `</optgroup>`;
-        }
-      } else if (selectedType === 'specialist') {
-        // لو اختار متخصص — يظهر المتخصصون بس
-        if (allSpecialists.length) {
-          opts += `<optgroup label="المتخصصون">`;
-          allSpecialists.forEach(s => { opts += `<option value="${escCart(s)}" data-type="specialist">${escCart(s)}</option>`; });
-          opts += `</optgroup>`;
-        }
-      } else {
-        // لو مش مختار حاجة — يظهر الكل
-        if (allDoctors.length) {
-          opts += `<optgroup label="الأطباء">`;
-          allDoctors.forEach(d => { opts += `<option value="${escCart(d)}" data-type="doctor">${escCart(d)}</option>`; });
-          opts += `</optgroup>`;
-        }
-        if (allSpecialists.length) {
-          opts += `<optgroup label="المتخصصون">`;
-          allSpecialists.forEach(s => { opts += `<option value="${escCart(s)}" data-type="specialist">${escCart(s)}</option>`; });
-          opts += `</optgroup>`;
-        }
-      }
-      return opts;
-    }
-
-    function onStaffTypeChange() {
-      const selectedType = document.querySelector('input[name="staffTypeRadio"]:checked')?.value || '';
-
-      // تحديث ستايل الـ labels
-      document.getElementById('lblTypeDoctor').style.background     = selectedType === 'doctor'     ? 'var(--primary-green)' : 'var(--light-green)';
-      document.getElementById('lblTypeDoctor').style.color          = selectedType === 'doctor'     ? '#fff' : 'var(--primary-green)';
-      document.getElementById('lblTypeDoctor').style.borderColor    = selectedType === 'doctor'     ? 'var(--primary-green)' : 'var(--border-color)';
-      document.getElementById('lblTypeSpecialist').style.background = selectedType === 'specialist' ? 'var(--primary-green)' : 'var(--light-green)';
-      document.getElementById('lblTypeSpecialist').style.color      = selectedType === 'specialist' ? '#fff' : 'var(--primary-green)';
-      document.getElementById('lblTypeSpecialist').style.borderColor= selectedType === 'specialist' ? 'var(--primary-green)' : 'var(--border-color)';
-
-      // إفراغ الـ cart لأن النوع تغير
-      cartItems.clear();
-      renderCart();
-      calculateAll();
-
-      // عرض الخدمات حسب النوع المختار
-      if (selectedType === 'doctor') {
-        renderFilteredServices('Laser & Dermatology');
-      } else if (selectedType === 'specialist') {
-        renderFilteredServices('Spa & Personal Care');
-      } else {
-        clearServicesUI();
-      }
-    }
-
     function updateCart() {
       document.querySelectorAll('.service-cb').forEach(cb => {
         const name       = cb.value;
@@ -3799,13 +3940,13 @@
         const category   = cb.getAttribute('data-category')   || '';
         if (cb.checked) {
           if (!cartItems.has(name)) {
-            // تحديد الموظف الافتراضي — أول موظف محدد في الـ tabs
-            const checkedDoc  = document.querySelector('.doc-cb:checked');
-            const checkedSpec = document.querySelector('.spec-cb:checked');
-            let defStaff = '';
-            let defType  = '';
-            if (checkedDoc)  { defStaff = checkedDoc.value;  defType = 'doctor'; }
-            else if (checkedSpec) { defStaff = checkedSpec.value; defType = 'specialist'; }
+            // الموظف الافتراضي: آخر موظف اتختار في نفس التخصص — أو الوحيد لو التخصص فيه موظف واحد
+            const st = specStaff(speciality);
+            const pool = st.doctors.concat(st.specialists);
+            let defStaff = SALE_LAST_STAFF[specLow(speciality)] || '';
+            if (defStaff && pool.indexOf(defStaff) === -1) defStaff = '';
+            if (!defStaff && pool.length === 1) defStaff = pool[0];
+            const defType = defStaff ? staffTypeFor(speciality, defStaff) : '';
             cartItems.set(name, { name, price, qty: 1, lineDiscount: 0, lineExtra: 0, staffName: defStaff, staffType: defType, speciality, category });
           }
         } else {
@@ -3813,6 +3954,7 @@
         }
       });
       renderCart();
+      renderSpecToggle();
       calculateAll();
     }
 
@@ -3833,7 +3975,6 @@
       emptyEl.style.display = 'none';
 
       let html = '';
-      const staffOpts = getStaffOptions();
       cartItems.forEach((item, name) => {
         const lineTotal = (item.price * item.qty) + item.lineExtra - item.lineDiscount;
         html += `<tr data-name="${escCart(name)}">
@@ -3842,11 +3983,11 @@
               <i class="fas fa-times-circle"></i>
             </button>
           </td>
-          <td style="font-weight:600;">${escCart(name)}</td>
+          <td style="font-weight:600;">${escCart(name)}<span class="cart-spec">${escCart(specLabel(item.speciality))}</span></td>
           <td>
             <select class="cart-adj-input" style="width:100%;min-width:120px;padding:5px 7px;"
-              onchange="updateCartField('${escCart(name)}','staffName',this.value); if(this.value){this.style.border='';this.style.background='';}" >
-              ${staffOpts.replace(`value="${escCart(item.staffName)}"`, `value="${escCart(item.staffName)}" selected`)}
+              onchange="cartPickStaff('${escCart(name)}', this); if(this.value){this.style.border='';this.style.background='';}" >
+              ${staffOptionsFor(item.speciality, item.staffName)}
             </select>
           </td>
           <td style="text-align:center;">
@@ -3905,6 +4046,16 @@
       calculateAll();
     }
 
+    function cartPickStaff(name, sel) {
+      const item = cartItems.get(name);
+      if (!item) return;
+      const opt = sel.options[sel.selectedIndex];
+      item.staffName = sel.value;
+      item.staffType = sel.value ? ((opt && opt.dataset.type) || staffTypeFor(item.speciality, sel.value)) : '';
+      if (sel.value) SALE_LAST_STAFF[specLow(item.speciality)] = sel.value;
+      cartItems.set(name, item);
+    }
+
     function removeCartItem(name) {
       cartItems.delete(name);
       // إلغاء تحديد الـ checkbox المقابل
@@ -3912,6 +4063,7 @@
         if (cb.value === name) cb.checked = false;
       });
       renderCart();
+      renderSpecToggle();
       calculateAll();
     }
 
@@ -4010,9 +4162,10 @@
       const usedSpecialists = new Set(selectedSpecs);
 
       cartItems.forEach(item => {
-        // تحديد نوع الموظف من الاسم
-        const isDoc  = allDoctors.includes(item.staffName);
-        const isSpec = allSpecialists.includes(item.staffName);
+        // نوع الموظف (طبيب/متخصص) من التخصص — بيحدد يتسجل في عمود Doctor ولا Specialist
+        const sType  = item.staffName ? (item.staffType || staffTypeFor(item.speciality, item.staffName)) : '';
+        const isDoc  = sType === 'doctor';
+        const isSpec = sType === 'specialist';
         if (item.staffName) {
           if (isDoc)  usedDoctors.add(item.staffName);
           if (isSpec) usedSpecialists.add(item.staffName);
@@ -7032,24 +7185,8 @@
       editServiceRows.forEach((row, idx) => {
         const lineTotal = ((parseFloat(row.price)||0) * (parseFloat(row.qty)||1)) + (parseFloat(row.lineExtra)||0) - (parseFloat(row.lineDiscount)||0);
 
-        // بناء options لـ select الموظف
-        let staffOptsHtml = '<option value="">-- بدون --</option>';
-        if (allDoctors && allDoctors.length) {
-          staffOptsHtml += `<optgroup label="الأطباء">`;
-          allDoctors.forEach(d => {
-            const sel = d === row.staffName ? ' selected' : '';
-            staffOptsHtml += `<option value="${d}" data-type="doctor"${sel}>${d}</option>`;
-          });
-          staffOptsHtml += `</optgroup>`;
-        }
-        if (allSpecialists && allSpecialists.length) {
-          staffOptsHtml += `<optgroup label="المتخصصون">`;
-          allSpecialists.forEach(s => {
-            const sel = s === row.staffName ? ' selected' : '';
-            staffOptsHtml += `<option value="${s}" data-type="specialist"${sel}>${s}</option>`;
-          });
-          staffOptsHtml += `</optgroup>`;
-        }
+        // options الموظف: موظفين تخصص الصنف (من تاب التخصصات)
+        const staffOptsHtml = staffOptionsFor(row.speciality, row.staffName, '-- بدون --');
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -7062,7 +7199,7 @@
             <select onchange="
               const opt = this.options[this.selectedIndex];
               editServiceRows[${idx}].staffName = this.value;
-              editServiceRows[${idx}].staffType = opt.dataset.type || '';"
+              editServiceRows[${idx}].staffType = opt.dataset.type || staffTypeFor(editServiceRows[${idx}].speciality, this.value);"
               style="width:100%; border:1.5px solid var(--border-color); border-radius:6px; padding:5px 4px; font-size:12px; background:#fff; color:var(--text-color);">
               ${staffOptsHtml}
             </select>
@@ -7166,21 +7303,15 @@
         const svcSpec     = (item['Item/Service Speciality'] || '').toString().trim();
         const svcCat      = (item['Item/Service Category'] || item['التصنيف'] || 'خدمات عامة').toString().trim();
         if (!svcName) return;
-        // فلتر: لو عارفين الـ category نعرض الخدمات اللي speciality بتاعها يطابق
-        if (invoiceCategory) {
-          if (svcSpec.toLowerCase() !== invoiceCategory.toLowerCase()) return;
-        }
+        // الفاتورة ممكن يبقى فيها أصناف من كذا تخصص — كل الأصناف بتظهر
         _editSvcAllRaw.push({ name: svcName, price: svcPrice, speciality: svcSpec, category: svcCat });
       });
 
       // ملء قائمة الموظفين حسب نوع الفاتورة فقط
       const staffSel  = document.getElementById('editPickerStaffSelect');
       const labelText = document.getElementById('editPickerStaffLabelText');
-      const staffList = _editInvoiceType === 'doctor'     ? allDoctors
-                      : _editInvoiceType === 'specialist' ? allSpecialists
-                      : [...(allDoctors||[]), ...(allSpecialists||[])];
-      const labelStr  = _editInvoiceType === 'doctor'     ? 'الطبيب'
-                      : _editInvoiceType === 'specialist' ? 'المتخصص' : 'الموظف';
+      const staffList = [...new Set([...(allDoctors||[]), ...(allSpecialists||[])])];
+      const labelStr  = 'الموظف';
 
       if (labelText) labelText.textContent = labelStr;
       staffSel.innerHTML = `<option value="">-- كل ${labelStr === 'الموظف' ? 'الموظفين' : labelStr === 'الطبيب' ? 'الأطباء' : 'المتخصصين'} --</option>`;
@@ -7296,8 +7427,10 @@
     function editPickService(el, name, price, speciality, category) {
       // جيب الموظف المختار من الـ picker
       const staffSel  = document.getElementById('editPickerStaffSelect');
-      const staffName = staffSel ? staffSel.value : '';
-      const staffType = _editInvoiceType || '';
+      // الموظف بيتحط بس لو من موظفين تخصص الصنف
+      const st0 = specStaff(speciality);
+      const staffName = staffSel && st0.doctors.concat(st0.specialists).indexOf(staffSel.value) !== -1 ? staffSel.value : '';
+      const staffType = staffName ? staffTypeFor(speciality, staffName) : '';
 
       // لو الخدمة موجودة بالفعل نزود الكمية
       const existing = editServiceRows.find(r => r.name === name && r.speciality === speciality);
@@ -7526,10 +7659,13 @@
         unique = [...new Set([...(allDoctors || []), ...(allSpecialists || [])])];
       }
       unique.sort((a, b) => a.localeCompare(b, 'ar'));
+      // الموقوف بيفضل في المرتبات (حسابه الأخير) بس مكتوب جنبه
+      const stopped = new Set((globalData || []).filter(r => r['Employee Name'] && !empActive(r)).map(r => String(r['Employee Name']).trim())
+        .filter(n => !(globalData || []).some(r => String(r['Employee Name'] || '').trim() === n && empActive(r))));
       unique.forEach(emp => {
         const opt = document.createElement('option');
         opt.value = emp;
-        opt.textContent = emp;
+        opt.textContent = emp + (stopped.has(emp) ? ' (موقوف)' : '');
         sel.appendChild(opt);
       });
       if (current) sel.value = current;
@@ -8844,19 +8980,22 @@
 
     // ── بيانات المبيعات في نافذة الخدمة: التخصص من أقسام الموظفين + اللي متسجل في الخدمات
     function salesSpecialities() {
+      if (SPECS.length) return activeSpecs().map(s => s.name);
       const set = new Set();
-      (typeof globalData !== 'undefined' ? globalData : []).forEach(d => {
-        const c = (d['Employee Category'] || '').toString().trim();
-        if (c && !/^(general|admin)$/i.test(c)) set.add(c);
-      });
       DATA.services.forEach(s => { if (s.speciality) set.add(s.speciality); });
       return [...set].sort();
     }
-    function fillSalesOptions(spec, salesCat) {
-      const sel = document.getElementById('svcSpeciality');
+    // options التخصص: الشغالين + الحالي لو موقوف — والاسم بالعربي ظاهر
+    function specOptionsHtml(cur) {
       const list = salesSpecialities();
-      if (spec && list.indexOf(spec) === -1) list.push(spec);
-      sel.innerHTML = '<option value="">-- اختر التخصص --</option>' + list.map(x => '<option value="' + esc(x) + '"' + (x === spec ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
+      if (cur && !list.some(x => specLow(x) === specLow(cur))) list.push(cur);
+      return '<option value="">-- اختر التخصص --</option>' + list.map(x => {
+        const sp = specByName(x);
+        return '<option value="' + esc(x) + '"' + (specLow(x) === specLow(cur) ? ' selected' : '') + '>' + esc(sp && sp.ar ? sp.ar + ' — ' + x : x) + (sp && !sp.active ? ' (موقوف)' : '') + '</option>';
+      }).join('');
+    }
+    function fillSalesOptions(spec, salesCat) {
+      document.getElementById('svcSpeciality').innerHTML = specOptionsHtml(spec);
       fillSalesCatSelect('svcSalesCategory', salesCat);
     }
     // تصنيف المبيعات: قايمة بالموجود + "تصنيف جديد" بيفتح خانة تكتب فيها
@@ -8903,6 +9042,7 @@
       Sales: ['إضافة حركة جديدة', 'تسجيل الفواتير'], Collect: ['تحصيلات', 'تحصيل وحجز'],
       ClientCards: ['بطاقات العملاء', 'إضافة = تسجيل جلسة · تعديل = تكملة وتأكيد البطاقات · حذف = حذف جلسة مستنية — بعد التأكيد والأرصدة والتحويل للمدير بس'],
       Items: ['الأصناف', 'إضافة = صنف جديد · تعديل = تعديل وإيقاف · حذف = حذف صنف ملوش حركات'],
+      Specialities: ['التخصصات', 'إضافة = تخصص جديد · تعديل = الموظفين والإيقاف · حذف = تخصص ملوش أصناف ولا فواتير'],
       Transactions: ['استعراض البيانات', 'تعديل = تعديل فاتورة · حذف = حذف فاتورة'], Logs: ['السجل', ''],
       Balances: ['الأرصدة', 'إضافة = إغلاق اليوم'], Expenses: ['المصروفات', ''], Payroll: ['Payroll', 'السلف والخصومات'],
       Services: ['خدمات سريعة', ''], Cash: ['النقدية والعهد', 'إضافة = تحويل / تسوية / رصيد أول المدة'],
@@ -9042,7 +9182,7 @@
     const MENU_ITEMS = { Sales: ['btnPageAdd', 'pageAdd'], Collect: ['btnPageCollections', 'pageCollections'], ClientCards: ['btnPageClients', 'pageClients'],
       Expenses: ['btnPageExpenses', 'pageExpenses'], Payroll: ['btnPagePayroll', 'pagePayroll'], Transactions: ['btnPageData', 'pageData'],
       Balances: ['btnPageBalances', 'pageBalances'], Cash: ['btnPageCash', 'pageCash'], Services: ['btnPageServices', 'pageServices'],
-      Logs: ['btnPageLogs', 'pageLogs'], Home: ['btnPageCatalog', 'pageCatalog'], PriceList: ['btnPagePrices', 'pagePrices'], Catalog: ['btnPageManage', 'pageManage'], Items: ['btnPageItems', 'pageItems'], Users: ['btnPageUsers', 'pageUsers'] };
+      Logs: ['btnPageLogs', 'pageLogs'], Home: ['btnPageCatalog', 'pageCatalog'], PriceList: ['btnPagePrices', 'pagePrices'], Catalog: ['btnPageManage', 'pageManage'], Items: ['btnPageItems', 'pageItems'], Specialities: ['btnPageSpecs', 'pageSpecs'], Users: ['btnPageUsers', 'pageUsers'] };
     const DEFAULT_ORDER = Object.keys(MENU_ITEMS);
     let TAB_ORDER = DEFAULT_ORDER.slice();
     function normOrder(order) {
@@ -9150,20 +9290,14 @@
     async function refreshStaffData() {
       const res = await (await apiRead('Data')).json();
       if (res.status !== 'success' || !res.data) throw new Error(res.message || 'تعذر تحديث البيانات');
-      const checked = [...document.querySelectorAll('#doctorContainer input:checked, #specialistContainer input:checked')].map(i => i.className + '|' + i.value);
       globalData = res.data;
+      setSpecs(res.specialities);
       populateStaffUI(globalData);
-      document.querySelectorAll('#doctorContainer input, #specialistContainer input').forEach(i => { if (checked.indexOf(i.className + '|' + i.value) !== -1) i.checked = true; });
-      // نفس قاعدة الشاشة: لو فيه طبيب مختار الأخصائيات بيتقفلوا والعكس
-      const anyDoc = !!document.querySelector('#doctorContainer .doc-cb:checked'), anySpec = !!document.querySelector('#specialistContainer .spec-cb:checked');
-      if (anyDoc) document.querySelectorAll('#specialistContainer .spec-cb').forEach(cb => { cb.disabled = true; });
-      if (anySpec) document.querySelectorAll('#doctorContainer .doc-cb').forEach(cb => { cb.disabled = true; });
       if (typeof populatePayrollEmployees === 'function') populatePayrollEmployees();
-      // قايمة الخدمات في الفاتورة بالأسعار الجديدة — من غير ما السلة تتمسح
-      const type = (document.querySelector('input[name="staffTypeRadio"]:checked') || {}).value;
-      if (type === 'doctor') renderFilteredServices('Laser & Dermatology');
-      else if (type === 'specialist') renderFilteredServices('Spa & Personal Care');
-      document.querySelectorAll('.service-cb').forEach(cb => { if (cartItems.has(cb.value)) cb.checked = true; });
+      // زراير التخصصات وقايمة الأصناف بالأسعار الجديدة — من غير ما السلة تتمسح
+      renderSpecToggle();
+      if (SALE_SPEC) { renderFilteredServices(SALE_SPEC); syncServiceChecks(); }
+      renderCart();
     }
     async function refreshClients() {
       const res = await (await apiRead('Clients')).json();
@@ -9184,6 +9318,7 @@
       { page: 'pagePrices',   table: '#prBody',                              name: 'قائمة الأسعار', file: 'Price-List' },
       { page: 'pageUsers',    table: '#usBody',                              name: 'المستخدمين والصلاحيات', file: 'Users' },
       { page: 'pageItems',    table: '#itBody',                              name: 'الأصناف', file: 'Items' },
+      { page: 'pageSpecs',    table: '#spBody',                              name: 'التخصصات', file: 'Specialities' },
       { page: 'pageClients',  table: '#ccVisitsTable',                       name: 'سجل المتابعة', base: 'سجل المتابعة', file: 'Client-Visits' },
       { page: 'pageClients',  table: '#ccInvTable',                          name: 'فواتير العميل', base: 'فواتير العميل', file: 'Client-Invoices' }
     ];
@@ -9320,7 +9455,8 @@
     const CC_MODE_AR = { Multi: 'على كذا مرة', Single: 'مرة واحدة', Instant: 'في نفس الزيارة' };
     const CC_STATUS = { open: 'مفتوح', done: 'خلص', closed: 'اتقفل', expired: 'منتهي' };
     const CC_SOURCE = { Sale: 'فاتورة', Credit: 'رصيد من فاتورة', Opening: 'رصيد افتتاحي', Manual: 'إضافة يدوية', Transfer: 'تحويل' };
-    const CC_SECTIONS = [['all', 'الكل'], ['Laser & Dermatology', 'ليزر وجلدية'], ['Spa & Personal Care', 'سبا وعناية']];
+    // الأقسام = التخصصات الشغالة (من تاب التخصصات)
+    function ccSections() { return [['all', 'الكل']].concat(activeSpecs().map(s => [s.name, s.ar || s.name])); }
     const CC_VISIT_TYPES = ['كشف', 'متابعة', 'جلسة', 'جلسة ليزر', 'حقن', 'استشارة'];
     // أجهزة الليزر: نبضات كل جهاز بتتكتب لوحدها والإجمالي = مجموعهم (لازم تطابق CC_DEVICES_ في السكريبت)
     const CC_DEVICES = ['Alex', 'Yag'];
@@ -9336,7 +9472,7 @@
 
     function ccNum(n) { return (n === '' || n === null || n === undefined) ? '' : Number(n).toLocaleString('en-US'); }
     function ccQty(q, type) { return (q === '' || q === null || q === undefined) ? 'بدون حد' : ccNum(q) + ' ' + (CC_UNIT[type] || ''); }
-    function ccSecName(s) { const x = CC_SECTIONS.find(a => a[0] === s); return x ? x[1] : (s || '—'); }
+    function ccSecName(s) { return specLabel(s); }
     function ccToday() { const d = new Date(), p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
     function ccAddDays(ymd, n) {
       const p = String(ymd).split('-').map(Number), d = new Date(p[0], p[1] - 1, p[2] + n), q = x => String(x).padStart(2, '0');
@@ -9486,7 +9622,7 @@
       if (pendingV.length) html += '<div class="cc-pend"><div><i class="fas fa-hourglass-half"></i> <b>' + pendingV.length + ' جلسة مستنية تأكيد</b><div class="cc-sub">'
         + pendingV.map(v => esc(v.service) + ' (' + ccDate(v.date) + ')').join('، ') + '</div></div>'
         + (can('ClientCards', 'edit') ? '<button class="btn" onclick="ccOpenDayForClient()"><i class="fas fa-check-double"></i> فتح للتأكيد</button>' : '') + '</div>';
-      html += '<div class="cc-chips">' + CC_SECTIONS.map(s => '<button type="button" class="cc-chip' + (CC.section === s[0] ? ' on' : '') + '" data-s="' + esc(s[0]) + '" onclick="ccSetSection(this.dataset.s)">' + s[1] + '</button>').join('') + '</div>';
+      html += '<div class="cc-chips">' + ccSections().map(s => '<button type="button" class="cc-chip' + (CC.section === s[0] ? ' on' : '') + '" data-s="' + esc(s[0]) + '" onclick="ccSetSection(this.dataset.s)">' + s[1] + '</button>').join('') + '</div>';
       // الأرصدة
       html += '<div class="cc-h"><span><i class="fas fa-box-open"></i> الأرصدة' + (pk.filter(live).length ? ' (' + pk.filter(live).length + ')' : '') + '</span>'
         + (hiddenN ? '<button type="button" class="cc-chip" onclick="ccToggleClosed()">' + (CC.showClosed ? 'إخفاء اللي خلصت' : 'عرض اللي خلصت (' + hiddenN + ')') + '</button>' : '') + '</div>';
@@ -9565,7 +9701,7 @@
     function ccFillLists() {
       document.getElementById('ccSvcList').innerHTML = CC.services.map(s => '<option value="' + esc(s.name) + '">' + esc(ccSecName(s.speciality)) + '</option>').join('');
       document.getElementById('ccTypeList').innerHTML = CC_VISIT_TYPES.map(t => '<option value="' + t + '">').join('');
-      const staff = [...new Set((typeof globalData !== 'undefined' ? globalData : []).filter(r => r['Employee Name'] && !/^(general|admin)$/i.test(String(r['Employee Category'] || '').trim()))
+      const staff = [...new Set((typeof globalData !== 'undefined' ? globalData : []).filter(r => r['Employee Name'] && empActive(r) && !/^(general|admin)$/i.test(String(r['Employee Category'] || '').trim()))
         .map(r => String(r['Employee Name']).trim()))].sort();
       document.getElementById('ccStaffList').innerHTML = staff.map(n => '<option value="' + esc(n) + '">').join('');
     }
@@ -9872,7 +10008,7 @@
       const done = groups.filter(g => !g.items.some(i => i.status === 'Pending'));
       const nPend = pend.reduce((s, g) => s + g.items.filter(i => i.status === 'Pending').length, 0);
       const nDone = groups.reduce((s, g) => s + g.items.filter(i => i.status === 'Confirmed').length, 0);
-      let html = '<div class="cc-daybar"><div class="cc-chips">' + CC_SECTIONS.map(s => '<button type="button" class="cc-chip' + (CC.daySection === s[0] ? ' on' : '') + '" data-s="' + esc(s[0]) + '" onclick="ccSetDaySection(this.dataset.s)">' + s[1] + '</button>').join('') + '</div>'
+      let html = '<div class="cc-daybar"><div class="cc-chips">' + ccSections().map(s => '<button type="button" class="cc-chip' + (CC.daySection === s[0] ? ' on' : '') + '" data-s="' + esc(s[0]) + '" onclick="ccSetDaySection(this.dataset.s)">' + s[1] + '</button>').join('') + '</div>'
         + '<div class="cc-daypick"><input type="date" id="ccDayInput" value="' + esc(d.day) + '" onchange="ccSetDay(this.value)">'
         + (isToday ? '' : '<button type="button" class="cc-chip" onclick="ccSetDay(\'\')">النهارده</button>') + '</div></div>';
       html += '<div class="cc-stats"><div class="st warn"><b>' + nPend + '</b><span>مستنية تأكيد</span></div><div class="st"><b>' + nDone + '</b><span>اتأكدت ' + (isToday ? 'النهارده' : ccDate(d.day)) + '</span></div></div>';
@@ -10050,6 +10186,7 @@
         el.innerHTML = '<option value="">' + first + '</option>' + vals.map(v => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join(''); el.value = vals.indexOf(cur) !== -1 ? cur : ''; };
       const uniq = k => [...new Set(ITEMS.items.map(i => i[k]).filter(Boolean))].sort();
       fill('itSpec', uniq('speciality'), 'كل التخصصات');
+      [...document.getElementById('itSpec').options].forEach(o => { if (o.value) o.textContent = specLabel(o.value); });
       fill('itCat', uniq('salesCategory'), 'كل التصنيفات');
       document.getElementById('itAddBtn').style.display = can('Items', 'add') ? '' : 'none';
       renderItems();
@@ -10114,9 +10251,7 @@
         + ITEMS.folders.map(f => '<option value="' + esc(f.id) + '">' + esc(f.path) + (f.active ? '' : ' (مخفي)') + '</option>').join('');
       const prodFolder = ITEMS.folders.find(f => /^products$/i.test(f.path));
       document.getElementById('itFolder').value = it && !(prodFolder && it.category === prodFolder.id) ? it.category : '';
-      const specs = [...new Set(salesSpecialities().concat(ITEMS.items.map(i => i.speciality).filter(Boolean)))].sort();
-      document.getElementById('itSpecSel').innerHTML = '<option value="">-- اختر التخصص --</option>' + specs.map(x => '<option value="' + esc(x) + '">' + esc(x) + '</option>').join('');
-      document.getElementById('itSpecSel').value = it ? it.speciality : '';
+      document.getElementById('itSpecSel').innerHTML = specOptionsHtml(it ? it.speciality : '');
       fillSalesCatSelect('itSalesCat', it ? it.salesCategory : '');
       const set = (k, v) => { document.getElementById(k).value = v === undefined || v === null ? '' : v; };
       set('itPrice', it ? it.price : ''); set('itCost', it ? it.cost : '');
@@ -10168,6 +10303,267 @@
       try { loadCatalog(); } catch (_) {}
       if (typeof refreshStaffData === 'function') refreshStaffData().catch(() => {});
     }
+
+    // ═══════════════════════════ التخصصات ═══════════════════════════
+    // كل تخصص: اسم + نوع (أطباء / متخصصين / مشترك) + مين بيظهر فيه (بالوظيفة أو بالاسم من الموظفين المتكودين)
+    let SPPAGE = { specialities: [], employees: [], jobs: [] }, spEdit = null;
+    async function loadSpecs() {
+      const body = document.getElementById('spBody');
+      if (!SPPAGE.specialities.length) body.innerHTML = '<tr><td colspan="6" class="loading"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr>';
+      try { setSpecPage(await ccGet({ action: 'specialities' })); }
+      catch (e) { body.innerHTML = '<tr><td colspan="6" class="empty" style="color:var(--danger);">' + esc(e.message) + '</td></tr>'; }
+    }
+    const SP_TYPE_AR = { Doctor: 'أطباء', Specialist: 'متخصصين', Both: 'مشترك' };
+    function setSpecPage(res) {
+      SPPAGE = { specialities: res.specialities || [], employees: res.employees || [], jobs: res.jobs || [] };
+      setSpecs(SPPAGE.specialities.map(s => Object.assign({}, s)));
+      renderEmps();
+      renderSpecToggle();
+      document.getElementById('spAddBtn').style.display = can('Specialities', 'add') ? '' : 'none';
+      const who = (list, label) => list.length ? '<div><b>' + label + ' (' + list.length + '):</b> ' + esc(list.slice(0, 8).join('، ')) + (list.length > 8 ? ' <span class="muted">+' + (list.length - 8) + '</span>' : '') + '</div>' : '';
+      const rule = (jobs, names) => [jobs.length ? 'وظيفة: ' + jobs.join('، ') : '', names.length ? 'بالاسم: ' + names.length : ''].filter(Boolean).join(' · ');
+      document.getElementById('spBody').innerHTML = SPPAGE.specialities.map(s => {
+        const u = s.usage || {}, st = s.staff || { doctors: [], specialists: [] };
+        const rules = [s.type !== 'Specialist' ? rule(s.docJobs, s.docNames) : '', s.type !== 'Doctor' ? rule(s.specJobs, s.specNames) : ''].filter(Boolean).join(' | ');
+        const used = (u.items || 0) + (u.history || 0);
+        const acts = (can('Specialities', 'edit') ? '<button class="icon-btn" title="تعديل" data-i="' + esc(s.id) + '" onclick="openSpecModal(this.dataset.i)"><i class="fas fa-pen"></i></button>'
+            + '<button class="icon-btn" title="' + (s.active ? 'إيقاف' : 'تشغيل') + '" data-i="' + esc(s.id) + '" onclick="toggleSpec(this.dataset.i)"><i class="fas ' + (s.active ? 'fa-pause' : 'fa-play') + '"></i></button>' : '')
+          + (can('Specialities', 'delete') ? '<button class="icon-btn danger" title="' + (used ? 'عليه أصناف أو فواتير — وقّفه بدل الحذف' : 'حذف') + '" data-i="' + esc(s.id) + '" onclick="deleteSpec(this.dataset.i)"' + (used ? ' style="opacity:.4;"' : '') + '><i class="fas fa-trash"></i></button>' : '');
+        return '<tr class="' + (s.active ? '' : 'it-off') + '"><td class="wide"><div class="cc-svc">' + esc(s.ar || s.name) + '</div><div class="cc-sub">' + esc(s.name) + ' · ترتيب ' + esc(s.sort) + '</div></td>'
+          + '<td data-l="النوع"><span class="cc-badge">' + (SP_TYPE_AR[s.type] || s.type) + '</span></td>'
+          + '<td data-l="بيظهر في الفاتورة" class="sp-staff">' + (who(st.doctors, 'أطباء') + who(st.specialists, 'متخصصين') || '<span style="color:var(--danger);">مفيش حد</span>') + '<div class="muted">' + esc(rules) + '</div></td>'
+          + '<td data-l="الأصناف">' + ccNum(u.items || 0) + ' صنف<div class="cc-sub">' + ccNum(u.sales || 0) + ' سطر مبيعات</div></td>'
+          + '<td data-l="الحالة"><span class="cc-badge' + (s.active ? '' : ' expired') + '">' + (s.active ? 'شغال' : 'موقوف') + '</span></td>'
+          + '<td class="wide"><div class="mg-actions">' + acts + '</div></td></tr>';
+      }).join('') || '<tr><td colspan="6" class="empty">مفيش تخصصات</td></tr>';
+    }
+    // صناديق الاختيار مرتبة: الوظايف أبجدي (وظيفة الصندوق الأول)، والأسماء متجمعة تحت وظيفتها وأبجدي جوه كل وظيفة
+    function spLabel(v, sub, on) {
+      return '<label class="' + (on ? 'on' : '') + '" title="' + esc(v) + '"><input type="checkbox" value="' + esc(v) + '"' + (on ? ' checked' : '')
+        + ' onchange="this.parentNode.classList.toggle(\'on\', this.checked); spPreview()"><span class="n">' + esc(v) + '</span>' + (sub !== undefined && sub !== '' ? '<small>' + esc(sub) + '</small>' : '') + '</label>';
+    }
+    function spJobOrder(jobs, primary) {
+      return jobs.slice().sort((a, b) => ((jobKey(b) === primary) - (jobKey(a) === primary)) || a.localeCompare(b));
+    }
+    function spRenderJobs(boxId, primary, selected) {
+      const sel = selected.map(specLow);
+      document.getElementById(boxId).innerHTML = spJobOrder(SPPAGE.jobs, primary).map(j =>
+        spLabel(j, SPPAGE.employees.filter(e => e.active !== false && jobKey(e.job) === jobKey(j)).length, sel.indexOf(specLow(j)) !== -1)).join('') || '<span class="cc-sub">مفيش وظايف</span>';
+    }
+    function spRenderNames(boxId, primary, selected) {
+      const sel = selected.map(specLow);
+      const groups = {};
+      SPPAGE.employees.forEach(e => { if (e.active === false && sel.indexOf(specLow(e.name)) === -1) return; const g = e.job || 'بدون وظيفة'; (groups[g] = groups[g] || []); if (groups[g].indexOf(e.name) === -1) groups[g].push(e.name); });
+      document.getElementById(boxId).innerHTML = spJobOrder(Object.keys(groups), primary).map(g =>
+        '<div class="grp" data-g="1"><span>' + esc(g) + '</span><small>' + groups[g].length + '</small></div>'
+        + groups[g].sort((a, b) => a.localeCompare(b)).map(n => spLabel(n, '', sel.indexOf(specLow(n)) !== -1)).join('')).join('') || '<span class="cc-sub">مفيش موظفين</span>';
+      const q = document.getElementById(boxId.replace('Names', 'Search'));
+      if (q && q.value) spFilter(boxId, q.value);
+    }
+    function spFilter(boxId, q) {
+      q = specLow(q);
+      const box = document.getElementById(boxId);
+      let grp = null, any = false;
+      const flush = () => { if (grp) grp.style.display = any ? '' : 'none'; };
+      [...box.children].forEach(el => {
+        if (el.dataset.g) { flush(); grp = el; any = false; return; }
+        const show = !q || specLow(el.textContent).indexOf(q) !== -1;
+        el.style.display = show ? '' : 'none';
+        if (show) any = true;
+      });
+      flush();
+    }
+    // موظف جديد (بيتكتب في شيت Data) — وبيتعلّم في الصندوق اللي اتضاف منه
+    function spNewEmpToggle(k) {
+      const box = document.getElementById('sp' + k + 'New');
+      const open = !box.classList.contains('open');
+      box.classList.toggle('open', open);
+      if (!open) return;
+      const primary = k === 'Doc' ? 'doctor' : 'specialist';
+      const jobs = spJobOrder(SPPAGE.jobs, primary);
+      document.getElementById('sp' + k + 'NewJob').innerHTML = jobs.map(j => '<option value="' + esc(j) + '">' + esc(j) + '</option>').join('') + '<option value="__new">+ وظيفة جديدة…</option>';
+      document.getElementById('sp' + k + 'NewJob').value = jobs.find(j => jobKey(j) === primary) || jobs[0] || '__new';
+      ['Name', 'Id', 'JobText'].forEach(f => { document.getElementById('sp' + k + 'New' + f).value = ''; });
+      spNewJobChanged(k);
+      document.getElementById('sp' + k + 'NewErr').style.display = 'none';
+      setTimeout(() => document.getElementById('sp' + k + 'NewName').focus(), 30);
+    }
+    function spNewJobChanged(k) { document.getElementById('sp' + k + 'NewJobText').style.display = document.getElementById('sp' + k + 'NewJob').value === '__new' ? '' : 'none'; }
+    async function spAddEmployee(k) {
+      const g = f => document.getElementById('sp' + k + 'New' + f);
+      const err = g('Err');
+      const jobSel = g('Job').value;
+      const data = { name: g('Name').value.trim(), job: jobSel === '__new' ? g('JobText').value.trim() : jobSel, id: g('Id').value.trim(),
+        category: document.getElementById('spName').value.trim() || 'General' };
+      const fail = m => { err.textContent = m; err.style.display = 'block'; };
+      if (!data.name) return fail('اكتب اسم الموظف.');
+      if (!data.job) return fail('اختار أو اكتب الوظيفة.');
+      if (SPPAGE.employees.some(e => specLow(e.name) === specLow(data.name))) return fail('الموظف ده متكود قبل كده — دوّر عليه في القايمة.');
+      const btn = g('Btn'), orig = btn.innerHTML;
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      // الاختيارات الحالية في النافذة تفضل زي ما هي
+      const keep = { DocJobs: spChecked('spDocJobs'), DocNames: spChecked('spDocNames'), SpecJobs: spChecked('spSpecJobs'), SpecNames: spChecked('spSpecNames') };
+      try {
+        const res = await svPost({ action: 'addEmployee', data });
+        SPPAGE.employees = res.employees || SPPAGE.employees; SPPAGE.jobs = res.jobs || SPPAGE.jobs;
+        keep[k + 'Names'].push(res.added ? res.added.name : data.name);
+        spRenderJobs('spDocJobs', 'doctor', keep.DocJobs); spRenderNames('spDocNames', 'doctor', keep.DocNames);
+        spRenderJobs('spSpecJobs', 'specialist', keep.SpecJobs); spRenderNames('spSpecNames', 'specialist', keep.SpecNames);
+      } catch (e) { fail(e.message || 'تعذر الإضافة'); btn.disabled = false; btn.innerHTML = orig; return; }
+      btn.disabled = false; btn.innerHTML = orig;
+      document.getElementById('sp' + k + 'New').classList.remove('open');
+      spPreview();
+      toast('تم إضافة ' + data.name + ' — واتعلّم في التخصص (افتكر تدوس حفظ)');
+      if (typeof refreshStaffData === 'function') refreshStaffData().catch(() => {});
+    }
+    function spChecked(boxId) { return [...document.querySelectorAll('#' + boxId + ' input:checked')].map(i => i.value); }
+    function openSpecModal(id) {
+      const s = id ? SPPAGE.specialities.find(x => x.id === id) : null;
+      spEdit = { id: s ? s.id : '' };
+      document.getElementById('spModalTitle').innerHTML = '<i class="fas fa-stethoscope" style="color:var(--gold-accent);"></i> ' + (s ? 'تعديل تخصص: ' + esc(s.ar || s.name) : 'تخصص جديد');
+      const nm = document.getElementById('spName');
+      nm.value = s ? s.name : '';
+      const locked = !!(s && s.usage && s.usage.history);
+      nm.readOnly = locked;
+      document.getElementById('spNameHint').textContent = locked ? 'عليه ' + s.usage.history + ' حركة في الفواتير — الاسم ده مينفعش يتغير. غيّر الاسم بالعربي براحتك.' : 'ده اللي بيتسجل في الأصناف والمبيعات.';
+      document.getElementById('spAr').value = s ? s.ar : '';
+      document.getElementById('spSort').value = s ? s.sort : '';
+      document.getElementById('spActive').checked = s ? s.active : true;
+      document.querySelectorAll('input[name="spType"]').forEach(r => { r.checked = !!s && r.value === s.type; });
+      // جديد: الأطباء بوظيفة Doctor والمتخصصين بوظيفة Specialist كبداية
+      const defJob = k => SPPAGE.jobs.filter(j => jobKey(j) === k);
+      ['spDocSearch', 'spSpecSearch'].forEach(id => { document.getElementById(id).value = ''; });
+      ['spDocNew', 'spSpecNew'].forEach(id => document.getElementById(id).classList.remove('open'));
+      spRenderJobs('spDocJobs', 'doctor', s ? s.docJobs : defJob('doctor'));
+      spRenderNames('spDocNames', 'doctor', s ? s.docNames : []);
+      spRenderJobs('spSpecJobs', 'specialist', s ? s.specJobs : defJob('specialist'));
+      spRenderNames('spSpecNames', 'specialist', s ? s.specNames : []);
+      spTypeChanged();
+      showErr('spError', '');
+      openModal('spModal');
+      setTimeout(() => (locked ? document.getElementById('spAr') : nm).focus(), 50);
+    }
+    function spType() { const r = document.querySelector('input[name="spType"]:checked'); return r ? r.value : ''; }
+    function spTypeChanged() {
+      const t = spType();
+      document.querySelectorAll('#spTypes label').forEach(l => l.classList.toggle('on', l.querySelector('input').checked));
+      document.getElementById('spDocBox').style.display = t && t !== 'Specialist' ? '' : 'none';
+      document.getElementById('spSpecBox').style.display = t && t !== 'Doctor' ? '' : 'none';
+      spPreview();
+    }
+    function spPreview() {
+      const pick = (jobs, names) => { const jk = jobs.map(jobKey), nk = names.map(specLow);
+        return [...new Set(SPPAGE.employees.filter(e => e.active !== false && (jk.indexOf(jobKey(e.job)) !== -1 || nk.indexOf(specLow(e.name)) !== -1)).map(e => e.name))]; };
+      const docs = pick(spChecked('spDocJobs'), spChecked('spDocNames'));
+      const specs = pick(spChecked('spSpecJobs'), spChecked('spSpecNames')).filter(n => spType() === 'Specialist' || docs.indexOf(n) === -1);
+      const line = list => list.length ? '<i class="fas fa-eye"></i> هيظهر (' + list.length + '): ' + esc(list.slice().sort((a, b) => a.localeCompare(b)).join('، ')) : '<span style="color:var(--danger);">مفيش حد متحدد</span>';
+      document.getElementById('spDocPrev').innerHTML = line(docs);
+      document.getElementById('spSpecPrev').innerHTML = line(specs);
+    }
+    async function saveSpec() {
+      const name = document.getElementById('spName').value.trim(), type = spType();
+      if (!name) { showErr('spError', 'اكتب اسم التخصص.'); return; }
+      if (!type) { showErr('spError', 'اختار مين بيشتغل في التخصص: أطباء أو متخصصين أو مشترك.'); return; }
+      const data = { id: spEdit.id, name, ar: document.getElementById('spAr').value.trim(), type,
+        docJobs: spChecked('spDocJobs'), docNames: spChecked('spDocNames'), specJobs: spChecked('spSpecJobs'), specNames: spChecked('spSpecNames'),
+        sort: document.getElementById('spSort').value.trim(), active: document.getElementById('spActive').checked };
+      if (type !== 'Specialist' && !data.docJobs.length && !data.docNames.length) { showErr('spError', 'اختار الأطباء اللي يظهروا (بالوظيفة أو بالاسم).'); return; }
+      if (type !== 'Doctor' && !data.specJobs.length && !data.specNames.length) { showErr('spError', 'اختار المتخصصين اللي يظهروا (بالوظيفة أو بالاسم).'); return; }
+      const btn = document.getElementById('spSave'), orig = btn.innerHTML;
+      showErr('spError', '');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+      try { const res = await svPost({ action: 'saveSpec', data }); closeModal('spModal'); setSpecPage(res); toast(res.message || 'تم الحفظ'); spAfterChange(); }
+      catch (e) { showErr('spError', e.message || 'تعذر الحفظ'); }
+      finally { btn.disabled = false; btn.innerHTML = orig; }
+    }
+    async function toggleSpec(id) {
+      const s = SPPAGE.specialities.find(x => x.id === id);
+      if (!s || (s.active && !confirm('إيقاف "' + (s.ar || s.name) + '"؟ زراره مش هيظهر في شاشة الفاتورة (الفواتير والأصناف القديمة مش بتتأثر).'))) return;
+      try { const res = await svPost({ action: 'toggleSpec', id }); setSpecPage(res); toast(res.message); spAfterChange(); }
+      catch (e) { toast(e.message || 'تعذر', true); }
+    }
+    async function deleteSpec(id) {
+      const s = SPPAGE.specialities.find(x => x.id === id);
+      if (!s) return;
+      const u = s.usage || {};
+      if ((u.items || 0) + (u.history || 0)) { toast('"' + (s.ar || s.name) + '" عليه ' + (u.items ? u.items + ' صنف' : '') + (u.items && u.history ? ' و' : '') + (u.history ? u.history + ' حركة' : '') + ' — مينفعش يتحذف. وقّفه بدل الحذف.', true); return; }
+      if (!confirm('حذف "' + (s.ar || s.name) + '" نهائي؟')) return;
+      try { const res = await svPost({ action: 'deleteSpec', id }); setSpecPage(res); toast(res.message); spAfterChange(); }
+      catch (e) { toast(e.message || 'تعذر الحذف', true); }
+    }
+    // ── الموظفين المتكودين (شيت Data): إضافة وتعديل وإيقاف
+    let emEditIdx = -1;
+    function renderEmps() {
+      const jobSel = document.getElementById('emJob'), cur = jobSel.value;
+      jobSel.innerHTML = '<option value="">كل الوظايف</option>' + SPPAGE.jobs.map(j => '<option value="' + esc(j) + '">' + esc(j) + '</option>').join('');
+      jobSel.value = SPPAGE.jobs.indexOf(cur) !== -1 ? cur : '';
+      const q = specLow(document.getElementById('emSearch').value), jb = jobSel.value, st = document.getElementById('emState').value;
+      const all = SPPAGE.employees.map((e, i) => Object.assign({ i }, e));
+      const rows = all.filter(e => (!q || specLow(e.name + ' ' + e.id).indexOf(q) !== -1) && (!jb || jobKey(e.job) === jobKey(jb)) && (!st || (st === 'on' ? e.active !== false : e.active === false)))
+        .sort((a, b) => a.job.localeCompare(b.job) || a.name.localeCompare(b.name));
+      document.getElementById('emCount').textContent = rows.length + ' موظف' + (rows.length !== all.length ? ' من ' + all.length : '') + ' · موقوف: ' + all.filter(e => e.active === false).length;
+      const canEdit = can('Specialities', 'edit');
+      document.getElementById('emAddBtn').style.display = can('Specialities', 'add') || canEdit ? '' : 'none';
+      document.getElementById('emBody').innerHTML = rows.map(e => {
+        const m = e.moves || {};
+        const mv = [m.sales ? ccNum(m.sales) + ' مبيعات' : '', m.payroll ? ccNum(m.payroll) + ' مرتبات' : '', m.cards ? ccNum(m.cards) + ' بطاقات' : '', m.user ? 'مستخدم' : ''].filter(Boolean).join(' · ') || '—';
+        const acts = canEdit ? '<button class="icon-btn" title="تعديل" onclick="openEmpModal(' + e.i + ')"><i class="fas fa-pen"></i></button>'
+          + '<button class="icon-btn" title="' + (e.active !== false ? 'إيقاف' : 'تشغيل') + '" onclick="toggleEmp(' + e.i + ')"><i class="fas ' + (e.active !== false ? 'fa-pause' : 'fa-play') + '"></i></button>' : '';
+        return '<tr class="' + (e.active !== false ? '' : 'it-off') + '"><td class="wide"><div class="cc-svc">' + esc(e.name) + '</div></td>'
+          + '<td data-l="الوظيفة">' + esc(e.job || '—') + '</td><td data-l="الكود">' + esc(e.id || '—') + '</td><td data-l="القسم">' + esc(specLabel(e.category) || '—') + '</td>'
+          + '<td data-l="الحركات">' + mv + '</td>'
+          + '<td data-l="الحالة"><span class="cc-badge' + (e.active !== false ? '' : ' expired') + '">' + (e.active !== false ? 'شغال' : 'موقوف') + '</span></td>'
+          + '<td class="wide"><div class="mg-actions">' + acts + '</div></td></tr>';
+      }).join('') || '<tr><td colspan="7" class="empty">مفيش موظفين مطابقين</td></tr>';
+    }
+    function openEmpModal(i) {
+      const e = i >= 0 ? SPPAGE.employees[i] : null;
+      emEditIdx = i;
+      document.getElementById('emModalTitle').innerHTML = '<i class="fas fa-user" style="color:var(--gold-accent);"></i> ' + (e ? 'تعديل موظف: ' + esc(e.name) : 'موظف جديد');
+      const nm = document.getElementById('emName');
+      nm.value = e ? e.name : '';
+      const locked = !!(e && e.moves && e.moves.total);
+      nm.readOnly = locked;
+      document.getElementById('emNameHint').textContent = locked ? 'عليه حركات (' + e.moves.total + ') — الاسم مينفعش يتغير.' : '';
+      const jobs = SPPAGE.jobs.slice();
+      if (e && e.job && jobs.indexOf(e.job) === -1) jobs.push(e.job);
+      document.getElementById('emJobSel').innerHTML = '<option value="">-- اختر --</option>' + jobs.map(j => '<option value="' + esc(j) + '">' + esc(j) + '</option>').join('') + '<option value="__new">+ وظيفة جديدة…</option>';
+      document.getElementById('emJobSel').value = e ? e.job : '';
+      document.getElementById('emJobText').value = ''; document.getElementById('emJobText').style.display = 'none';
+      document.getElementById('emId').value = e ? e.id : '';
+      const cats = ['General'].concat(SPPAGE.specialities.map(s => s.name));
+      if (e && e.category && cats.indexOf(e.category) === -1) cats.push(e.category);
+      document.getElementById('emCat').innerHTML = cats.map(c => '<option value="' + esc(c) + '">' + esc(c === 'General' ? 'General (عام)' : specLabel(c) + (specLabel(c) !== c ? ' — ' + c : '')) + '</option>').join('');
+      document.getElementById('emCat').value = e && e.category ? e.category : 'General';
+      showErr('emError', '');
+      openModal('emModal');
+      setTimeout(() => nm.focus(), 50);
+    }
+    async function saveEmp() {
+      const e = emEditIdx >= 0 ? SPPAGE.employees[emEditIdx] : null;
+      const js = document.getElementById('emJobSel').value;
+      const data = { name: document.getElementById('emName').value.trim(), job: js === '__new' ? document.getElementById('emJobText').value.trim() : js,
+        id: document.getElementById('emId').value.trim(), category: document.getElementById('emCat').value };
+      if (!data.name) { showErr('emError', 'اكتب اسم الموظف.'); return; }
+      if (!data.job) { showErr('emError', 'اختار أو اكتب الوظيفة.'); return; }
+      if (SPPAGE.employees.some((x, i) => i !== emEditIdx && specLow(x.name) === specLow(data.name)) && !(e && specLow(e.name) === specLow(data.name))) { showErr('emError', 'فيه موظف متكود بالاسم ده قبل كده.'); return; }
+      if (e) { data.orig = e.name; data.origJob = e.job; }
+      const btn = document.getElementById('emSave'), orig = btn.innerHTML;
+      showErr('emError', '');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+      try { const res = await svPost({ action: e ? 'editEmployee' : 'addEmployee', data }); closeModal('emModal'); setSpecPage(res); toast(res.message || 'تم الحفظ'); spAfterChange(); }
+      catch (err) { showErr('emError', err.message || 'تعذر الحفظ'); }
+      finally { btn.disabled = false; btn.innerHTML = orig; }
+    }
+    async function toggleEmp(i) {
+      const e = SPPAGE.employees[i];
+      if (!e || (e.active !== false && !confirm('إيقاف "' + e.name + '"؟ مش هيظهر في الفاتورة ولا التخصصات (حركاته القديمة زي ما هي).'))) return;
+      try { const res = await svPost({ action: 'toggleEmployee', data: { orig: e.name, origJob: e.job } }); setSpecPage(res); toast(res.message); spAfterChange(); }
+      catch (err) { toast(err.message || 'تعذر', true); }
+    }
+
+    // التخصصات اتغيرت: شاشة الفاتورة تتحدث
+    function spAfterChange() { if (typeof refreshStaffData === 'function') refreshStaffData().catch(() => {}); }
 
     // ═══════════════════════════ النوافذ ═══════════════════════════
     function openModal(id) { document.getElementById(id).classList.add('active'); }
