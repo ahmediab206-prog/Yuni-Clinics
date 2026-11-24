@@ -955,7 +955,7 @@
     .svx .sp-tools .sub { margin: 0; flex: 1; }
     .svx .sp-tools input { width: 190px; max-width: 100%; padding: 6px 10px; font-size: 13px; border-radius: 8px; }
     .svx .sp-addbtn { border: 1.5px dashed var(--primary-green); background: #fff; color: var(--primary-green); border-radius: 8px; padding: 6px 11px; font-weight: 700; font-size: 12.5px; cursor: pointer; font-family: inherit; }
-    .svx .sp-newemp { display: none; grid-template-columns: 2fr 1.4fr 1fr auto; gap: 6px; align-items: end; background: #F6F3EA; border-radius: 10px; padding: 10px; margin-top: 8px; }
+    .svx .sp-newemp { display: none; grid-template-columns: 2fr 1.4fr auto; gap: 6px; align-items: end; background: #F6F3EA; border-radius: 10px; padding: 10px; margin-top: 8px; }
     .svx .sp-newemp.open { display: grid; }
     .svx .sp-newemp label { font-size: 11.5px; font-weight: 700; color: #7A8279; display: block; margin-bottom: 3px; }
     .svx .sp-newemp input, .svx .sp-newemp select { width: 100%; padding: 7px 9px; font-size: 13px; border-radius: 8px; }
@@ -1253,7 +1253,7 @@
             <tbody id="spBody"></tbody>
           </table>
         </div>
-        <div class="hint" style="margin-top:10px; font-size:12px; color:#9A937D;"><i class="fas fa-info-circle"></i> الحذف بس للتخصص اللي ملوش أصناف ولا فواتير — غير كده يتوقف. اسم التخصص (الإنجليزي) مينفعش يتغير لو عليه فواتير، والاسم بالعربي يتغير براحتك.</div>
+        <div class="hint" style="margin-top:10px; font-size:12px; color:#9A937D;"><i class="fas fa-info-circle"></i> الحذف بس للتخصص اللي ملوش أصناف ولا فواتير — غير كده يتوقف. لو غيّرت اسم التخصص بيتغير في كل الأصناف والفواتير القديمة.</div>
       </div>
       <div class="card" style="margin-top:16px;">
         <div class="page-head">
@@ -1274,7 +1274,7 @@
             <tbody id="emBody"></tbody>
           </table>
         </div>
-        <div class="hint" style="margin-top:10px; font-size:12px; color:#9A937D;"><i class="fas fa-info-circle"></i> الموظف الموقوف مش بيظهر في الفاتورة ولا التخصصات (بيفضل في المرتبات لحسابه الأخير). اسم الموظف مينفعش يتغير لو عليه حركات — الوظيفة والكود والقسم بيتغيروا براحتك.</div>
+        <div class="hint" style="margin-top:10px; font-size:12px; color:#9A937D;"><i class="fas fa-info-circle"></i> الموظف الموقوف مش بيظهر في الفاتورة ولا التخصصات (بيفضل في المرتبات لحسابه الأخير). لو غيّرت اسم موظف بيتغير في كل حركاته القديمة (المبيعات والمرتبات والبطاقات — ولو ليه حساب: حسابه وكل اللي سجّله).</div>
       </div>
     </section>
 
@@ -2906,6 +2906,24 @@
   </div>
 
   <!-- بطاقات العملاء: رصيد (للمدير) -->
+  <div class="modal-overlay" id="ccClientModal">
+    <div class="modal-card" style="max-width:480px;">
+      <h3><i class="fas fa-user-edit" style="color:var(--gold-accent);"></i> تعديل بيانات العميل</h3>
+      <div class="fields">
+        <div class="field"><label>اسم العميل *</label><input type="text" id="cceName" autocomplete="off"><div class="hint">لو غيّرت الاسم بيتغير في كل الفواتير والأرصدة والجلسات القديمة.</div></div>
+        <div class="two">
+          <div class="field"><label>الرقم</label><input type="text" id="ccePhone" inputmode="tel" autocomplete="off"></div>
+          <div class="field"><label>رقم تاني</label><input type="text" id="ccePhone2" inputmode="tel" autocomplete="off"></div>
+        </div>
+        <div class="field"><label>العنوان</label><input type="text" id="cceAddress" autocomplete="off"></div>
+        <div class="modal-error" id="cceError"></div>
+        <div class="modal-actions">
+          <button class="btn" id="cceSave" onclick="ccSaveClientEdit()"><i class="fas fa-save"></i> حفظ</button>
+          <button class="btn alt" onclick="closeModal('ccClientModal')">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="modal-overlay" id="ccPkgModal">
     <div class="modal-card" style="max-width:560px;">
       <h3 id="ccPkgTitle"></h3>
@@ -3040,7 +3058,7 @@
         <div class="two">
           <div class="field"><label>الوظيفة *</label><select id="emJobSel" onchange="document.getElementById('emJobText').style.display = this.value === '__new' ? '' : 'none'"></select>
             <input type="text" id="emJobText" placeholder="اكتب الوظيفة الجديدة" style="display:none; margin-top:6px;"></div>
-          <div class="field"><label>الكود</label><input type="text" id="emId" placeholder="اختياري" autocomplete="off"></div>
+          <div class="field"><label>الكود</label><input type="text" id="emId" readonly style="background:#F3F0E6; color:#7A8279;"><div class="hint">ثابت — مبيتغيرش.</div></div>
         </div>
         <div class="field"><label>القسم</label><select id="emCat"></select><div class="hint">عمود Employee Category في شيت Data.</div></div>
         <div class="modal-error" id="emError"></div>
@@ -3078,7 +3096,6 @@
           <div class="sp-newemp" id="spDocNew">
             <div><label>اسم الموظف *</label><input type="text" id="spDocNewName" autocomplete="off"></div>
             <div><label>الوظيفة *</label><select id="spDocNewJob" onchange="spNewJobChanged('Doc')"></select><input type="text" id="spDocNewJobText" placeholder="اكتب الوظيفة" style="display:none; margin-top:4px;"></div>
-            <div><label>الكود</label><input type="text" id="spDocNewId" placeholder="اختياري" autocomplete="off"></div>
             <div><button type="button" class="btn" id="spDocNewBtn" onclick="spAddEmployee('Doc')" style="padding:8px 14px;"><i class="fas fa-plus"></i> إضافة</button></div>
             <div class="err" id="spDocNewErr"></div>
           </div>
@@ -3097,7 +3114,6 @@
           <div class="sp-newemp" id="spSpecNew">
             <div><label>اسم الموظف *</label><input type="text" id="spSpecNewName" autocomplete="off"></div>
             <div><label>الوظيفة *</label><select id="spSpecNewJob" onchange="spNewJobChanged('Spec')"></select><input type="text" id="spSpecNewJobText" placeholder="اكتب الوظيفة" style="display:none; margin-top:4px;"></div>
-            <div><label>الكود</label><input type="text" id="spSpecNewId" placeholder="اختياري" autocomplete="off"></div>
             <div><button type="button" class="btn" id="spSpecNewBtn" onclick="spAddEmployee('Spec')" style="padding:8px 14px;"><i class="fas fa-plus"></i> إضافة</button></div>
             <div class="err" id="spSpecNewErr"></div>
           </div>
@@ -9616,6 +9632,7 @@
       let html = '<div class="cc-head"><div><div class="cc-name">' + esc(c.name) + '</div><div class="cc-sub">'
         + [c.phone, c.phone2, c.address, c.id].filter(Boolean).map(esc).join(' · ') + '</div></div>'
         + '<div class="cc-head-side">' + balHtml + '<div class="cc-acts">'
+        + (can('ClientCards', 'edit') ? '<button class="btn alt" onclick="ccOpenClientEdit()" title="تعديل الاسم والرقم والعنوان"><i class="fas fa-user-edit"></i> تعديل العميل</button>' : '')
         + (can('ClientCards', 'add') ? '<button class="btn" onclick="ccOpenVisit(\'\')"><i class="fas fa-plus"></i> جلسة / زيارة</button>' : '')
         + (mgr && can('ClientCards', 'add') ? '<button class="btn alt" onclick="ccOpenPkg(\'\')"><i class="fas fa-box-open"></i> إضافة رصيد</button>' : '')
         + '</div></div></div>';
@@ -9693,6 +9710,36 @@
         + '<td class="wide"><div class="mg-actions">' + acts + '</div></td></tr>';
     }
     function ccSetSection(s) { CC.section = s; ccRenderCard(); }
+    // تعديل العميل: الاسم (بيتغير في كل القديم) والأرقام والعنوان
+    function ccOpenClientEdit() {
+      const c = CC.card && CC.card.client;
+      if (!c) return;
+      document.getElementById('cceName').value = c.name;
+      document.getElementById('ccePhone').value = c.phone || '';
+      document.getElementById('ccePhone2').value = c.phone2 || '';
+      document.getElementById('cceAddress').value = c.address || '';
+      showErr('cceError', '');
+      openModal('ccClientModal');
+      setTimeout(() => document.getElementById('cceName').focus(), 50);
+    }
+    async function ccSaveClientEdit() {
+      const c = CC.card.client;
+      const data = { orig: c.name, name: document.getElementById('cceName').value.trim(), phone: document.getElementById('ccePhone').value.trim(),
+        phone2: document.getElementById('ccePhone2').value.trim(), address: document.getElementById('cceAddress').value.trim() };
+      if (!data.name) { showErr('cceError', 'اكتب اسم العميل.'); return; }
+      const other = (clientsData || []).find(r => String(r['Client Name'] || '').trim().toLowerCase() === data.name.toLowerCase() && String(r['Client Name'] || '').trim().toLowerCase() !== c.name.toLowerCase());
+      if (other) { showErr('cceError', 'فيه عميل تاني بالاسم ده.'); return; }
+      if (data.name !== c.name && !confirm('تغيير اسم "' + c.name + '" إلى "' + data.name + '"؟\nهيتغير كمان في كل الفواتير والأرصدة والجلسات القديمة.')) return;
+      const btn = document.getElementById('cceSave'), orig = btn.innerHTML;
+      showErr('cceError', '');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+      try {
+        const res = await svPost({ action: 'ccEditClient', data });
+        closeModal('ccClientModal'); ccSetCard(res); document.getElementById('ccSearch').value = res.client.name; toast(res.message || 'تم الحفظ');
+        if (typeof refreshClients === 'function') refreshClients().catch(() => {});
+      } catch (e) { showErr('cceError', e.message || 'تعذر الحفظ'); }
+      finally { btn.disabled = false; btn.innerHTML = orig; }
+    }
     function ccSetTab(t) { CC.tab = t; ccRenderCard(); }
     function ccToggleClosed() { CC.showClosed = !CC.showClosed; ccRenderCard(); }
     function ccPkg(id) { return CC.card ? CC.card.packages.find(p => p.id === id) : null; }
@@ -10245,8 +10292,8 @@
       document.getElementById('itModalTitle').innerHTML = '<i class="fas fa-box" style="color:var(--gold-accent);"></i> ' + (it ? 'تعديل صنف: ' + esc(it.name) : 'صنف جديد');
       const nm = document.getElementById('itName');
       nm.value = it ? it.name : '';
-      nm.readOnly = !!(it && it.moves.total);
-      document.getElementById('itNameHint').textContent = it && it.moves.total ? 'الصنف عليه ' + it.moves.total + ' حركة — الاسم مينفعش يتغير (الفواتير القديمة متسجلة بيه). لو محتاج اسم جديد: وقّفه واعمل صنف جديد.' : '';
+      nm.readOnly = false;
+      document.getElementById('itNameHint').textContent = it && it.moves.total ? 'لو غيّرت الاسم هيتغير كمان في كل الحركات القديمة (' + it.moves.total + ' حركة: مبيعات وبطاقات).' : '';
       document.getElementById('itFolder').innerHTML = '<option value="">بدون مجلد — Products (مخفي عن العملاء)</option>'
         + ITEMS.folders.map(f => '<option value="' + esc(f.id) + '">' + esc(f.path) + (f.active ? '' : ' (مخفي)') + '</option>').join('');
       const prodFolder = ITEMS.folders.find(f => /^products$/i.test(f.path));
@@ -10272,6 +10319,8 @@
       if (itCheckName()) { showErr('itError', 'الاسم ده موجود قبل كده.'); return; }
       if (!document.getElementById('itSpecSel').value) { showErr('itError', 'اختار التخصص.'); return; }
       if (!readSalesCat('itSalesCat')) { showErr('itError', document.getElementById('itSalesCat').value === '__new' ? 'اكتب اسم التصنيف الجديد.' : 'اختار تصنيف المبيعات.'); return; }
+      const itOld = itEdit.id ? ITEMS.items.find(x => x.id === itEdit.id) : null;
+      if (itOld && itOld.name !== name && itOld.moves.total && !confirm('تغيير اسم "' + itOld.name + '" إلى "' + name + '"؟\nالاسم هيتغير كمان في ' + itOld.moves.total + ' حركة قديمة (الفواتير والبطاقات).')) return;
       const g = id => document.getElementById(id).value.trim();
       const data = { id: itEdit.id, name, category: g('itFolder'), speciality: g('itSpecSel'), salesCategory: readSalesCat('itSalesCat'),
         price: g('itPrice'), cost: g('itCost'), teamPrice: g('itTeam'), familyPrice: g('itFamily'), offerPrice: g('itOffer'),
@@ -10383,7 +10432,7 @@
       const jobs = spJobOrder(SPPAGE.jobs, primary);
       document.getElementById('sp' + k + 'NewJob').innerHTML = jobs.map(j => '<option value="' + esc(j) + '">' + esc(j) + '</option>').join('') + '<option value="__new">+ وظيفة جديدة…</option>';
       document.getElementById('sp' + k + 'NewJob').value = jobs.find(j => jobKey(j) === primary) || jobs[0] || '__new';
-      ['Name', 'Id', 'JobText'].forEach(f => { document.getElementById('sp' + k + 'New' + f).value = ''; });
+      ['Name', 'JobText'].forEach(f => { document.getElementById('sp' + k + 'New' + f).value = ''; });
       spNewJobChanged(k);
       document.getElementById('sp' + k + 'NewErr').style.display = 'none';
       setTimeout(() => document.getElementById('sp' + k + 'NewName').focus(), 30);
@@ -10393,7 +10442,7 @@
       const g = f => document.getElementById('sp' + k + 'New' + f);
       const err = g('Err');
       const jobSel = g('Job').value;
-      const data = { name: g('Name').value.trim(), job: jobSel === '__new' ? g('JobText').value.trim() : jobSel, id: g('Id').value.trim(),
+      const data = { name: g('Name').value.trim(), job: jobSel === '__new' ? g('JobText').value.trim() : jobSel,
         category: document.getElementById('spName').value.trim() || 'General' };
       const fail = m => { err.textContent = m; err.style.display = 'block'; };
       if (!data.name) return fail('اكتب اسم الموظف.');
@@ -10403,8 +10452,9 @@
       btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
       // الاختيارات الحالية في النافذة تفضل زي ما هي
       const keep = { DocJobs: spChecked('spDocJobs'), DocNames: spChecked('spDocNames'), SpecJobs: spChecked('spSpecJobs'), SpecNames: spChecked('spSpecNames') };
+      let res;
       try {
-        const res = await svPost({ action: 'addEmployee', data });
+        res = await svPost({ action: 'addEmployee', data });
         SPPAGE.employees = res.employees || SPPAGE.employees; SPPAGE.jobs = res.jobs || SPPAGE.jobs;
         keep[k + 'Names'].push(res.added ? res.added.name : data.name);
         spRenderJobs('spDocJobs', 'doctor', keep.DocJobs); spRenderNames('spDocNames', 'doctor', keep.DocNames);
@@ -10413,7 +10463,7 @@
       btn.disabled = false; btn.innerHTML = orig;
       document.getElementById('sp' + k + 'New').classList.remove('open');
       spPreview();
-      toast('تم إضافة ' + data.name + ' — واتعلّم في التخصص (افتكر تدوس حفظ)');
+      toast('تم إضافة ' + data.name + (res.added && res.added.id ? ' (' + res.added.id + ')' : '') + ' — واتعلّم في التخصص (افتكر تدوس حفظ)');
       if (typeof refreshStaffData === 'function') refreshStaffData().catch(() => {});
     }
     function spChecked(boxId) { return [...document.querySelectorAll('#' + boxId + ' input:checked')].map(i => i.value); }
@@ -10423,9 +10473,9 @@
       document.getElementById('spModalTitle').innerHTML = '<i class="fas fa-stethoscope" style="color:var(--gold-accent);"></i> ' + (s ? 'تعديل تخصص: ' + esc(s.ar || s.name) : 'تخصص جديد');
       const nm = document.getElementById('spName');
       nm.value = s ? s.name : '';
-      const locked = !!(s && s.usage && s.usage.history);
-      nm.readOnly = locked;
-      document.getElementById('spNameHint').textContent = locked ? 'عليه ' + s.usage.history + ' حركة في الفواتير — الاسم ده مينفعش يتغير. غيّر الاسم بالعربي براحتك.' : 'ده اللي بيتسجل في الأصناف والمبيعات.';
+      const used = s && s.usage ? (s.usage.items || 0) + (s.usage.history || 0) : 0;
+      nm.readOnly = false;
+      document.getElementById('spNameHint').textContent = used ? 'ده اللي بيتسجل في الأصناف والمبيعات — لو غيّرته هيتغير في ' + used + ' سطر قديم كمان.' : 'ده اللي بيتسجل في الأصناف والمبيعات.';
       document.getElementById('spAr').value = s ? s.ar : '';
       document.getElementById('spSort').value = s ? s.sort : '';
       document.getElementById('spActive').checked = s ? s.active : true;
@@ -10441,7 +10491,7 @@
       spTypeChanged();
       showErr('spError', '');
       openModal('spModal');
-      setTimeout(() => (locked ? document.getElementById('spAr') : nm).focus(), 50);
+      setTimeout(() => nm.focus(), 50);
     }
     function spType() { const r = document.querySelector('input[name="spType"]:checked'); return r ? r.value : ''; }
     function spTypeChanged() {
@@ -10469,6 +10519,9 @@
         sort: document.getElementById('spSort').value.trim(), active: document.getElementById('spActive').checked };
       if (type !== 'Specialist' && !data.docJobs.length && !data.docNames.length) { showErr('spError', 'اختار الأطباء اللي يظهروا (بالوظيفة أو بالاسم).'); return; }
       if (type !== 'Doctor' && !data.specJobs.length && !data.specNames.length) { showErr('spError', 'اختار المتخصصين اللي يظهروا (بالوظيفة أو بالاسم).'); return; }
+      const spOld = spEdit.id ? SPPAGE.specialities.find(x => x.id === spEdit.id) : null;
+      const spUsed = spOld && spOld.usage ? (spOld.usage.items || 0) + (spOld.usage.history || 0) : 0;
+      if (spOld && spOld.name !== name && spUsed && !confirm('تغيير اسم التخصص من "' + spOld.name + '" إلى "' + name + '"؟\nهيتغير كمان في ' + spUsed + ' سطر (الأصناف والفواتير والبطاقات).')) return;
       const btn = document.getElementById('spSave'), orig = btn.innerHTML;
       showErr('spError', '');
       btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
@@ -10522,15 +10575,14 @@
       document.getElementById('emModalTitle').innerHTML = '<i class="fas fa-user" style="color:var(--gold-accent);"></i> ' + (e ? 'تعديل موظف: ' + esc(e.name) : 'موظف جديد');
       const nm = document.getElementById('emName');
       nm.value = e ? e.name : '';
-      const locked = !!(e && e.moves && e.moves.total);
-      nm.readOnly = locked;
-      document.getElementById('emNameHint').textContent = locked ? 'عليه حركات (' + e.moves.total + ') — الاسم مينفعش يتغير.' : '';
+      nm.readOnly = false;
+      document.getElementById('emNameHint').textContent = e && e.moves && e.moves.total ? 'لو غيّرت الاسم هيتغير في كل حركاته القديمة (' + e.moves.total + ')' + (e.moves.user ? ' — وحسابه في السيستم بيبقى بالاسم الجديد' : '') + '.' : '';
       const jobs = SPPAGE.jobs.slice();
       if (e && e.job && jobs.indexOf(e.job) === -1) jobs.push(e.job);
       document.getElementById('emJobSel').innerHTML = '<option value="">-- اختر --</option>' + jobs.map(j => '<option value="' + esc(j) + '">' + esc(j) + '</option>').join('') + '<option value="__new">+ وظيفة جديدة…</option>';
       document.getElementById('emJobSel').value = e ? e.job : '';
       document.getElementById('emJobText').value = ''; document.getElementById('emJobText').style.display = 'none';
-      document.getElementById('emId').value = e ? e.id : '';
+      document.getElementById('emId').value = e ? (e.id || 'هيتعمل تلقائي') : 'هيتعمل تلقائي';
       const cats = ['General'].concat(SPPAGE.specialities.map(s => s.name));
       if (e && e.category && cats.indexOf(e.category) === -1) cats.push(e.category);
       document.getElementById('emCat').innerHTML = cats.map(c => '<option value="' + esc(c) + '">' + esc(c === 'General' ? 'General (عام)' : specLabel(c) + (specLabel(c) !== c ? ' — ' + c : '')) + '</option>').join('');
@@ -10543,22 +10595,28 @@
       const e = emEditIdx >= 0 ? SPPAGE.employees[emEditIdx] : null;
       const js = document.getElementById('emJobSel').value;
       const data = { name: document.getElementById('emName').value.trim(), job: js === '__new' ? document.getElementById('emJobText').value.trim() : js,
-        id: document.getElementById('emId').value.trim(), category: document.getElementById('emCat').value };
+        category: document.getElementById('emCat').value };
       if (!data.name) { showErr('emError', 'اكتب اسم الموظف.'); return; }
       if (!data.job) { showErr('emError', 'اختار أو اكتب الوظيفة.'); return; }
       if (SPPAGE.employees.some((x, i) => i !== emEditIdx && specLow(x.name) === specLow(data.name)) && !(e && specLow(e.name) === specLow(data.name))) { showErr('emError', 'فيه موظف متكود بالاسم ده قبل كده.'); return; }
-      if (e) { data.orig = e.name; data.origJob = e.job; }
+      if (e) { data.orig = e.name; data.origJob = e.job; data.origId = e.id; }
+      if (e && e.name !== data.name && e.moves && e.moves.total && !confirm('تغيير اسم "' + e.name + '" إلى "' + data.name + '"؟\nهيتغير في كل حركاته القديمة (' + e.moves.total + ': مبيعات ومرتبات وبطاقات' + (e.moves.user ? ' وحسابه في السيستم — هيدخل بالاسم الجديد' : '') + ').')) return;
       const btn = document.getElementById('emSave'), orig = btn.innerHTML;
       showErr('emError', '');
       btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
-      try { const res = await svPost({ action: e ? 'editEmployee' : 'addEmployee', data }); closeModal('emModal'); setSpecPage(res); toast(res.message || 'تم الحفظ'); spAfterChange(); }
+      try {
+        const res = await svPost({ action: e ? 'editEmployee' : 'addEmployee', data });
+        closeModal('emModal'); setSpecPage(res); toast(res.message || 'تم الحفظ'); spAfterChange();
+        if (res.selfName) { authUser.name = res.selfName; sessionStorage.setItem('yuni_user', res.selfName); document.getElementById('currentUserDisplay').innerText = res.selfName; }
+        if (e && e.name !== data.name) { if (typeof refreshClients === 'function') refreshClients().catch(() => {}); }
+      }
       catch (err) { showErr('emError', err.message || 'تعذر الحفظ'); }
       finally { btn.disabled = false; btn.innerHTML = orig; }
     }
     async function toggleEmp(i) {
       const e = SPPAGE.employees[i];
       if (!e || (e.active !== false && !confirm('إيقاف "' + e.name + '"؟ مش هيظهر في الفاتورة ولا التخصصات (حركاته القديمة زي ما هي).'))) return;
-      try { const res = await svPost({ action: 'toggleEmployee', data: { orig: e.name, origJob: e.job } }); setSpecPage(res); toast(res.message); spAfterChange(); }
+      try { const res = await svPost({ action: 'toggleEmployee', data: { orig: e.name, origJob: e.job, origId: e.id } }); setSpecPage(res); toast(res.message); spAfterChange(); }
       catch (err) { toast(err.message || 'تعذر', true); }
     }
 
