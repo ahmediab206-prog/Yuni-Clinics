@@ -520,6 +520,9 @@
   .cx-t-Opening { background:#E8EAF6; color:#283593; } .cx-t-Sale { background:#E5F0EC; color:#184232; }
   .cx-t-Collection { background:#E0F2F1; color:#00695C; } .cx-t-Expense { background:#FDECEA; color:#C5221F; }
   .cx-t-Advance { background:#EDE9FF; color:#4B32C3; }
+  .cx-del { border: 1px solid #F3C3BF; background: #FFF4F3; color: #C5221F; border-radius: 7px; width: 30px; height: 28px; cursor: pointer; }
+  .cx-del:hover { background: #FDECEA; }
+  .cx-lock { color: #C9BFA6; font-size: 12px; }
   .cx-t-Transfer { background:#FFF3CD; color:#7A4F00; } .cx-t-Adjustment { background:#EEE; color:#444; }
   .cx-ledger-foot { margin-top:10px; background:#FAF8F5; border:1px solid var(--border-color); border-radius:10px; padding:11px 14px; display:flex; gap:22px; flex-wrap:wrap; font-size:13px; font-weight:700; }
   .cx-empty { text-align:center; color:#999; padding:22px !important; }
@@ -2325,7 +2328,7 @@
             <table>
               <thead><tr>
                 <th>#</th><th>التاريخ</th><th>النوع</th><th>البيان</th><th>طريقة الدفع</th><th>العهدة</th>
-                <th>داخل</th><th>خارج</th><th>الشاشة</th><th>رقم المرجع</th><th>المستخدم</th>
+                <th>داخل</th><th>خارج</th><th>الشاشة</th><th>رقم المرجع</th><th>المستخدم</th><th></th>
               </tr></thead>
               <tbody id="cxLedgerBody"><tr><td colspan="11" class="cx-empty">-</td></tr></tbody>
             </table>
@@ -3985,13 +3988,15 @@
         if (itemSpeciality === target) {
           if (name) {
             if (!categories[cat]) categories[cat] = [];
-            categories[cat].push({ name, price, offer, speciality: itemSpecialityRaw, category: cat, bundle: bundleItems });
+            categories[cat].push({ name, price, offer, speciality: itemSpecialityRaw, category: cat, bundle: bundleItems, rank: Number(item['Rank']) || 999999 });
           }
         }
       });
 
       // ترتيب أبجدي للتصنيفات
-      const catKeys = Object.keys(categories).sort((a, b) => a.localeCompare(b, 'ar'));
+      // نفس ترتيب إدارة الخدمات: الأصناف بترتيبها، والتصنيفات بترتيب أول صنف فيها
+      const minRank = c => Math.min.apply(null, categories[c].map(x => x.rank));
+      const catKeys = Object.keys(categories).sort((a, b) => (minRank(a) - minRank(b)) || a.localeCompare(b, 'ar'));
       if (catKeys.length === 0) {
         tabsContainer.innerHTML = '<div class="empty-msg">لا توجد خدمات مسجلة لهذا التخصص حالياً</div>';
         return;
@@ -3999,7 +4004,7 @@
 
       // ترتيب أبجدي للأصناف داخل كل تصنيف
       catKeys.forEach(cat => {
-        categories[cat].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+        categories[cat].sort((a, b) => (a.rank - b.rank) || a.name.localeCompare(b.name, 'ar'));
       });
 
       let isFirst = true;
@@ -4065,6 +4070,14 @@
       if (defStaff && pool.indexOf(defStaff) === -1) defStaff = '';
       if (!defStaff && pool.length === 1) defStaff = pool[0];
       return { staffName: defStaff, staffType: defStaff ? staffTypeFor(speciality, defStaff) : '' };
+    }
+    // ترتيب الصنف في إدارة الخدمات (من بيانات الفاتورة)
+    function svcRank(name) {
+      if (!svcRank.map || svcRank.src !== globalData) {
+        svcRank.map = {}; svcRank.src = globalData;
+        (globalData || []).forEach(r => { if (r['Item/Service']) svcRank.map[r['Item/Service']] = Number(r['Rank']) || 999999; });
+      }
+      return svcRank.map[name] || 999999;
     }
     function bundleItemsOf(name) {
       const it = (globalData || []).find(r => r['Item/Service'] === name && r['Bundle']);
@@ -7574,8 +7587,10 @@
         if (!_editSvcBycat[item.category]) _editSvcBycat[item.category] = [];
         _editSvcBycat[item.category].push(item);
       });
-      _editSvcCatKeys = Object.keys(_editSvcBycat).sort((a, b) => a.localeCompare(b, 'ar'));
-      _editSvcCatKeys.forEach(cat => _editSvcBycat[cat].sort((a, b) => a.name.localeCompare(b.name, 'ar')));
+      const rk = it => svcRank(it.name);
+      const minR = c => Math.min.apply(null, _editSvcBycat[c].map(rk));
+      _editSvcCatKeys = Object.keys(_editSvcBycat).sort((a, b) => (minR(a) - minR(b)) || a.localeCompare(b, 'ar'));
+      _editSvcCatKeys.forEach(cat => _editSvcBycat[cat].sort((a, b) => (rk(a) - rk(b)) || a.name.localeCompare(b.name, 'ar')));
       _editSvcAllItems = [];
       _editSvcCatKeys.forEach(cat => _editSvcAllItems.push(..._editSvcBycat[cat]));
       _editSvcActiveCat = _editSvcCatKeys[0] || '';
@@ -8352,11 +8367,32 @@
       cxRenderLedger(rows);
     }
 
+    // حذف حركة يدوية (رصيد أول المدة / تحويل / تسوية) — الأقدم من أمس بالباسورد الخاص
+    function cxDeleteEntry(num) {
+      const rows = cxRows.filter(r => cxNum(r.num) === num && r.source === 'نقدية');
+      if (!rows.length) return;
+      const r0 = rows[0];
+      const lines = rows.map(r => (CX_METHOD_LABELS[r.method] || r.method) + (r.custodian ? ' — ' + cxCustodyLabel(r.custodian) : '') + ': ' + (r.inAmt ? 'داخل ' + cxFmt(r.inAmt) : 'خارج ' + cxFmt(r.outAmt))).join('\n');
+      if (!confirm('حذف الحركة رقم ' + num + ' (' + (CX_TYPE_LABELS[r0.type] || r0.type) + ')؟\n' + r0.statement + '\n' + lines)) return;
+      const send = pass => {
+        const body = { action: 'deleteCashEntry', num, token: sessionStorage.getItem('yuni_token') };
+        if (pass) body.overridePassword = pass;
+        fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+          .then(res => res.json()).then(res => {
+            if (res.status !== 'success') { alert('❌ ' + (res.message || 'تعذر الحذف')); return; }
+            if (typeof toast === 'function') toast(res.message); else alert(res.message);
+            cxLoad();
+          }).catch(e => alert('❌ ' + e.message));
+      };
+      if (typeof isDateAllowed === 'function' && !isDateAllowed(r0.date)) openMasterPasswordModal(pass => send(pass));
+      else send(null);
+    }
+
     function cxRenderLedger(rows) {
       const tbody = document.getElementById('cxLedgerBody');
       const foot = document.getElementById('cxLedgerFoot');
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="11" class="cx-empty">' + (cxRows.length ? 'لا توجد حركات مطابقة للفلتر' : 'لا توجد حركات مسجلة بعد') + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="12" class="cx-empty">' + (cxRows.length ? 'لا توجد حركات مطابقة للفلتر' : 'لا توجد حركات مسجلة بعد') + '</td></tr>';
         foot.style.display = 'none';
         return;
       }
@@ -8374,7 +8410,9 @@
           + '<td class="cx-num cx-out">' + (r.outAmt ? cxFmt(r.outAmt) : '-') + '</td>'
           + '<td>' + cxEsc(r.source) + '</td>'
           + '<td>' + cxEsc(r.ref || '-') + '</td>'
-          + '<td style="color:#777;">' + cxEsc(r.user) + '</td></tr>';
+          + '<td style="color:#777;">' + cxEsc(r.user) + '</td>'
+          + '<td>' + (r.source === 'نقدية' && can('Cash', 'delete') ? '<button type="button" class="cx-del" title="حذف الحركة' + (r.type === 'Transfer' ? ' (بسطرينها)' : '') + '" onclick="cxDeleteEntry(' + cxNum(r.num) + ')"><i class="fas fa-trash-alt"></i></button>'
+            : (r.source !== 'نقدية' && can('Cash', 'delete') ? '<span class="cx-lock" title="بتتحذف من شاشة ' + cxEsc(r.source) + ' (الفاتورة/المصروف نفسه)"><i class="fas fa-lock"></i></span>' : '')) + '</td></tr>';
       });
       tbody.innerHTML = html;
       const net = tIn - tOut;
@@ -10814,7 +10852,7 @@
       document.getElementById('bdFolder').value = b && !(prodFolder && b.category === prodFolder.id) ? b.category : '';
       document.getElementById('bdActive').checked = b ? b.active : true;
       document.getElementById('bdOnline').checked = b ? b.online : false;
-      document.getElementById('bdItemsList').innerHTML = ITEMS.items.filter(i => i.type !== 'Bundle' && i.active && i.id !== bdEdit.id)
+      document.getElementById('bdItemsList').innerHTML = ITEMS.items.filter(i => i.type !== 'Bundle' && i.active && i.id !== bdEdit.id).sort((a, b) => a.rank - b.rank)
         .map(i => '<option value="' + esc(i.name) + '">' + esc(ccSecName(i.speciality) + ' · ' + (i.price === '' ? 'بدون سعر' : ccNum(i.price))) + '</option>').join('');
       document.getElementById('bdSearch').value = '';
       showErr('bdError', '');
