@@ -571,6 +571,11 @@
     .svx .tile:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(24,66,50,.12); border-color: var(--gold-accent); }
     .svx .tile-media { position: relative; aspect-ratio: 4 / 3; background: linear-gradient(135deg, var(--light-green), #F4EFE0); overflow: hidden; }
     .svx .tile-media img { width: 100%; height: 100%; object-fit: cover; }
+    /* كروت الخدمات مربعة والصورة بتظهر كاملة (contain) — وخلفها نسخة مغبشة تملا الأطراف */
+    .svx .tile:not(.folder) .tile-media.fit { aspect-ratio: 1 / 1; }
+    .svx .tile-media.fit img.main { object-fit: contain; }
+    .svx .tile-media.fit img.bgfill { position: absolute; inset: -24px; width: calc(100% + 48px); height: calc(100% + 48px); object-fit: cover; filter: blur(16px) saturate(1.05); opacity: .55; z-index: 0; pointer-events: none; }
+    .svx .tile-media.fit img.main { position: relative; z-index: 1; }
     .svx .tile-media img, .svx .media-item img, .svx .mg-thumb img { position: relative; z-index: 1; }
     .svx .tile.folder .tile-media::after { z-index: 2; }
     .svx .tile.folder .tile-title { z-index: 3 !important; }
@@ -8437,11 +8442,13 @@
       return driveImg(m.id, w);
     }
     // صورة بفولباك: لو الرابط الأول فشل نجرب التاني، ولو فشل نشيلها ونسيب الأيقونة
-    function imgTag(m, w) {
+    function imgTag(m, w, cls) {
       if (!m) return '';
       const alt = (m.t === 'youtube' || m.t === 'unsplash') ? '' : driveImgAlt(m.id, w);
-      return '<img loading="lazy" src="' + esc(mediaThumb(m, w)) + '" data-alt="' + esc(alt) + '" onerror="imgFail(this)" alt="">';
+      return '<img loading="lazy"' + (cls ? ' class="' + cls + '"' : '') + ' src="' + esc(mediaThumb(m, w)) + '" data-alt="' + esc(alt) + '" onerror="imgFail(this)" alt="">';
     }
+    // الصورة كاملة جوه الكارت (من غير قص) — وخلفها نفس الصورة مغبشة عشان مفيش فراغ فاضي
+    function fitImg(m, w) { return m ? imgTag(m, w, 'bgfill') + imgTag(m, w, 'main') : ''; }
     function imgFail(img) {
       const alt = img.getAttribute('data-alt');
       if (alt) { img.removeAttribute('data-alt'); img.src = alt; return; }
@@ -8593,13 +8600,13 @@
       const m = firstImageForCat(c.id, false);
       const n = countDeep(c.id, false);
       return '<a class="tile folder" onclick="go(\'c/' + esc(c.id) + '\')">'
-        + '<div class="tile-media">' + (m ? imgTag(m, 600) : '') + '<div class="ph"><i class="fas fa-spa"></i></div>'
+        + '<div class="tile-media fit">' + fitImg(m, 600) + '<div class="ph"><i class="fas fa-spa"></i></div>'
         + '<div class="tile-title"><b>' + esc(c.name) + '</b><span>' + n + ' خدمة</span></div></div></a>';
     }
     function serviceTile(s, showPath) {
       const m = s.media && s.media[0];
       return '<a class="tile" onclick="go(\'s/' + esc(s.id) + '\')">'
-        + '<div class="tile-media"><div class="ph"><i class="fas fa-spa"></i></div>' + (m ? imgTag(m, 600) : '')
+        + '<div class="tile-media fit"><div class="ph"><i class="fas fa-spa"></i></div>' + fitImg(m, 600)
         + (m && !isPic(m) ? '<span class="play"><i class="fas fa-play"></i></span>' : '') + '</div>'
         + '<div class="tile-body">' + (showPath ? '<span class="tile-path">' + esc(pathText(s.category)) + '</span>' : '')
         + '<b>' + esc(s.name) + '</b><span class="tile-price">' + esc(priceText(s.price)) + '</span></div></a>';
