@@ -977,6 +977,11 @@
     .svx .bd-table tfoot td { font-weight: 800; color: var(--primary-green); background: #EAF2EC; font-size: 14px; }
     .svx .bd-table tfoot td:first-child { text-align: right; }
     @media (max-width: 650px) { .svx .bd-table input { width: 60px !important; } .svx .bd-table th:nth-child(6), .svx .bd-table td:nth-child(6) { display: none; } .svx .bd-table tfoot td:first-child { } }
+    .grp-bar { display: flex; gap: 6px; flex-wrap: wrap; background: #FFF; border: 1.5px solid var(--border-color); border-radius: 14px; padding: 6px; margin-bottom: 14px; }
+    .grp-btn { flex: 1; min-width: 120px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; background: none; border-radius: 10px; padding: 10px 14px; font-family: inherit; font-size: 14.5px; font-weight: 800; color: #7A8279; cursor: pointer; transition: all .2s; }
+    .grp-btn:hover { background: var(--light-green); color: var(--primary-green); }
+    .grp-btn.on { background: var(--primary-green); color: #FFF; }
+    @media (max-width: 650px) { .grp-btn { min-width: 0; padding: 9px 6px; font-size: 13px; } }
     .row-menu { position: fixed; z-index: 4000; display: none; min-width: 200px; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.15); padding: 6px; }
     .row-menu .rm-title { font-size: 12px; font-weight: 800; color: #9A937D; padding: 6px 10px 4px; border-bottom: 1px dashed var(--border-color); margin-bottom: 4px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .row-menu button { display: flex; align-items: center; gap: 10px; width: 100%; border: none; background: none; padding: 9px 10px; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--primary-green); cursor: pointer; text-align: right; }
@@ -1135,7 +1140,7 @@
           <button class="nav-btn" id="btnPageData" onclick="switchPage('pageData')">
             <i class="fas fa-database"></i> استعراض البيانات
           </button>
-          <button class="nav-btn" id="btnPageBalances" onclick="switchPage('pageBalances')">
+          <button class="nav-btn" id="btnPageBalances" onclick="openGroup('Balances')">
             <i class="fas fa-balance-scale"></i> الأرصدة
           </button>
           <button class="nav-btn" id="btnPageCash" onclick="switchPage('pageCash')">
@@ -1150,7 +1155,7 @@
           <button class="nav-btn" id="btnPagePrices" onclick="switchPage('pagePrices')">
             <i class="fas fa-tags"></i> قائمة الأسعار
           </button>
-          <button class="nav-btn" id="btnPageManage" onclick="switchPage('pageManage')">
+          <button class="nav-btn" id="btnPageManage" onclick="openGroup('Catalog')">
             <i class="fas fa-folder-tree"></i> إدارة الخدمات
           </button>
           <button class="nav-btn" id="btnPageItems" onclick="switchPage('pageItems')">
@@ -1184,6 +1189,7 @@
 
     <!-- ═══ قائمة الأسعار (الموظفين) ═══ -->
     <section id="pagePrices" class="view-page svx">
+      <div class="grp-bar" data-group="Catalog"></div>
       <div class="card">
         <div class="page-head">
           <h2><i class="fas fa-tags"></i> قائمة الأسعار</h2>
@@ -1216,6 +1222,7 @@
 
     <!-- ═══ إدارة الخدمات (المديرين) ═══ -->
     <section id="pageManage" class="view-page svx">
+      <div class="grp-bar" data-group="Catalog"></div>
       <div class="card">
         <div class="page-head">
           <h2><i class="fas fa-folder-tree"></i> إدارة الخدمات</h2>
@@ -1272,6 +1279,7 @@
 
     <!-- ═══ الأصناف ═══ -->
     <section id="pageItems" class="view-page svx">
+      <div class="grp-bar" data-group="Catalog"></div>
       <div class="card">
         <div class="page-head">
           <h2><i class="fas fa-boxes"></i> الأصناف</h2>
@@ -2042,16 +2050,17 @@
 
     <!-- صفحة Balances -->
     <div id="pageBalances" class="view-page">
+      <div class="grp-bar" data-group="Balances"></div>
       <div class="card">
         <h2 style="color:var(--primary-green); margin-bottom: 20px; font-size: 20px;"><i class="fas fa-balance-scale"></i> الأرصدة</h2>
 
         <!-- Tabs -->
-        <div class="balance-tabs">
+        <div class="balance-tabs" style="display:none;">
           <button class="bal-tab-btn active" id="balTabClients" onclick="switchBalTab('clients')">
             <i class="fas fa-users"></i> أرصدة العملاء
           </button>
           <button class="bal-tab-btn" id="balTabCash" onclick="switchBalTab('cash')">
-            <i class="fas fa-cash-register"></i> النقدية
+            <i class="fas fa-lock"></i> تقفيل اليوم
           </button>
         </div>
 
@@ -2260,6 +2269,7 @@
 
     <!-- صفحة: النقدية والعهد (مصدرها شيت Cash) -->
     <div id="pageCash" class="view-page">
+      <div class="grp-bar" data-group="Balances"></div>
       <div class="card">
         <div class="cx-head">
           <h2><i class="fas fa-cash-register"></i> النقدية والعهد</h2>
@@ -3341,6 +3351,56 @@
       if (!wrap.contains(e.target)) closeNavMenu();
     });
 
+    // ── شاشات جواها تابات: إدارة الخدمات (الخدمات / الأصناف / قائمة الأسعار) — الأرصدة (العملاء / تقفيل اليوم / النقدية والعهد)
+    // كل تاب بصلاحيته (Catalog / Items / PriceList — Balances/Clients / Balances/Cash / Cash)
+    const GROUPS = {
+      Catalog: { btn: 'btnPageManage', items: [
+        { key: 'manage', label: 'إدارة الخدمات', icon: 'fa-folder-tree', page: 'pageManage', ok: () => can('Catalog', 'view') },
+        { key: 'items', label: 'الأصناف', icon: 'fa-boxes', page: 'pageItems', ok: () => can('Items', 'view') },
+        { key: 'prices', label: 'قائمة الأسعار', icon: 'fa-tags', page: 'pagePrices', ok: () => can('PriceList', 'view') }] },
+      Balances: { btn: 'btnPageBalances', items: [
+        { key: 'clients', label: 'العملاء', icon: 'fa-users', page: 'pageBalances', bal: 'clients', ok: () => canSub('Balances', 'Clients', 'view') },
+        { key: 'close', label: 'تقفيل اليوم', icon: 'fa-lock', page: 'pageBalances', bal: 'cash', ok: () => canSub('Balances', 'Cash', 'view') },
+        { key: 'cash', label: 'النقدية والعهد', icon: 'fa-cash-register', page: 'pageCash', ok: () => can('Cash', 'view') }] }
+    };
+    const GROUPED_PAGES = { pageManage: 'Catalog', pageItems: 'Catalog', pagePrices: 'Catalog', pageBalances: 'Balances', pageCash: 'Balances' };
+    const GROUPED_BTNS = ['btnPageItems', 'btnPagePrices', 'btnPageCash'];   // جوه الشاشة الكبيرة — مش في القايمة
+    function groupItems(g) { return GROUPS[g].items.filter(it => it.ok()); }
+    function openGroup(g, key) {
+      const list = groupItems(g);
+      const it = list.find(x => x.key === key) || list[0];
+      if (!it) return;
+      if (it.page === 'pageBalances') { BAL_WANT = it.bal; }
+      switchPage(it.page);
+    }
+    let BAL_WANT = '';
+    function groupActiveKey(g) {
+      const pg = document.querySelector('.view-page.active');
+      const id = pg ? pg.id : '';
+      if (id === 'pageBalances') return document.getElementById('balTabCash').classList.contains('active') ? 'close' : 'clients';
+      const it = GROUPS[g].items.find(x => x.page === id);
+      return it ? it.key : '';
+    }
+    function renderGroupBars() {
+      Object.keys(GROUPS).forEach(g => {
+        const list = groupItems(g), act = groupActiveKey(g);
+        document.querySelectorAll('.grp-bar[data-group="' + g + '"]').forEach(bar => {
+          bar.style.display = list.length > 1 ? '' : 'none';
+          bar.innerHTML = list.map(it => '<button type="button" class="grp-btn' + (it.key === act ? ' on' : '') + '" onclick="openGroup(\'' + g + '\',\'' + it.key + '\')"><i class="fas ' + it.icon + '"></i> ' + it.label + '</button>').join('');
+        });
+      });
+    }
+    function applyGroupNav() {
+      GROUPED_BTNS.forEach(id => { const b = document.getElementById(id); if (b) b.style.display = 'none'; });
+      Object.keys(GROUPS).forEach(g => {
+        const b = document.getElementById(GROUPS[g].btn);
+        if (!b) return;
+        const ok = groupItems(g).length > 0;
+        b.style.display = ok ? 'inline-flex' : 'none';
+        b.disabled = !ok;
+      });
+    }
+
     function switchPage(pageId) {
       // صفحة الخدمات مفتوحة للكل
       if (pageId === 'pageCatalog') { go(''); return; }
@@ -3350,6 +3410,7 @@
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
       document.getElementById(pageId).classList.add('active');
+      if (GROUPED_PAGES[pageId]) setTimeout(() => { const b = document.getElementById(GROUPS[GROUPED_PAGES[pageId]].btn); if (b) b.classList.add('active'); renderGroupBars(); }, 0);
 
       if (pageId === 'pageAdd') {
         document.getElementById('btnPageAdd').classList.add('active');
@@ -3371,6 +3432,7 @@
       } else if (pageId === 'pageBalances') {
         document.getElementById('btnPageBalances').classList.add('active');
         initBalancesPage();
+        if (BAL_WANT) { switchBalTab(BAL_WANT); BAL_WANT = ''; }
       } else if (pageId === 'pageCash') {
         document.getElementById('btnPageCash').classList.add('active');
         cxLoad();
@@ -3755,6 +3817,7 @@
         btn.setAttribute('aria-disabled',String(btn.disabled));
         btn.title = btn.disabled ? 'ليس لديك صلاحية عرض هذه الشاشة' : '';
       });
+      applyGroupNav();
       document.getElementById('submitBtn').disabled = !can('Sales','add');
       document.getElementById('collectionSubmitBtn').disabled = !can('Collect','add');
       document.getElementById('expenseSubmitBtn').disabled = !can('Expenses','add');
@@ -6211,6 +6274,7 @@
       document.querySelectorAll('#pageBalances .bal-tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('#pageBalances .bal-tab-content').forEach(c => c.classList.remove('active'));
       if (!tab) return;
+      setTimeout(renderGroupBars, 0);
       if (tab === 'clients') {
         document.getElementById('balTabClients').classList.add('active');
         document.getElementById('balTabClientsContent').classList.add('active');
@@ -9318,7 +9382,7 @@
       Items: ['الأصناف', 'إضافة = صنف جديد · تعديل = تعديل وإيقاف · حذف = حذف صنف ملوش حركات'],
       Specialities: ['التخصصات', 'إضافة = تخصص جديد · تعديل = الموظفين والإيقاف · حذف = تخصص ملوش أصناف ولا فواتير'],
       Transactions: ['استعراض البيانات', 'تعديل = تعديل فاتورة · حذف = حذف فاتورة'], Logs: ['السجل', ''],
-      Balances: ['الأرصدة', 'أرصدة العملاء + النقدية (إضافة = إغلاق اليوم)'], Expenses: ['المصروفات', ''], Payroll: ['Payroll', 'السلف والخصومات'],
+      Balances: ['الأرصدة', 'العملاء + تقفيل اليوم (إضافة = إغلاق اليوم) — "النقدية والعهد" ليها صلاحيتها لوحدها'], Expenses: ['المصروفات', ''], Payroll: ['Payroll', 'السلف والخصومات'],
       Services: ['خدمات سريعة', ''], Cash: ['النقدية والعهد', 'إضافة = تحويل / تسوية / رصيد أول المدة'],
       PriceList: ['قائمة الأسعار', 'عرض = الأسعار وسعر التيم · تعديل = تعديل الأسعار من الجدول'],
       Catalog: ['إدارة الخدمات', 'المجلدات والخدمات والصور'], Users: ['المستخدمين والصلاحيات', 'الشاشة دي']
@@ -9417,7 +9481,7 @@
     const SUB_HINTS = {
       'ClientCards/Today': 'تعديل = تكملة وتأكيد الجلسات المستنية', 'ClientCards/Clients': 'تعديل = بيانات العميل · إضافة/تعديل/حذف = الأرصدة والتحويل (للمدير)',
       'ClientCards/Visits': 'إضافة = تسجيل جلسة · تعديل · حذف جلسة مستنية', 'ClientCards/Invoices': 'عرض الفواتير والمدفوعات والرصيد المالي في البطاقة',
-      'Balances/Clients': 'عرض أرصدة العملاء', 'Balances/Cash': 'إضافة = إغلاق اليوم',
+      'Balances/Clients': 'عرض أرصدة العملاء', 'Balances/Cash': 'إضافة = تقفيل اليوم',
       'Services/Closing': '', 'Services/Clients': '',
       'Specialities/Specs': 'إضافة/تعديل/حذف التخصصات', 'Specialities/Employees': 'إضافة = موظف جديد · تعديل = بياناته والإيقاف'
     };
@@ -9685,7 +9749,8 @@
       TAB_ORDER.forEach(k => { const b = document.getElementById(MENU_ITEMS[k][0]); if (b) dd.appendChild(b); });
     }
     let orderDraft = [];
-    function openOrderModal() { orderDraft = normOrder(TAB_ORDER); renderOrder(); showErr('orderError', ''); openModal('orderModal'); }
+    // الأصناف وقائمة الأسعار جوه "إدارة الخدمات"، والنقدية جوه "الأرصدة" — مش بيتحركوا لوحدهم في القايمة
+    function openOrderModal() { orderDraft = normOrder(TAB_ORDER).filter(k => ['Items', 'PriceList', 'Cash'].indexOf(k) === -1); renderOrder(); showErr('orderError', ''); openModal('orderModal'); }
     function renderOrder() {
       document.getElementById('orderList').innerHTML = orderDraft.map((k, i) => '<div class="order-row"><span class="num">' + (i + 1) + '</span><span class="nm">' + esc(menuLabel(k)) + '</span>'
         + '<button type="button" class="icon-btn" title="لفوق" ' + (i === 0 ? 'disabled' : '') + ' onclick="orderMove(' + i + ',-1)"><i class="fas fa-arrow-up"></i></button>'
