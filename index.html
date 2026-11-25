@@ -91,6 +91,7 @@
     .main-wrapper { width: 100%; max-width: 1300px; }
     .view-page { display: none; }
     .view-page.active { display: block; }
+    #pageBookings iframe { width: 100%; border: 0; display: block; background: transparent; min-height: 480px; }
 
     .card { background: var(--card-bg); padding: 35px; border-radius: 20px; box-shadow: 0 12px 30px rgba(24, 66, 50, 0.08); border: 1px solid var(--border-color); position: relative; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -1131,6 +1132,9 @@
           <button class="nav-btn" id="btnPageClients" onclick="switchPage('pageClients')">
             <i class="fas fa-id-card"></i> بطاقات العملاء
           </button>
+          <button class="nav-btn" id="btnPageBookings" onclick="switchPage('pageBookings')">
+            <i class="fas fa-calendar-check"></i> الحجوزات
+          </button>
           <button class="nav-btn" id="btnPageExpenses" onclick="switchPage('pageExpenses')">
             <i class="fas fa-file-invoice-dollar"></i> المصروفات
           </button>
@@ -1305,6 +1309,1328 @@
         </div>
         <div class="hint" style="margin-top:10px; font-size:12px; color:#9A937D;"><i class="fas fa-info-circle"></i> الحذف بس للصنف اللي ملوش ولا حركة (مبيعات أو بطاقات). الصنف اللي عليه حركات بيتوقف بدل ما يتحذف.</div>
       </div>
+    </section>
+
+    <!-- ═══ الحجوزات (شاشة مستقلة جوه iframe — كودها في القالب bkAppTpl) ═══ -->
+    <section id="pageBookings" class="view-page">
+      <iframe id="bkFrame" title="الحجوزات"></iframe>
+      <template id="bkAppTpl">
+<style>
+  :root {
+    --bg: #E8E2CE; --card: #FFFFFF; --green: #184232; --green2: #255C47; --light: #EBF2EE; --text: #2D312E;
+    --border: #D3CAB2; --gold: #C5A059; --muted: #8A8470; --soft: #FBF9F3; --danger: #C5221F;
+    --slot: 22px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 2px 16px; }
+  button, input, select, textarea { font-family: inherit; }
+  .wrap { max-width: 1400px; margin: 0 auto; }
+  .bar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .bar .tabs { flex: 1; }
+  .busy { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: var(--green); color: #fff; border-radius: 999px; padding: 7px 16px; font-weight: 800; font-size: 13px; z-index: 300; display: none; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+  .busy.on { display: block; }
+  .load-err { padding: 40px 20px; text-align: center; color: var(--danger); font-weight: 800; }
+  .set-grid { grid-template-columns: 1fr !important; }
+  .sec-card { border: 1.5px solid #EEE8DA; border-radius: 14px; padding: 12px; margin-bottom: 10px; }
+  .sec-card .hd { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .sec-card .hd input[type=color] { width: 34px; height: 34px; border: none; background: none; cursor: pointer; flex: none; }
+  .sec-card .hd input[type=text] { flex: 1; min-width: 140px; font-weight: 800; }
+  .cat-chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 6px; }
+  .cat-chips label { display: inline-flex; gap: 6px; align-items: center; border: 1.5px solid var(--border); border-radius: 999px; padding: 4px 10px; font-size: 12.5px; font-weight: 800; cursor: pointer; background: #fff; }
+  .cat-chips label.on { border-color: var(--green); background: var(--light); color: var(--green); }
+  .cat-chips input { accent-color: var(--green); }
+  .cat-chips small { color: var(--muted); font-weight: 700; }
+  .sec-card details summary { cursor: pointer; font-size: 13px; font-weight: 800; color: var(--green2); margin-top: 4px; }
+  .svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 6px; margin-top: 8px; }
+  .svc-row { display: flex; gap: 8px; align-items: center; border: 1px solid #EEE8DA; border-radius: 10px; padding: 6px 8px; font-size: 13px; }
+  .svc-row.hid { opacity: .5; }
+  .svc-row span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .svc-row select { width: 84px; padding: 4px 6px; font-size: 12.5px; }
+  .svc-row input { accent-color: var(--green); }
+  #cfText { white-space: pre-line; }
+
+  /* ── الهيدر */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 12px 18px; margin-bottom: 14px; }
+  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
+  .book > *, .set-grid > *, .top > * { min-width: 0; }
+  .brand b { font-size: 26px; font-weight: 800; color: var(--green); letter-spacing: 1px; font-family: Inter, 'Tajawal', sans-serif; }
+  .brand span { color: var(--muted); font-size: 14px; font-weight: 700; }
+  .test-badge { background: #FFF7E6; color: #7A4F00; border: 1px solid #E9D3A0; border-radius: 999px; font-size: 12px; font-weight: 800; padding: 3px 10px; }
+  .tabs { display: flex; gap: 6px; background: var(--soft); border: 1px solid var(--border); border-radius: 12px; padding: 4px; }
+  .tab { border: none; background: none; padding: 9px 16px; border-radius: 9px; font-weight: 800; font-size: 14px; color: var(--muted); cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+  .tab.on { background: var(--green); color: #fff; }
+  .btn { border: none; background: var(--green); color: #fff; border-radius: 10px; padding: 10px 16px; font-weight: 800; font-size: 14px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; justify-content: center; transition: .15s; }
+  .btn:hover { background: var(--green2); }
+  .btn.alt { background: #fff; color: var(--green); border: 1.5px solid var(--border); }
+  .btn.alt:hover { border-color: var(--green); background: var(--light); }
+  .btn.gold { background: var(--gold); }
+  .btn.danger { background: #fff; color: var(--danger); border: 1.5px solid #F1C3BF; }
+  .btn.sm { padding: 7px 11px; font-size: 13px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 16px; }
+  .hide { display: none !important; }
+
+  /* ── شاشة الحجوزات */
+  .book { display: grid; grid-template-columns: 320px 1fr; gap: 14px; align-items: start; }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .cal-head b { font-size: 17px; color: var(--green); }
+  .icon-btn { border: 1px solid var(--border); background: #fff; color: var(--green); width: 34px; height: 34px; border-radius: 9px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .icon-btn:hover { background: var(--light); }
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal .dn { text-align: center; font-size: 11.5px; font-weight: 800; color: var(--muted); padding: 4px 0; }
+  .day { position: relative; aspect-ratio: 1 / 1; border: 1px solid #EEE8DA; border-radius: 10px; background: #fff; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: var(--text); transition: .12s; }
+  .day:hover { border-color: var(--gold); }
+  .day.other { opacity: .35; }
+  .day.closed { background: #F4F1E8; color: #B5AE98; }
+  .day.today { border: 2px solid var(--gold); }
+  .day.sel { background: var(--green); color: #fff; border-color: var(--green); }
+  .day .cnt { font-size: 10px; font-weight: 800; margin-top: 2px; background: #FFF7E6; color: #7A4F00; border-radius: 8px; padding: 0 5px; line-height: 15px; }
+  .day.sel .cnt { background: rgba(255,255,255,.2); color: #fff; }
+  .day .x { position: absolute; top: 3px; left: 4px; font-size: 9px; color: var(--danger); }
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; font-size: 11.5px; color: var(--muted); }
+  .legend i { margin-left: 4px; }
+
+  .sum h4 { font-size: 14px; color: var(--green); margin: 14px 0 8px; display: flex; justify-content: space-between; }
+  .sum-row { display: flex; align-items: center; gap: 10px; padding: 8px 6px; border-bottom: 1px dashed #EEE8DA; font-size: 13px; }
+  .sum-row:last-child { border-bottom: none; }
+  .av { width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; font-size: 13px; flex: none; }
+  .sum-row .nm { flex: 1; min-width: 0; }
+  .sum-row .nm b { display: block; font-size: 13.5px; }
+  .sum-row .nm small { color: var(--muted); }
+  .pill { border-radius: 999px; padding: 2px 9px; font-size: 11.5px; font-weight: 800; background: var(--light); color: var(--green); white-space: nowrap; }
+  .pill.off { background: #FDECEA; color: var(--danger); }
+  .pill.cus { background: #FFF7E6; color: #7A4F00; }
+
+  .day-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .day-head h2 { font-size: 20px; color: var(--green); }
+  .day-head h2 small { font-size: 13px; color: var(--muted); font-weight: 700; margin-right: 8px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .chip { border: 1.5px solid var(--border); background: #fff; border-radius: 12px; padding: 8px 14px; font-weight: 800; font-size: 14px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; color: var(--text); }
+  .chip .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .chip small { font-weight: 700; color: var(--muted); font-size: 11.5px; }
+  .chip.on { border-color: var(--green); background: var(--green); color: #fff; }
+  .chip.on small { color: rgba(255,255,255,.75); }
+  .chip.dis { opacity: .45; cursor: not-allowed; }
+  .chips.people { margin-top: -4px; align-items: center; }
+  .p-sel { width: auto !important; border-radius: 999px !important; padding: 6px 12px !important; font-size: 13px !important; font-weight: 800; color: var(--green); }
+  .chip.p { padding: 5px 10px 5px 12px; font-size: 13px; border-radius: 999px; }
+  .chip.p .av { width: 24px; height: 24px; font-size: 10px; }
+  .chip.p.on { background: var(--light); color: var(--green); border-color: var(--green); }
+  .chip.p.on small { color: var(--green2); }
+  .chip.p.off { opacity: .55; }
+  .tl-hc .nm b.click { cursor: pointer; }
+  .tl-hc .nm b.click:hover { color: var(--green2); text-decoration: underline; }
+  .sum-row { cursor: pointer; border-radius: 10px; }
+  .sum-row:hover { background: var(--soft); }
+  .sum-row.on { background: var(--light); }
+  .focus-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: var(--light); border: 1px solid #B9D3C3; border-radius: 14px; padding: 10px 12px; margin-bottom: 12px; }
+  .focus-bar .who { display: flex; gap: 10px; align-items: center; flex: 1; min-width: 200px; }
+  .focus-bar .who b { display: block; color: var(--green); font-size: 15px; }
+  .focus-bar .who small { color: var(--muted); font-size: 12px; font-weight: 700; }
+  .free { display: flex; gap: 6px; flex-wrap: wrap; width: 100%; align-items: center; font-size: 12.5px; font-weight: 800; color: var(--green); }
+  .free button { border: 1.5px dashed var(--green2); background: #fff; color: var(--green); border-radius: 9px; padding: 5px 10px; font-weight: 800; font-size: 12.5px; cursor: pointer; }
+  .free button:hover { background: var(--green); color: #fff; border-style: solid; }
+  .free .none { color: var(--danger); }
+  .view-sw { display: flex; gap: 4px; background: var(--soft); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+  .view-sw button { border: none; background: none; border-radius: 8px; padding: 6px 12px; font-weight: 800; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .view-sw button.on { background: #fff; color: var(--green); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+
+  /* ── شريط الوقت */
+  .tl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 14px; background: #fff; }
+  .tl { display: grid; min-width: 100%; position: relative; }
+  .tl-hc { position: sticky; top: 0; z-index: 4; background: #fff; border-bottom: 1px solid var(--border); padding: 10px 8px; min-height: 74px; display: flex; gap: 8px; align-items: center; border-left: 1px solid #F0EBDD; }
+  .tl-hc .nm { flex: 1; min-width: 0; }
+  .tl-hc .nm b { display: block; font-size: 13.5px; line-height: 1.3; }
+  .tl-hc .nm small { font-size: 11.5px; color: var(--muted); display: block; }
+  .tl-hc .menu-btn { border: none; background: none; color: var(--muted); cursor: pointer; width: 28px; height: 28px; border-radius: 8px; flex: none; }
+  .tl-hc .menu-btn:hover { background: var(--light); color: var(--green); }
+  .tl-time { position: sticky; right: 0; z-index: 3; background: var(--soft); border-left: 1px solid var(--border); }
+  .tl-time .t { height: calc(var(--slot) * 4); font-size: 11px; font-weight: 800; color: var(--muted); padding: 2px 6px 0; border-top: 1px solid #EEE8DA; }
+  .tl-corner { position: sticky; right: 0; top: 0; z-index: 5; background: var(--soft); border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--muted); font-weight: 800; }
+  .col { position: relative; border-left: 1px solid #F0EBDD; cursor: crosshair; user-select: none; touch-action: pan-x pan-y; }
+  .col .s { height: var(--slot); border-top: 1px solid #F6F2E7; }
+  .col .s.h { border-top: 1px solid #E6DFCC; }
+  .col .s.off { background: repeating-linear-gradient(135deg, #F5F2EA 0 6px, #EFEBE0 6px 12px); cursor: not-allowed; }
+  .col.dayoff { background: repeating-linear-gradient(135deg, #FBEDEC 0 8px, #F7E2E0 8px 16px); cursor: not-allowed; }
+  .col.dayoff .s { background: transparent; }
+  .col .offmsg { position: absolute; top: 40%; right: 0; left: 0; text-align: center; color: var(--danger); font-weight: 800; font-size: 13px; }
+  .sel-box { position: absolute; right: 4px; left: 4px; background: rgba(24,66,50,.14); border: 2px dashed var(--green); border-radius: 8px; z-index: 2; pointer-events: none; display: flex; align-items: flex-start; justify-content: center; font-size: 11.5px; font-weight: 800; color: var(--green); padding-top: 2px; }
+  .bk { position: absolute; right: 4px; left: 4px; border-radius: 9px; padding: 4px 8px; font-size: 12px; overflow: hidden; cursor: pointer; z-index: 2; border-right: 4px solid; box-shadow: 0 1px 3px rgba(0,0,0,.06); transition: transform .1s; }
+  .bk:hover { transform: scale(1.015); z-index: 3; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+  .bk b { display: block; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bk .tm { font-size: 11px; opacity: .85; font-weight: 700; }
+  .bk .sv { font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bk .st { position: absolute; top: 4px; left: 6px; font-size: 11px; }
+  .bk.done { opacity: .55; }
+  .bk.cancelled, .bk.noshow { opacity: .45; text-decoration: line-through; background: #F3F1EC !important; border-color: #BBB !important; color: #888 !important; }
+  .now-line { position: absolute; left: 0; right: 0; height: 2px; background: var(--danger); z-index: 3; pointer-events: none; }
+  .now-line::after { content: ''; position: absolute; right: -4px; top: -4px; width: 10px; height: 10px; background: var(--danger); border-radius: 50%; }
+  .empty { padding: 40px 20px; text-align: center; color: var(--muted); font-weight: 700; }
+  .empty i { font-size: 34px; color: #D6CDB4; display: block; margin-bottom: 10px; }
+
+  /* ── قايمة اليوم */
+  .list-row { display: grid; grid-template-columns: 110px 1fr auto; gap: 12px; align-items: center; padding: 12px; border-bottom: 1px solid #EEE8DA; cursor: pointer; }
+  .list-row:hover { background: var(--soft); }
+  .list-row .tm { font-weight: 800; color: var(--green); font-size: 14px; }
+  .list-row .tm small { display: block; color: var(--muted); font-weight: 700; font-size: 11.5px; }
+  .list-row .who b { font-size: 14.5px; }
+  .list-row .who small { display: block; color: var(--muted); font-size: 12.5px; }
+
+  .st-badge { border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 800; white-space: nowrap; }
+  .st-booked { background: var(--light); color: var(--green); }
+  .st-arrived { background: #E3F1FF; color: #1B5FA8; }
+  .st-done { background: #EEE; color: #555; }
+  .st-noshow { background: #FFF1E0; color: #A55A00; }
+  .st-cancelled { background: #FDECEA; color: var(--danger); }
+
+  /* ── الإعدادات */
+  .set-grid { display: grid; grid-template-columns: 340px 1fr; gap: 14px; align-items: start; }
+  .card h3 { font-size: 16px; color: var(--green); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .sec-item { border: 1px solid #EEE8DA; border-radius: 12px; padding: 10px; margin-bottom: 10px; }
+  .sec-item .hd { display: flex; align-items: center; gap: 8px; font-weight: 800; }
+  .sec-item .hd input[type=color] { width: 28px; height: 28px; border: none; background: none; cursor: pointer; }
+  .sec-item .hd input[type=text] { flex: 1; }
+  .svc { display: flex; gap: 6px; align-items: center; margin-top: 6px; font-size: 13px; }
+  .svc input[type=text] { flex: 1; }
+  .svc select { width: 92px; }
+  input[type=text], input[type=tel], select, textarea, input[type=date] { border: 1.5px solid var(--border); border-radius: 9px; padding: 8px 10px; font-size: 14px; background: #fff; color: var(--text); outline: none; width: 100%; }
+  input:focus, select:focus, textarea:focus { border-color: var(--green); }
+  .x-btn { border: none; background: none; color: #C5A8A6; cursor: pointer; width: 26px; height: 26px; border-radius: 6px; flex: none; }
+  .x-btn:hover { color: var(--danger); background: #FDECEA; }
+  .link { border: none; background: none; color: var(--green); font-weight: 800; font-size: 13px; cursor: pointer; margin-top: 8px; }
+
+  .staff-card { border: 1.5px solid #EEE8DA; border-radius: 16px; padding: 14px; margin-bottom: 14px; }
+  .staff-card .hd { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .staff-card .hd .nm { flex: 1; min-width: 160px; }
+  .staff-card .hd .nm b { font-size: 16px; display: block; }
+  .staff-card .hd .nm small { color: var(--muted); }
+  .seg { display: inline-flex; background: var(--soft); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+  .seg button { border: none; background: none; border-radius: 8px; padding: 6px 12px; font-weight: 800; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .seg button.on { background: var(--green); color: #fff; }
+  .sec-toggles { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .sec-toggles label { display: inline-flex; gap: 6px; align-items: center; border: 1.5px solid var(--border); border-radius: 10px; padding: 5px 10px; font-size: 13px; font-weight: 800; cursor: pointer; background: #fff; }
+  .sec-toggles label.on { border-color: var(--green); background: var(--light); color: var(--green); }
+  .sec-toggles input { accent-color: var(--green); }
+  .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .wd { border: 1.5px solid #EEE8DA; border-radius: 12px; padding: 8px; background: #fff; }
+  .wd.on { border-color: #B9D3C3; background: #F7FBF8; }
+  .wd .t { display: flex; align-items: center; justify-content: space-between; font-weight: 800; font-size: 13px; margin-bottom: 6px; }
+  .wd select { padding: 5px 4px; font-size: 12.5px; margin-top: 4px; }
+  .wd .offt { font-size: 12px; color: #B5AE98; text-align: center; padding: 14px 0; font-weight: 700; }
+  .switch { position: relative; width: 36px; height: 20px; flex: none; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch span { position: absolute; inset: 0; background: #D9D3C2; border-radius: 20px; cursor: pointer; transition: .15s; }
+  .switch span::after { content: ''; position: absolute; width: 14px; height: 14px; right: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .15s; }
+  .switch input:checked + span { background: var(--green); }
+  .switch input:checked + span::after { right: 19px; }
+  .staff-foot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; align-items: center; }
+  .dirty-note { font-size: 12.5px; color: #7A4F00; font-weight: 700; margin-left: auto; }
+  .hint { font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+
+  /* ── النوافذ */
+  .ov { position: fixed; inset: 0; background: rgba(20,30,25,.45); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+  .ov.open { display: flex; }
+  .modal { background: #fff; border-radius: 18px; width: 100%; max-width: 560px; max-height: 92vh; overflow: auto; padding: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+  .modal h3 { font-size: 18px; color: var(--green); margin-bottom: 14px; display: flex; gap: 8px; align-items: center; }
+  .f { margin-bottom: 11px; }
+  .f label { display: block; font-size: 12.5px; font-weight: 800; color: var(--muted); margin-bottom: 4px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .msg { border-radius: 10px; padding: 9px 12px; font-size: 13px; font-weight: 700; margin-bottom: 10px; line-height: 1.7; }
+  .msg.err { background: #FDECEA; color: var(--danger); }
+  .msg.ok { background: var(--light); color: var(--green); }
+  .msg.warn { background: #FFF7E6; color: #7A4F00; }
+  .acts { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
+  .acts .btn.danger { margin-left: auto; }
+  .st-pick { display: flex; gap: 6px; flex-wrap: wrap; }
+  .st-pick button { border: 1.5px solid var(--border); background: #fff; border-radius: 9px; padding: 6px 10px; font-weight: 800; font-size: 12.5px; cursor: pointer; color: var(--muted); }
+  .st-pick button.on { border-color: var(--green); color: var(--green); background: var(--light); }
+  .radio-list label { display: flex; gap: 10px; align-items: center; border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; font-weight: 700; font-size: 14px; }
+  .radio-list label.on { border-color: var(--green); background: var(--light); }
+  .radio-list input { accent-color: var(--green); }
+  .conf-list { border: 1px solid #F1C3BF; border-radius: 12px; margin-top: 8px; overflow: hidden; }
+  .conf-list div { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid #F7DAD7; font-size: 13px; background: #FFF9F8; }
+  .conf-list div:last-child { border-bottom: none; }
+  .conf-list span { flex: 1; }
+  .ds-row { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; border: 1.5px solid #EEE8DA; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
+  .ds-row.on { border-color: #B9D3C3; background: #F7FBF8; }
+  .ds-row.bad { border-color: #F1C3BF; background: #FFF9F8; }
+  .ds-row .who { display: flex; gap: 10px; align-items: center; min-width: 0; }
+  .ds-row .who b { display: block; font-size: 14px; }
+  .ds-row .who small { color: var(--muted); font-size: 12px; font-weight: 700; }
+  .ds-row .tms { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; font-weight: 700; color: var(--muted); }
+  .ds-row .tms select { width: auto; padding: 5px 8px; }
+  .ds-row .warn { grid-column: 1 / -1; font-size: 12.5px; color: var(--danger); font-weight: 700; }
+  .ds-row .warn button { border: none; background: none; color: var(--green); font-weight: 800; cursor: pointer; text-decoration: underline; font-size: 12.5px; }
+  .msg-opts { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .msg-opts label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+  .msg-opts input { accent-color: var(--green); }
+  #msgText { min-height: 300px; font-size: 13.5px; line-height: 1.8; resize: vertical; white-space: pre-wrap; }
+  .btn.wa { background: #1FA855; } .btn.wa:hover { background: #178A45; }
+
+  /* ── النسخة المبسطة */
+  .simple-only { display: none; }
+  body.simple .simple-only { display: block; }
+  body.simple .book { grid-template-columns: 1fr; }
+  body.simple #calCard, body.simple .view-sw, body.simple #focusBar, body.simple #tlHint { display: none !important; }
+  .week-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .week-nav b { font-size: 15px; color: var(--green); flex: 1; text-align: center; min-width: 140px; }
+  .week-nav input[type=date] { width: auto; padding: 6px 8px; font-size: 13px; }
+  .week { }
+  .wk { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; }
+  .wk button { border: 1.5px solid var(--border); background: #fff; border-radius: 14px; padding: 8px 2px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--text); font-weight: 800; min-width: 0; }
+  .wk button small { font-size: 11.5px; color: var(--muted); font-weight: 800; }
+  .wk button big { font-size: 20px; line-height: 1.1; }
+  .wk button .cnt { font-size: 10.5px; background: #FFF7E6; color: #7A4F00; border-radius: 8px; padding: 0 6px; }
+  .wk button .hrs { font-size: 10.5px; color: var(--green2); font-weight: 800; white-space: nowrap; }
+  .wk button .hrs.off { color: var(--danger); }
+  .wk button.sel .hrs { color: #fff; }
+  .wk-sum { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--light); border: 1px solid #B9D3C3; border-radius: 12px; padding: 8px 12px; margin: -4px 0 14px; font-size: 13px; font-weight: 800; color: var(--green); }
+  .wk-sum .pill { background: #fff; }
+  .wk button.closed { background: #F4F1E8; color: #B5AE98; }
+  .wk button.today { border-color: var(--gold); border-width: 2px; }
+  .wk button.sel { background: var(--green); border-color: var(--green); color: #fff; }
+  .wk button.sel small { color: rgba(255,255,255,.75); }
+  .wk button.sel .cnt { background: rgba(255,255,255,.2); color: #fff; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .pc { border: 1.5px solid #EEE8DA; border-radius: 16px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+  .pc-h { display: flex; gap: 10px; align-items: center; padding: 12px; border-bottom: 1px solid #EEE8DA; background: var(--soft); }
+  .pc-h .nm { flex: 1; min-width: 0; }
+  .pc-h .nm b { display: block; font-size: 15px; }
+  .pc-h .nm small { color: var(--muted); font-size: 12px; font-weight: 700; }
+  .pc-h .menu-btn { border: none; background: none; color: var(--muted); cursor: pointer; width: 30px; height: 30px; border-radius: 8px; }
+  .pc-h .menu-btn:hover { background: var(--light); color: var(--green); }
+  .pc-b { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .row-bk { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; border-right: 4px solid; cursor: pointer; }
+  .row-bk:hover { filter: brightness(.97); }
+  .row-bk .tm { font-weight: 800; font-size: 13px; white-space: nowrap; min-width: 86px; }
+  .row-bk .tm small { display: block; font-size: 11px; opacity: .75; font-weight: 700; }
+  .row-bk .who { flex: 1; min-width: 0; }
+  .row-bk .who b { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+  .row-bk .who small { display: block; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-bk.cancelled, .row-bk.noshow { opacity: .5; }
+  .row-bk.cancelled b, .row-bk.noshow b { text-decoration: line-through; }
+  .row-free { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border: 1.5px dashed #B9D3C3; border-radius: 10px; color: var(--green2); font-size: 13px; font-weight: 800; cursor: pointer; background: #FAFDFB; }
+  .row-free:hover { background: var(--light); border-color: var(--green); }
+  .row-free span.add { background: var(--green); color: #fff; border-radius: 8px; padding: 3px 10px; font-size: 12px; }
+  .pc-off { padding: 26px 12px; text-align: center; color: var(--danger); font-weight: 800; }
+  .pc-f { margin-top: auto; padding: 8px 12px; border-top: 1px dashed #EEE8DA; font-size: 12px; color: var(--muted); font-weight: 700; display: flex; justify-content: space-between; }
+  .time-chips { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+  .time-chips .grp small { display: block; font-size: 11.5px; color: var(--muted); font-weight: 800; margin-bottom: 4px; }
+  .time-chips .grp div { display: flex; gap: 5px; flex-wrap: wrap; }
+  .time-chips button { border: 1.5px solid var(--border); background: #fff; border-radius: 9px; padding: 6px 9px; font-weight: 800; font-size: 12.5px; cursor: pointer; color: var(--text); }
+  .time-chips button.on { background: var(--green); border-color: var(--green); color: #fff; }
+  body.simple #bkFromWrap select { display: none; }
+  body.simple #bkModal.compact .adv { display: none; }
+  .bk-sum { background: var(--light); border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; font-weight: 800; color: var(--green); font-size: 14px; }
+  body.simple #bkModal:not(.compact) .bk-sum { display: none; }
+  .bk-sum button { border: none; background: none; color: var(--gold); font-weight: 800; cursor: pointer; font-size: 13px; margin-right: 6px; text-decoration: underline; }
+  @media (max-width: 600px) { .wk .cntw { display: none; } .wk button .hrs { font-size: 9.5px; } .wk { gap: 4px; } .wk button big { font-size: 17px; } .wk button small { font-size: 10.5px; } .cards { grid-template-columns: 1fr; } }
+  .pop { position: fixed; z-index: 120; background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.15); padding: 6px; display: none; min-width: 220px; }
+  .pop button { display: flex; gap: 10px; align-items: center; width: 100%; border: none; background: none; padding: 9px 10px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; color: var(--green); text-align: right; }
+  .pop button:hover { background: var(--light); }
+  .pop button i { width: 18px; color: var(--gold); }
+  .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--green); color: #fff; padding: 11px 18px; border-radius: 12px; font-weight: 800; z-index: 200; display: none; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+  .toast.err { background: var(--danger); }
+
+  @media (max-width: 980px) {
+    .book, .set-grid { grid-template-columns: 1fr; }
+    .week { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    .brand b { font-size: 21px; }
+    .tab { padding: 8px 10px; font-size: 13px; }
+    .week { grid-template-columns: repeat(2, 1fr); }
+    .two { grid-template-columns: 1fr; }
+    .list-row { grid-template-columns: 84px 1fr; }
+    .list-row .st-badge { grid-column: 2; justify-self: start; }
+    .day-head h2 { font-size: 17px; }
+    .test-badge { font-size: 11px; }
+    .tabs { width: 100%; } .tab { flex: 1; justify-content: center; }
+    .card h3 { flex-wrap: wrap; }
+  }
+</style>
+
+<div class="wrap">
+  <div class="bar">
+    <div class="tabs">
+      <button class="tab on" id="tabBook" onclick="setView('book')"><i class="fas fa-calendar-check"></i> الحجوزات</button>
+      <button class="tab" id="tabSet" onclick="setView('set')"><i class="fas fa-user-clock"></i> مواعيد الدكاترة والمتخصصين</button>
+    </div>
+    <button class="btn alt sm" onclick="reloadData()" title="تحديث"><i class="fas fa-sync-alt"></i></button>
+  </div>
+  <div class="busy" id="busy"><i class="fas fa-spinner fa-spin"></i> <span id="busyTxt">جاري الحفظ...</span></div>
+
+  <!-- ═══ الحجوزات ═══ -->
+  <div id="vBook" class="book">
+    <div class="card" id="calCard">
+      <div class="cal-head">
+        <button class="icon-btn" onclick="moveMonth(-1)" title="الشهر اللي فات"><i class="fas fa-chevron-right"></i></button>
+        <b id="calTitle"></b>
+        <button class="icon-btn" onclick="moveMonth(1)" title="الشهر الجاي"><i class="fas fa-chevron-left"></i></button>
+      </div>
+      <div class="cal" id="cal"></div>
+      <div class="legend"><span><i class="fas fa-circle" style="color:var(--gold)"></i>النهارده</span><span><i class="fas fa-square" style="color:#E4DFD0"></i>مفيش حد شغال</span><span><i class="fas fa-user-slash" style="color:var(--danger)"></i>فيه حد مش جاي</span></div>
+      <div class="sum" id="daySum"></div>
+    </div>
+
+    <div class="card">
+      <div class="simple-only" id="weekBox"></div>
+      <div class="day-head">
+        <h2 id="dayTitle"></h2>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <div class="view-sw"><button id="swTl" class="on" onclick="setMode('tl')"><i class="fas fa-columns"></i> المواعيد</button><button id="swList" onclick="setMode('list')"><i class="fas fa-list"></i> قايمة</button></div>
+          <button class="btn alt sm" onclick="goToday()"><i class="fas fa-calendar-day"></i> النهارده</button>
+          <button class="btn alt sm" id="btnDayStaff" onclick="openDayStaff()"><i class="fas fa-user-edit"></i> مين شغال اليوم ده</button>
+          <button class="btn wa sm" onclick="openMsg()"><i class="fab fa-whatsapp"></i> رسالة اليوم</button>
+          <button class="btn sm" id="btnNewBk" onclick="openBooking(null, {})"><i class="fas fa-plus"></i> حجز جديد</button>
+        </div>
+      </div>
+      <div class="chips" id="secChips"></div>
+      <div class="chips people" id="staffChips"></div>
+      <div id="focusBar"></div>
+      <div id="dayBody"></div>
+      <div class="hint" id="tlHint" style="margin-top:10px;"><i class="fas fa-mouse-pointer"></i> دوس على أي مربع فاضي عشان تحجز (أو اسحب بالماوس من ميعاد لميعاد) — كل مربع = 15 دقيقة. ⋮ جنب اسم الدكتور: مش جاي النهارده / مواعيد مختلفة النهارده.</div>
+    </div>
+  </div>
+
+  <!-- ═══ الإعدادات ═══ -->
+  <div id="vSet" class="set-grid hide">
+    <div class="card">
+      <h3><span><i class="fas fa-user-md"></i> الدكاترة والمتخصصين — المواعيد الثابتة كل أسبوع</span>
+        <span style="display:flex; gap:6px;"><select id="addStaffSel" style="width:auto;max-width:240px;"></select><button class="btn sm" id="btnAddStaff" onclick="addStaff()"><i class="fas fa-plus"></i> إضافة</button></span></h3>
+      <div class="hint" style="margin-bottom:12px;">الدكاترة والمتخصصين المتكودين بيظهروا هنا لوحدهم — حدد أقسام كل واحد والأيام اللي بيشتغلها ومواعيدها (ولو حد بوظيفة تانية هيحجزله، ضيفه من فوق). أي تعديل في المواعيد الثابتة بيتطبق من النهارده على كل الأيام الجاية — ما عدا الأيام القديمة، وأي يوم فيه حجوزات بالفعل أو مواعيد خاصة (بيفضل زي ما هو). ولتعديل يوم معين بس: من الكالندر ← "مين شغال اليوم ده".</div>
+      <div id="staffList"></div>
+    </div>
+    <div class="card">
+      <h3><span><i class="fas fa-layer-group"></i> أقسام الحجز والخدمات</span><button class="btn sm" id="btnAddSec" onclick="addSection()"><i class="fas fa-plus"></i> قسم جديد</button></h3>
+      <div class="hint" style="margin-bottom:10px;">كل قسم (ليزر، جلدية، تغذية...) بلونه، وخدماته بتيجي لوحدها من إدارة الخدمات حسب <b>تصنيف المبيعات</b> اللي تختاره. حدد مدة كل خدمة — المدة بتحدد نهاية الحجز لوحدها، وشيل علامة ✓ من أي خدمة مش عايزها تظهر في الحجز.</div>
+      <div id="secList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ نافذة الحجز ═══ -->
+<div class="ov" id="bkModal">
+  <div class="modal">
+    <h3 id="bkTitle"></h3>
+    <div class="bk-sum simple-only" id="bkSum"></div>
+    <div class="two">
+      <div class="f adv"><label>اليوم</label><input type="date" id="bkDate" onchange="bkRefresh('date')"></div>
+      <div class="f adv"><label>القسم</label><select id="bkSec" onchange="bkRefresh('sec')"></select></div>
+    </div>
+    <div class="two">
+      <div class="f adv"><label>الدكتور / المتخصص</label><select id="bkStaff" onchange="bkRefresh('staff')"></select></div>
+      <div class="f"><label>الخدمة</label><select id="bkSvc" onchange="bkRefresh('svc')"></select></div>
+    </div>
+    <div class="two">
+      <div class="f" id="bkFromWrap"><label>من</label><select id="bkFrom" onchange="bkRefresh('from')"></select><div class="time-chips simple-only" id="bkFromChips"></div></div>
+      <div class="f"><label>إلى</label><select id="bkTo" onchange="bkRefresh('to')"></select></div>
+    </div>
+    <div class="two">
+      <div class="f"><label>اسم العميل *</label><input type="text" id="bkClient" list="clientsList" autocomplete="off" placeholder="اكتب أو اختار" onchange="bkClientPicked()"></div>
+      <div class="f"><label>الموبايل</label><input type="tel" id="bkPhone" placeholder="01xxxxxxxxx" inputmode="tel"></div>
+    </div>
+    <div class="f"><label>ملاحظات</label><input type="text" id="bkNotes" placeholder="مثلاً: أول مرة — عايزة تكلم الدكتورة الأول"></div>
+    <div class="f" id="bkStatusWrap"><label>الحالة</label><div class="st-pick" id="bkStatus"></div></div>
+    <div id="bkMsg"></div>
+    <div class="acts">
+      <button class="btn danger" id="bkDel" onclick="deleteBooking()"><i class="fas fa-trash-alt"></i> حذف</button>
+      <button class="btn alt" onclick="closeOv('bkModal')">إلغاء</button>
+      <button class="btn" id="bkSave" onclick="saveBooking()"><i class="fas fa-check"></i> حفظ الحجز</button>
+    </div>
+  </div>
+</div>
+<datalist id="clientsList"></datalist>
+
+<!-- ═══ نافذة ميعاد يوم معين ═══ -->
+<div class="ov" id="msgModal">
+  <div class="modal" style="max-width:560px;">
+    <h3><i class="fab fa-whatsapp" style="color:#1FA855"></i> رسالة مواعيد <span id="msgDay"></span></h3>
+    <div class="two">
+      <div class="f"><label>لمين</label><select id="msgWho" onchange="buildMsg()"></select></div>
+      <div class="f"><label>القسم</label><select id="msgSec" onchange="buildMsg()"></select></div>
+    </div>
+    <div class="msg-opts">
+      <label><input type="checkbox" id="msgSvc" checked onchange="buildMsg()"> الخدمة</label>
+      <label><input type="checkbox" id="msgPhone" onchange="buildMsg()"> موبايل العميل</label>
+      <label><input type="checkbox" id="msgNotes" onchange="buildMsg()"> الملاحظات</label>
+      <label><input type="checkbox" id="msgFree" onchange="buildMsg()"> المواعيد الفاضية</label>
+    </div>
+    <textarea id="msgText" spellcheck="false"></textarea>
+    <div class="hint" style="margin-top:6px;">تقدر تعدل في الرسالة قبل ما تنسخها. الحجوزات الملغية واللي ما جاش مش بتظهر.</div>
+    <div class="acts">
+      <button class="btn alt" onclick="closeOv('msgModal')">إغلاق</button>
+      <button class="btn alt" onclick="copyMsg()"><i class="far fa-copy"></i> نسخ</button>
+      <button class="btn wa" onclick="waMsg()"><i class="fab fa-whatsapp"></i> ابعت واتساب</button>
+    </div>
+  </div>
+</div>
+<div class="ov" id="dsModal">
+  <div class="modal" style="max-width:640px;">
+    <h3 id="dsTitle"></h3>
+    <div class="hint" style="margin-bottom:10px;">التعديل هنا لليوم ده بس — المواعيد الثابتة مبتتغيرش. شغّل أي حد مش بيشتغل اليوم ده عشان تضيفه، أو اقفل حد عشان "مش جاي".</div>
+    <div id="dsList"></div>
+    <div id="dsMsg"></div>
+    <div class="acts">
+      <button class="btn alt" onclick="closeOv('dsModal')">إلغاء</button>
+      <button class="btn" id="dsSave" onclick="saveDayStaff()"><i class="fas fa-check"></i> حفظ اليوم ده</button>
+    </div>
+  </div>
+</div>
+<div class="ov" id="exModal">
+  <div class="modal" style="max-width:500px;">
+    <h3 id="exTitle"></h3>
+    <div class="radio-list" id="exOpts">
+      <label><input type="radio" name="exMode" value="normal" onchange="exRefresh()"> <span id="exNormalTxt"></span></label>
+      <label><input type="radio" name="exMode" value="custom" onchange="exRefresh()"> مواعيد مختلفة اليوم ده بس</label>
+      <div class="two" id="exTimes" style="margin:-2px 0 10px;"><div class="f"><label>من</label><select id="exFrom" onchange="exRefresh()"></select></div><div class="f"><label>إلى</label><select id="exTo" onchange="exRefresh()"></select></div></div>
+      <label><input type="radio" name="exMode" value="off" onchange="exRefresh()"> <span style="color:var(--danger);">مش جاي اليوم ده</span></label>
+    </div>
+    <div id="exMsg"></div>
+    <div class="acts">
+      <button class="btn alt" onclick="closeOv('exModal')">إلغاء</button>
+      <button class="btn" id="exSave" onclick="saveException()"><i class="fas fa-check"></i> حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ تعارض مواعيد ثابتة ═══ -->
+<div class="ov" id="cfModal">
+  <div class="modal" style="max-width:540px;">
+    <h3><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> فيه حجوزات بره المواعيد الجديدة</h3>
+    <div class="msg err" id="cfText"></div>
+    <div class="conf-list" id="cfList"></div>
+    <div class="acts"><button class="btn alt" onclick="closeOv('cfModal')">تمام</button></div>
+  </div>
+</div>
+
+<div class="pop" id="pop"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  تاب الحجوزات — بيشتغل جوه iframe في الموقع وبيكلم السيرفر من خلال الموقع الأساسي (apiPost / apiGetAction)
+//  الوحدة 15 دقيقة · الأسبوع بيبدأ السبت
+// ══════════════════════════════════════════════════════════════
+const SLOT = 15;
+const DAYS = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+const MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+const STATUS = { booked: 'محجوز', arrived: 'وصل', done: 'خلص', noshow: 'ما جاش', cancelled: 'ملغي' };
+const STATUS_ICON = { booked: '', arrived: '🟢', done: '✔️', noshow: '⚠️', cancelled: '✖' };
+
+let EMPLOYEES = [], CLIENTS = [], SALES_CATS = [];   // بيتملوا من السيرفر
+const COLORS = ['#2E7D5B', '#C5A059', '#7B5EA7', '#D9822B', '#3D7DB8', '#C0587E', '#5B8C3A', '#8C6A4F'];
+
+const SIMPLE = document.body.classList.contains('simple');
+let S = { sections: [], staff: [], overrides: {}, bookings: [], from: '', to: '' }, secDraft = {}, ui = { view: 'book', mode: SIMPLE ? 'cards' : 'tl', day: ymd(new Date()), month: null, sec: 'all', staff: null };
+
+// ══════════════════ الربط بالسيرفر (من خلال الموقع الأساسي) ══════════════════
+const P = window.parent;
+function perm(sub, act) { try { return !!P.canSub('Bookings', sub, act); } catch (e) { return false; } }
+let busyN = 0;
+function busy(on, txt) { busyN = Math.max(0, busyN + (on ? 1 : -1)); document.getElementById('busyTxt').textContent = txt || 'جاري الحفظ...'; document.getElementById('busy').classList.toggle('on', busyN > 0); }
+function addDays(ds, n) { const d = parseD(ds); d.setDate(d.getDate() + n); return ymd(d); }
+function applyState(r) {
+  ['sections', 'staff', 'overrides', 'bookings', 'from', 'to'].forEach(k => { if (r[k] !== undefined) S[k] = r[k]; });
+  if (Array.isArray(S.overrides)) S.overrides = {};
+  S.staff.forEach(st => { st.sections = st.sections.filter(id => S.sections.some(c => c.id === id)); });
+}
+async function loadData(full, range) {
+  busy(true, 'جاري التحميل...');
+  try {
+    const q = { action: 'bookings' };
+    if (full) q.full = '1';
+    if (range) { q.from = range.from; q.to = range.to; }
+    const r = await (await P.apiGetAction(q)).json();
+    if (r.status !== 'success') throw new Error(r.message || 'تعذر تحميل الحجوزات');
+    if (full) { EMPLOYEES = r.employees || []; CLIENTS = r.clients || []; SALES_CATS = r.salesCats || []; fillClients(); }
+    applyState(r);
+    S.loaded = true;
+    draft = {}; secDraft = {};
+    renderAll();
+  } catch (e) {
+    if (!S.loaded) document.getElementById('dayBody').innerHTML = '<div class="load-err"><i class="fas fa-exclamation-triangle"></i> ' + esc(e.message || 'تعذر الاتصال بالسيرفر') + '<br><br><button class="btn alt sm" onclick="reloadData()">جرب تاني</button></div>';
+    else toast(e.message || 'تعذر الاتصال بالسيرفر', true);
+  } finally { busy(false); }
+}
+function reloadData() { loadData(!S.loaded || !CLIENTS.length, { from: S.from, to: S.to }); }
+// كل عملية حفظ بترجع الحالة الجديدة للفترة اللي متحملة
+async function api(payload, txt) {
+  busy(true, txt);
+  try {
+    const r = await (await P.apiPost(Object.assign({ from: S.from, to: S.to }, payload))).json();
+    if (r.status !== 'success') throw new Error(r.message || 'تعذر الحفظ');
+    applyState(r);
+    return r;
+  } finally { busy(false); }
+}
+// الأسبوع المعروض لازم يكون جوه الفترة المتحملة — غير كده نجيبه
+function ensureRange() {
+  if (!S.from) return false;
+  const d = parseD(ui.day), start = addDays(ui.day, -dow(d)), end = addDays(start, 6);
+  if (start >= S.from && end <= S.to) return false;
+  loadData(false, { from: start < S.from ? addDays(start, -14) : S.from, to: end > S.to ? addDays(end, 56) : S.to });
+  return true;
+}
+function fillClients() { document.getElementById('clientsList').innerHTML = CLIENTS.map(c => '<option value="' + esc(c.name) + '">' + esc(c.phone || '') + '</option>').join(''); }
+function errBox(msg) {   // رسالة السيرفر الطويلة (فيها ليستة) في نافذة
+  if (String(msg).indexOf('\n') === -1) { toast(msg, true); return; }
+  const lines = String(msg).split('\n');
+  document.getElementById('cfText').textContent = lines.shift();
+  document.getElementById('cfList').innerHTML = lines.map(l => '<div><span>' + esc(l) + '</span></div>').join('');
+  openOv('cfModal');
+}
+
+// ── أدوات الوقت
+function pad(n) { return String(n).padStart(2, '0'); }
+function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function parseD(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+function dow(d) { return (d.getDay() + 1) % 7; }   // 0 = السبت
+function toMin(t) { const [h, m] = t.split(':').map(Number); return h * 60 + m; }
+function toHM(m) { return pad(Math.floor(m / 60)) + ':' + pad(m % 60); }
+function fmt(m) { let h = Math.floor(m / 60), mm = m % 60; const ap = h >= 12 ? 'م' : 'ص'; h = h % 12 || 12; return h + ':' + pad(mm) + ' ' + ap; }
+function fmtH(m) { let h = Math.floor(m / 60); const ap = h >= 12 ? 'م' : 'ص'; h = h % 12 || 12; return h + ' ' + ap; }
+function nowMin() { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); }
+function dur(m) { return m >= 60 ? (Math.floor(m / 60) + ' س' + (m % 60 ? ' و' + (m % 60) + ' د' : '')) : m + ' د'; }
+function dayLabel(ds) { const d = parseD(ds); return DAYS[dow(d)] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()]; }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function initials(n) { const p = n.trim().split(/\s+/); return (p[0][0] + (p[1] ? p[1][0] : '')).toUpperCase(); }
+function timeOptions(from, to, sel) { let h = ''; for (let m = from; m <= to; m += SLOT) h += '<option value="' + m + '"' + (m === sel ? ' selected' : '') + '>' + fmt(m) + '</option>'; return h; }
+
+// ── البيانات
+const sec = id => S.sections.find(x => x.id === id);
+const staffById = id => S.staff.find(x => x.id === id);
+const roleAr = r => r === 'doctor' ? 'دكتور' : 'متخصص';
+const active = b => b.status !== 'cancelled' && b.status !== 'noshow';
+// ميعاد الشخص في يوم معين: الاستثناء لو موجود، غير كده الميعاد الثابت
+function shiftOf(st, ds) {
+  const ov = (S.overrides[ds] || {})[st.id];
+  if (ov) return ov.off ? { off: true, custom: true } : { from: toMin(ov.from), to: toMin(ov.to), custom: true };
+  const w = weekOf(st, ds);
+  return w ? { from: toMin(w.from), to: toMin(w.to) } : null;
+}
+// الميعاد الثابت لليوم ده — الأيام القديمة بتاخد الجدول اللي كان شغال وقتها
+function weekOf(st, ds) {
+  let wk = st.week;
+  (st.hist || []).slice().sort((a, b) => a.until.localeCompare(b.until)).some(h => { if (ds < h.until) { wk = h.week; return true; } return false; });
+  return wk[dow(parseD(ds))];
+}
+function dayBookings(ds) { return S.bookings.filter(b => b.date === ds); }
+// المربعات الفاضية (15 دقيقة) للشخص في اليوم — exceptId = الحجز اللي بيتعدل نفسه
+function freeSlots(stId, ds, exceptId) {
+  const st = staffById(stId), s = st && shiftOf(st, ds);
+  if (!s || s.off) return [];
+  const busy = dayBookings(ds).filter(b => b.staffId === stId && active(b) && b.id !== exceptId);
+  const out = [];
+  // النهارده: الوقت اللي عدى مش بيظهر كفاضي (إلا لو بنعدل حجز موجود)
+  const past = !exceptId && ds === ymd(new Date()) ? nowMin() : -1;
+  for (let m = s.from; m < s.to; m += SLOT) if (m + SLOT > past && !busy.some(b => b.from < m + SLOT && m < b.to)) out.push(m);
+  return out;
+}
+// آخر نهاية ممكنة لحجز بيبدأ من "from" (لحد أول حجز بعده أو آخر الميعاد)
+function maxEnd(stId, ds, from, exceptId) {
+  const s = shiftOf(staffById(stId), ds);
+  let lim = s.to;
+  dayBookings(ds).forEach(b => { if (b.staffId === stId && active(b) && b.id !== exceptId && b.from >= from + SLOT && b.from < lim) lim = b.from; });
+  return lim;
+}
+// تجميع المربعات الفاضية في فترات: [[من، إلى], ...]
+function freeRanges(stId, ds) {
+  const r = [];
+  freeSlots(stId, ds).forEach(m => { const last = r[r.length - 1]; if (last && last[1] === m) last[1] = m + SLOT; else r.push([m, m + SLOT]); });
+  return r;
+}
+function selectStaff(id) { ui.staff = ui.staff === id ? null : id; if (ui.staff) { const st = staffById(id); if (ui.sec !== 'all' && st.sections.indexOf(ui.sec) === -1) ui.sec = 'all'; } renderBook(); }
+// تعارض حجز مع حجز تاني لنفس الشخص
+function overlap(b, list) { return list.find(x => x.id !== b.id && x.staffId === b.staffId && x.date === b.date && active(x) && x.from < b.to && b.from < x.to); }
+
+// ══════════════════ الحجوزات ══════════════════
+function setView(v) {
+  if (v === 'set' && !perm('Schedule', 'view')) return;
+  ui.view = v;
+  document.getElementById('vBook').classList.toggle('hide', v !== 'book');
+  document.getElementById('vSet').classList.toggle('hide', v !== 'set');
+  document.getElementById('tabBook').classList.toggle('on', v === 'book');
+  document.getElementById('tabSet').classList.toggle('on', v === 'set');
+  renderAll();
+}
+function setMode(m) { ui.mode = m; document.getElementById('swTl').classList.toggle('on', m === 'tl'); document.getElementById('swList').classList.toggle('on', m === 'list'); renderDay(); }
+function goToday() { ui.day = ymd(new Date()); ui.month = null; renderBook(); }
+function pickDay(ds) { ui.day = ds; renderBook(); if (!SIMPLE && innerWidth < 980) document.getElementById('dayTitle').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+function moveMonth(n) { const m = ui.month || parseD(ui.day); ui.month = new Date(m.getFullYear(), m.getMonth() + n, 1); renderCal(); }
+
+function renderAll() { applyPerms(); if (ui.view === 'book') renderBook(); else renderSettings(); }
+function applyPerms() {
+  const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? '' : 'none'; };
+  show('tabSet', perm('Schedule', 'view'));
+  show('btnNewBk', perm('Book', 'add'));
+  show('btnDayStaff', perm('Schedule', 'edit'));
+  show('btnAddSec', perm('Schedule', 'add'));
+  show('btnAddStaff', perm('Schedule', 'add')); show('addStaffSel', perm('Schedule', 'add'));
+  if (ui.view === 'set' && !perm('Schedule', 'view')) ui.view = 'book';
+}
+function renderBook() { if (ensureRange()) return; applyPerms(); if (SIMPLE) { renderWeek(); renderDay(); return; } if (!ui.month || ui.month.getMonth() !== parseD(ui.day).getMonth() || ui.month.getFullYear() !== parseD(ui.day).getFullYear()) ui.month = new Date(parseD(ui.day).getFullYear(), parseD(ui.day).getMonth(), 1); renderCal(); renderSummary(); renderDay(); }
+
+function renderCal() {
+  const m = ui.month;
+  document.getElementById('calTitle').textContent = MONTHS[m.getMonth()] + ' ' + m.getFullYear();
+  const first = new Date(m.getFullYear(), m.getMonth(), 1);
+  const start = new Date(first); start.setDate(1 - dow(first));
+  const today = ymd(new Date());
+  let h = DAYS.map(d => '<div class="dn">' + d.replace('ال', '').slice(0, 3) + '</div>').join('');
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    const ds = ymd(d);
+    const pool = ui.staff ? S.staff.filter(st => st.id === ui.staff) : S.staff;
+    const working = pool.some(st => { const s = shiftOf(st, ds); return s && !s.off; });
+    const offSome = pool.some(st => { const s = shiftOf(st, ds); return s && s.off; });
+    const n = dayBookings(ds).filter(b => active(b) && (!ui.staff || b.staffId === ui.staff)).length;
+    h += '<div class="day' + (d.getMonth() !== m.getMonth() ? ' other' : '') + (working ? '' : ' closed') + (ds === today ? ' today' : '') + (ds === ui.day ? ' sel' : '') + '" onclick="pickDay(\'' + ds + '\')">'
+      + d.getDate() + (n ? '<span class="cnt">' + n + '</span>' : '') + (offSome ? '<i class="fas fa-user-slash x"></i>' : '') + '</div>';
+    if (i >= 34 && d.getMonth() !== m.getMonth() && dow(d) === 6) break;
+  }
+  document.getElementById('cal').innerHTML = h;
+}
+
+function renderSummary() {
+  const ds = ui.day, all = dayBookings(ds);
+  const rows = S.staff.map(st => {
+    const s = shiftOf(st, ds);
+    if (!s) return '';
+    const n = all.filter(b => b.staffId === st.id && active(b)).length;
+    return '<div class="sum-row' + (ui.staff === st.id ? ' on' : '') + '" onclick="selectStaff(\'' + st.id + '\')" title="اعرض مواعيده بس"><span class="av" style="background:' + st.color + '">' + initials(st.name) + '</span><div class="nm"><b>' + esc(st.name) + '</b><small>' + roleAr(st.role) + ' · ' + st.sections.map(x => sec(x) ? sec(x).name : '').join('، ') + '</small></div>'
+      + (s.off ? '<span class="pill off">مش جاي</span>' : '<span class="pill' + (s.custom ? ' cus' : '') + '">' + fmtH(s.from) + ' – ' + fmtH(s.to) + '</span>') + (s.off ? '' : '<span class="pill" title="حجوزات">' + n + '</span>') + '</div>';
+  }).join('');
+  const total = all.filter(active).length;
+  document.getElementById('daySum').innerHTML = '<h4><span>شغالين يوم ' + esc(dayLabel(ds)) + '</span><span class="pill">' + total + ' حجز</span></h4>'
+    + '<button class="btn alt sm" style="width:100%;margin-bottom:6px;" onclick="openDayStaff()"><i class="fas fa-user-edit"></i> إضافة / شيل / تعديل مواعيد اليوم ده</button>' + (rows || '<div class="hint" style="padding:10px 0;">مفيش حد شغال اليوم ده.</div>');
+}
+
+// الناس اللي هتظهر في اليوم (حسب القسم) — اللي ليهم ميعاد أو مش جايين
+function dayStaff(ds, secId) {
+  return S.staff.filter(st => { const s = shiftOf(st, ds); return s && (secId === 'all' || st.sections.indexOf(secId) !== -1); });
+}
+function renderDay() {
+  const ds = ui.day;
+  document.getElementById('dayTitle').innerHTML = esc(dayLabel(ds)) + (ds === ymd(new Date()) ? '<small>النهارده</small>' : '');
+  // الأقسام اللي فيها حد شغال اليوم ده بس
+  const chips = [{ id: 'all', name: 'الكل', color: 'var(--green)' }].concat(S.sections);
+  document.getElementById('secChips').innerHTML = chips.map(c => {
+    const people = dayStaff(ds, c.id).filter(st => !shiftOf(st, ds).off);
+    const n = dayBookings(ds).filter(b => active(b) && (c.id === 'all' || b.sec === c.id)).length;
+    const dis = !people.length;
+    if (dis && ui.sec === c.id) ui.sec = 'all';
+    return '<button class="chip' + (ui.sec === c.id ? ' on' : '') + (dis ? ' dis' : '') + '"' + (dis ? ' disabled title="مفيش حد شغال في القسم ده اليوم ده"' : ' onclick="ui.sec=\'' + c.id + '\';renderDay()"') + '>'
+      + (c.id === 'all' ? '<i class="fas fa-th-large"></i>' : '<span class="dot" style="background:' + c.color + '"></span>') + esc(c.name)
+      + '<small>' + (dis ? 'مفيش حد' : people.length + ' · ' + n + ' حجز') + '</small></button>';
+  }).join('');
+  // صف الدكاترة/المتخصصين — اضغط على حد يعرض مواعيده بس
+  const pool = S.staff.filter(st => ui.sec === 'all' || st.sections.indexOf(ui.sec) !== -1);
+  if (ui.staff && !pool.some(st => st.id === ui.staff)) ui.staff = null;
+  document.getElementById('staffChips').innerHTML = '<button class="chip p' + (!ui.staff ? ' on' : '') + '" onclick="ui.staff=null;renderBook()"><i class="fas fa-users"></i> الكل</button>'
+    + pool.filter(st => { const s = shiftOf(st, ds); return (s && !s.off) || st.id === ui.staff; }).map(st => { const s = shiftOf(st, ds); const works = s && !s.off;
+      return '<button class="chip p' + (ui.staff === st.id ? ' on' : '') + (works ? '' : ' off') + '" onclick="selectStaff(\'' + st.id + '\')"><span class="av" style="background:' + st.color + '">' + initials(st.name) + '</span>' + esc(st.name)
+        + '<small>' + (!s ? 'إجازة' : s.off ? 'مش جاي' : fmtH(s.from) + ' – ' + fmtH(s.to)) + '</small></button>'; }).join('')
+    + (function () { const others = pool.filter(st => { const s = shiftOf(st, ds); return !(s && !s.off) && st.id !== ui.staff; }); return others.length ? '<select class="p-sel" onchange="if(this.value)selectStaff(this.value)"><option value="">مواعيد حد تاني...</option>' + others.map(st => '<option value="' + st.id + '">' + esc(dr(st)) + '</option>').join('') + '</select>' : ''; })();
+  renderFocus();
+  if (ui.mode === 'cards') renderCards(); else if (ui.mode === 'list') renderList(); else renderTimeline();
+}
+// شريط الشخص المختار: مواعيده + المواعيد الفاضية (اضغط على أي فترة تحجز فيها)
+function renderFocus() {
+  const box = document.getElementById('focusBar');
+  if (!ui.staff) { box.innerHTML = ''; return; }
+  const st = staffById(ui.staff), ds = ui.day, s = shiftOf(st, ds);
+  const n = dayBookings(ds).filter(b => b.staffId === st.id && active(b)).length;
+  let free = '';
+  if (s && !s.off) {
+    const r = freeRanges(st.id, ds);
+    free = '<div class="free"><span><i class="far fa-clock"></i> المواعيد الفاضية:</span>' + (r.length ? r.map(x => '<button onclick="openBooking(null,{staffId:\'' + st.id + '\',from:' + x[0] + '})" title="احجز">' + fmt(x[0]) + ' – ' + fmt(x[1]) + '</button>').join('') : '<span class="none">اليوم مليان — مفيش مواعيد فاضية</span>') + '</div>';
+  } else {
+    const nx = nextWorkDay(st, ds);
+    free = '<div class="free"><span class="none">' + (s ? 'مش جاي اليوم ده.' : 'مش بيشتغل يوم ' + DAYS[dow(parseD(ds))] + '.') + '</span>' + (nx ? '<button onclick="pickDay(\'' + nx + '\')">أقرب يوم شغال: ' + esc(dayLabel(nx)) + '</button>' : '') + '</div>';
+  }
+  box.innerHTML = '<div class="focus-bar"><div class="who"><span class="av" style="background:' + st.color + '">' + initials(st.name) + '</span><div><b>' + esc(st.name) + '</b><small>' + roleAr(st.role) + ' · ' + st.sections.map(x => sec(x) ? sec(x).name : '').join('، ') + (s && !s.off ? ' · ' + fmt(s.from) + ' – ' + fmt(s.to) + ' · ' + n + ' حجز' : '') + '</small></div></div>'
+    + '<button class="btn alt sm" onclick="ui.staff=null;renderBook()"><i class="fas fa-times"></i> عرض الكل</button>' + free + '</div>';
+}
+function nextWorkDay(st, ds) { const d = parseD(ds); for (let i = 1; i <= 60; i++) { d.setDate(d.getDate() + 1); const s = shiftOf(st, ymd(d)); if (s && !s.off) return ymd(d); } return null; }
+
+function renderList() {
+  const ds = ui.day;
+  const list = dayBookings(ds).filter(b => (ui.sec === 'all' || b.sec === ui.sec) && (!ui.staff || b.staffId === ui.staff)).sort((a, b) => a.from - b.from || a.staffId.localeCompare(b.staffId));
+  document.getElementById('dayBody').innerHTML = list.length ? '<div class="tl-wrap">' + list.map(b => {
+    const st = staffById(b.staffId), s = sec(b.sec);
+    return '<div class="list-row" onclick="openBooking(\'' + b.id + '\')"><div class="tm">' + fmt(b.from) + '<small>لحد ' + fmt(b.to) + ' · ' + dur(b.to - b.from) + '</small></div>'
+      + '<div class="who"><b>' + esc(b.client) + '</b><small><span class="dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + (s ? s.color : '#999') + '"></span> ' + esc(b.svc) + ' · ' + esc(st ? st.name : '—') + (b.notes ? ' · ' + esc(b.notes) : '') + '</small></div>'
+      + '<span class="st-badge st-' + b.status + '">' + STATUS[b.status] + '</span></div>';
+  }).join('') + '</div>' : '<div class="empty"><i class="fas fa-calendar"></i>مفيش حجوزات</div>';
+}
+
+function renderTimeline() {
+  const ds = ui.day;
+  const people = dayStaff(ds, ui.sec).filter(st => !ui.staff || st.id === ui.staff);
+  const body = document.getElementById('dayBody');
+  if (ui.staff && !people.length) { body.innerHTML = ''; return; }
+  if (!people.length) { body.innerHTML = '<div class="empty"><i class="fas fa-user-clock"></i>مفيش دكاترة أو متخصصين شغالين اليوم ده' + (ui.sec !== 'all' ? ' في القسم ده' : '') + '.<br><br><button class="btn alt sm" onclick="setView(\'set\')">ظبط المواعيد الثابتة</button></div>'; return; }
+  // مدى اليوم: من أبدر ميعاد لآخر ميعاد (بالساعة)
+  let start = 24 * 60, end = 0;
+  people.forEach(st => { const s = shiftOf(st, ds); if (s && !s.off) { start = Math.min(start, s.from); end = Math.max(end, s.to); } });
+  dayBookings(ds).forEach(b => { if (people.some(p => p.id === b.staffId)) { start = Math.min(start, b.from); end = Math.max(end, b.to); } });
+  if (start >= end) { start = 10 * 60; end = 18 * 60; }
+  start = Math.floor(start / 60) * 60; end = Math.ceil(end / 60) * 60;
+  ui.range = { start, end };
+  const H = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--slot')) || 22;
+  const slots = (end - start) / SLOT;
+  const colW = people.length <= 3 ? 'minmax(190px, 1fr)' : 'minmax(170px, 1fr)';
+  let h = '<div class="tl-wrap" id="tlWrap"><div class="tl" style="grid-template-columns: 64px repeat(' + people.length + ', ' + colW + ');">';
+  h += '<div class="tl-corner"><i class="far fa-clock"></i></div>';
+  people.forEach(st => {
+    const s = shiftOf(st, ds);
+    const n = dayBookings(ds).filter(b => b.staffId === st.id && active(b)).length;
+    h += '<div class="tl-hc"><span class="av" style="background:' + st.color + '">' + initials(st.name) + '</span><div class="nm"><b class="click" onclick="selectStaff(\'' + st.id + '\')" title="' + (ui.staff ? 'رجوع للكل' : 'اعرض مواعيده بس') + '">' + esc(st.name) + '</b><small>'
+      + (s.off ? '<span style="color:var(--danger);font-weight:800;">مش جاي اليوم ده</span>' : roleAr(st.role) + ' · ' + fmtH(s.from) + ' – ' + fmtH(s.to) + (s.custom ? ' <span class="pill cus" style="padding:0 6px;">اليوم ده بس</span>' : ''))
+      + '</small><small>' + n + ' حجز</small></div><button class="menu-btn" title="مواعيد اليوم ده" onclick="staffMenu(event,\'' + st.id + '\')"><i class="fas fa-ellipsis-v"></i></button></div>';
+  });
+  // عمود الوقت
+  h += '<div class="tl-time">';
+  for (let m = start; m < end; m += 60) h += '<div class="t">' + fmtH(m) + '</div>';
+  h += '</div>';
+  people.forEach(st => {
+    const s = shiftOf(st, ds);
+    h += '<div class="col' + (s.off ? ' dayoff' : '') + '" data-st="' + st.id + '" style="height:' + (slots * H) + 'px">';
+    for (let i = 0; i < slots; i++) {
+      const m = start + i * SLOT;
+      const off = s.off || m < s.from || m >= s.to;
+      h += '<div class="s' + (m % 60 === 0 ? ' h' : '') + (off ? ' off' : '') + '" data-m="' + m + '"></div>';
+    }
+    if (s.off) h += '<div class="offmsg"><i class="fas fa-user-slash"></i> مش جاي</div>';
+    dayBookings(ds).filter(b => b.staffId === st.id).sort((a, b) => (active(a) - active(b))).forEach(b => {
+      const sc = sec(b.sec) || { color: '#999', name: '' };
+      const top = (b.from - start) / SLOT * H, ht = Math.max(H - 2, (b.to - b.from) / SLOT * H - 2);
+      const short = ht < H * 2.2;
+      h += '<div class="bk ' + b.status + '" style="top:' + (top + 1) + 'px;height:' + ht + 'px;background:' + sc.color + '1A;border-color:' + sc.color + ';color:' + shade(sc.color) + '" onclick="event.stopPropagation();openBooking(\'' + b.id + '\')" title="' + esc(b.client + ' — ' + b.svc + ' — ' + fmt(b.from) + ' لـ ' + fmt(b.to)) + '">'
+        + (STATUS_ICON[b.status] ? '<span class="st">' + STATUS_ICON[b.status] + '</span>' : '')
+        + (short ? '<b>' + esc(b.client) + ' <span class="tm">· ' + fmt(b.from) + '</span></b>' : '<span class="tm">' + fmt(b.from) + ' – ' + fmt(b.to) + '</span><b>' + esc(b.client) + '</b><div class="sv">' + esc(sc.name + ' · ' + b.svc) + '</div>')
+        + '</div>';
+    });
+    if (ds === ymd(new Date())) { const nm = nowMin(); if (nm >= start && nm <= end) h += '<div class="now-line" style="top:' + ((nm - start) / SLOT * H) + 'px"></div>'; }
+    h += '</div>';
+  });
+  h += '</div></div>';
+  body.innerHTML = h;
+  bindColumns(H);
+}
+function shade(hex) {   // لون النص أغمق من لون القسم
+  const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+  r = Math.round(r * .55); g = Math.round(g * .55); b = Math.round(b * .55);
+  return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+// اختيار ميعاد: ضغطة على مربع فاضي — أو سحب بالماوس من ميعاد لميعاد
+function bindColumns(H) {
+  document.querySelectorAll('#dayBody .col').forEach(col => {
+    let drag = null, box = null;
+    const slotAt = e => { const r = col.getBoundingClientRect(); const i = Math.floor((e.clientY - r.top) / H); return ui.range.start + Math.max(0, i) * SLOT; };
+    col.addEventListener('pointerdown', e => {
+      if (e.target.closest('.bk') || col.classList.contains('dayoff')) return;
+      const st = staffById(col.dataset.st), s = shiftOf(st, ui.day), m = slotAt(e);
+      if (!s || s.off || m < s.from || m >= s.to) { toast('الميعاد ده بره مواعيد ' + st.name, true); return; }
+      if (e.pointerType !== 'mouse') { openBooking(null, { staffId: st.id, from: m }); return; }
+      drag = { st, s, a: m, b: m };
+      box = document.createElement('div'); box.className = 'sel-box'; col.appendChild(box); paint();
+      col.setPointerCapture(e.pointerId);
+    });
+    col.addEventListener('pointermove', e => { if (!drag) return; drag.b = Math.min(Math.max(slotAt(e), drag.s.from), drag.s.to - SLOT); paint(); });
+    col.addEventListener('pointerup', () => {
+      if (!drag) return;
+      const a = Math.min(drag.a, drag.b), b = Math.max(drag.a, drag.b) + SLOT;
+      const d = drag; drag = null; box.remove();
+      openBooking(null, { staffId: d.st.id, from: a, to: b > a + SLOT ? b : null });
+    });
+    function paint() { const a = Math.min(drag.a, drag.b), b = Math.max(drag.a, drag.b) + SLOT; box.style.top = ((a - ui.range.start) / SLOT * H) + 'px'; box.style.height = ((b - a) / SLOT * H) + 'px'; box.textContent = fmt(a) + ' – ' + fmt(b); }
+  });
+}
+
+// ── قايمة ⋮ جنب الاسم
+function staffMenu(e, id) {
+  e.stopPropagation();
+  const st = staffById(id), s = shiftOf(st, ui.day);
+  const pop = document.getElementById('pop');
+  pop.innerHTML = '<div style="padding:6px 10px;font-size:12px;font-weight:800;color:var(--muted);">' + esc(st.name) + ' — ' + esc(dayLabel(ui.day)) + '</div>'
+    + ((!s || !s.off) && perm('Book', 'add') ? '<button onclick="openBooking(null,{staffId:\'' + id + '\'})"><i class="fas fa-plus"></i> حجز جديد معاه</button>' : '')
+    + (perm('Schedule', 'edit') ? '<button onclick="openException(\'' + id + '\')"><i class="fas fa-user-clock"></i> مواعيد اليوم ده / مش جاي</button>' : '')
+    + '<button onclick="openMsg(\'' + id + '\')"><i class="fab fa-whatsapp"></i> رسالة مواعيده</button>'
+    + (s && s.custom && perm('Schedule', 'edit') ? '<button onclick="openException(\'' + id + '\',\'normal\')"><i class="fas fa-undo"></i> رجوع للمواعيد الثابتة</button>' : '');
+  const r = e.currentTarget.getBoundingClientRect();
+  pop.style.display = 'block';
+  pop.style.top = Math.min(r.bottom + 4, innerHeight - pop.offsetHeight - 8) + 'px';
+  pop.style.left = Math.max(8, Math.min(r.left - pop.offsetWidth + r.width, innerWidth - pop.offsetWidth - 8)) + 'px';
+}
+document.addEventListener('click', e => { const p = document.getElementById('pop'); if (!p.contains(e.target)) p.style.display = 'none'; });
+
+// ══════════════════ نافذة الحجز ══════════════════
+let bk = null, bkRO = false;   // bkRO = عرض بس (مفيش صلاحية تعديل)
+function openBooking(id, pre) {
+  document.getElementById('pop').style.display = 'none';
+  const b = id ? S.bookings.find(x => x.id === id) : null;
+  pre = pre || {};
+  bk = b ? Object.assign({}, b) : { id: null, date: ui.day, staffId: pre.staffId || '', sec: ui.sec !== 'all' ? ui.sec : '', svc: '', from: pre.from, to: pre.to, client: '', phone: '', notes: '', status: 'booked' };
+  if (!b && bk.staffId) { const st = staffById(bk.staffId); if (!bk.sec || st.sections.indexOf(bk.sec) === -1) bk.sec = st.sections[0]; }
+  document.getElementById('bkTitle').innerHTML = b ? '<i class="fas fa-calendar-check" style="color:var(--gold)"></i> تعديل حجز ' + esc(b.client) : '<i class="fas fa-calendar-plus" style="color:var(--gold)"></i> حجز جديد';
+  document.getElementById('bkDate').value = bk.date;
+  document.getElementById('bkClient').value = bk.client;
+  document.getElementById('bkPhone').value = bk.phone;
+  document.getElementById('bkNotes').value = bk.notes;
+  document.getElementById('bkDel').style.display = b && perm('Book', 'delete') ? '' : 'none';
+  bkRO = !!b && !perm('Book', 'edit');
+  document.getElementById('bkStatusWrap').style.display = b ? '' : 'none';
+  // المبسطة: لو الشخص معروف (من الكارت) نخبي اليوم/القسم/الشخص ونعرضهم سطر واحد
+  document.getElementById('bkModal').classList.toggle('compact', !!(bk.staffId && (pre.staffId || b)));
+  bkFill(true);
+  openOv('bkModal');
+  setTimeout(() => document.getElementById(b ? 'bkNotes' : 'bkClient').focus(), 60);
+}
+function bkStatusRender() {
+  document.getElementById('bkStatus').innerHTML = Object.keys(STATUS).map(k => '<button type="button" class="' + (bk.status === k ? 'on' : '') + '" onclick="bk.status=\'' + k + '\';bkStatusRender();bkCheck()">' + STATUS[k] + '</button>').join('');
+}
+// تعبئة الاختيارات حسب اليوم والقسم والشخص
+function bkFill(first) {
+  const ds = bk.date;
+  // الأقسام اللي فيها حد شغال اليوم ده
+  const secs = S.sections.filter(c => S.staff.some(st => st.sections.indexOf(c.id) !== -1 && (shiftOf(st, ds) || {}).from !== undefined));
+  if (!secs.some(c => c.id === bk.sec)) bk.sec = (secs[0] || {}).id || '';
+  document.getElementById('bkSec').innerHTML = secs.length ? secs.map(c => '<option value="' + c.id + '"' + (c.id === bk.sec ? ' selected' : '') + '>' + esc(c.name) + '</option>').join('') : '<option value="">مفيش حد شغال اليوم ده</option>';
+  const people = S.staff.filter(st => st.sections.indexOf(bk.sec) !== -1 && (shiftOf(st, ds) || {}).from !== undefined);
+  if (!people.some(p => p.id === bk.staffId)) bk.staffId = (people[0] || {}).id || '';
+  document.getElementById('bkStaff').innerHTML = people.length ? people.map(p => { const s = shiftOf(p, ds), fm = freeSlots(p.id, ds, bk.id).length * SLOT; return '<option value="' + p.id + '"' + (p.id === bk.staffId ? ' selected' : '') + '>' + esc(p.name) + ' (' + fmtH(s.from) + ' – ' + fmtH(s.to) + ') · ' + (fm ? 'فاضي ' + dur(fm) : 'مليان') + '</option>'; }).join('') : '<option value="">مفيش حد</option>';
+  const c = sec(bk.sec);
+  const svcs = c ? c.services.filter(x => x.show !== false) : [];
+  if (!bk.svc || !svcs.some(x => x.n === bk.svc) && first !== true) bk.svc = bk.svc && svcs.some(x => x.n === bk.svc) ? bk.svc : (svcs[0] || {}).n || '';
+  document.getElementById('bkSvc').innerHTML = svcs.map(x => '<option value="' + esc(x.n) + '"' + (x.n === bk.svc ? ' selected' : '') + '>' + esc(x.n) + ' — ' + dur(x.d) + '</option>').join('') + (bk.svc && !svcs.some(x => x.n === bk.svc) ? '<option selected>' + esc(bk.svc) + '</option>' : '');
+  const st = staffById(bk.staffId), s = st ? shiftOf(st, ds) : null;
+  if (s && !s.off) {
+    // المواعيد اللي بتظهر = الفاضية بس لنفس الشخص في نفس اليوم
+    const free = bk.id && !active(bk) ? [] : freeSlots(st.id, ds, bk.id);
+    if (bk.id && !active(bk)) {   // حجز ملغي / ما جاش: مبيحجزش وقت، فبنسيب ميعاده زي ما هو
+      document.getElementById('bkFrom').innerHTML = timeOptions(s.from, s.to - SLOT, bk.from);
+      document.getElementById('bkTo').innerHTML = timeOptions(bk.from + SLOT, s.to, bk.to);
+      document.getElementById('bkFromChips').innerHTML = '';
+    } else if (!free.length) {
+      document.getElementById('bkFromChips').innerHTML = '<div class="msg err" style="margin:0">مفيش مواعيد فاضية — اختار حد تاني أو يوم تاني</div>';
+      document.getElementById('bkFrom').innerHTML = document.getElementById('bkTo').innerHTML = '<option value="">مفيش مواعيد فاضية</option>';
+      bk.from = bk.to = null;
+    } else {
+      if (bk.from == null || free.indexOf(bk.from) === -1) { const want = bk.from == null ? -1 : bk.from; bk.from = free.find(m => m >= want); if (bk.from == null) bk.from = free[0]; }
+      const d = (svcs.find(x => x.n === bk.svc) || { d: 30 }).d;
+      const lim = maxEnd(st.id, ds, bk.from, bk.id);
+      if (bk.to == null || bk.to <= bk.from || bk.to > lim) bk.to = Math.min(bk.from + d, lim);
+      document.getElementById('bkFrom').innerHTML = freeOptions(free, bk.from);
+      document.getElementById('bkFromChips').innerHTML = freeChips(free, bk.from);
+      document.getElementById('bkTo').innerHTML = timeOptions(bk.from + SLOT, lim, bk.to);
+    }
+  } else { document.getElementById('bkFrom').innerHTML = document.getElementById('bkTo').innerHTML = '<option>—</option>'; }
+  bkStatusRender();
+  const stS = staffById(bk.staffId), cS = sec(bk.sec), sumEl = document.getElementById('bkSum');
+  if (sumEl) sumEl.innerHTML = '<i class="fas fa-user-md"></i> ' + (stS ? esc(dr(stS)) : '—') + ' · ' + esc(dayLabel(bk.date)) + (cS ? ' · ' + esc(cS.name) : '') + '<button type="button" onclick="document.getElementById(\'bkModal\').classList.remove(\'compact\')">تغيير</button>';
+  bkCheck();
+}
+// اختيارات "من": الفاضي بس، متقسمة فترات عشان تبان الفجوات
+function freeOptions(free, sel) {
+  let h = '';
+  free.forEach((m, i) => {
+    if (i === 0 || free[i - 1] !== m - SLOT) { if (i) h += '</optgroup>'; let e = m; while (free.indexOf(e + SLOT) !== -1) e += SLOT; h += '<optgroup label="فاضي ' + fmt(m) + ' – ' + fmt(e + SLOT) + '">'; }
+    h += '<option value="' + m + '"' + (m === sel ? ' selected' : '') + '>' + fmt(m) + '</option>';
+  });
+  return h + (free.length ? '</optgroup>' : '');
+}
+function firstFree(stId, ds, s) {
+  const list = dayBookings(ds).filter(b => b.staffId === stId && active(b) && b.id !== bk.id);
+  for (let m = s.from; m < s.to; m += SLOT) if (!list.some(b => b.from < m + SLOT && m < b.to)) return m;
+  return null;
+}
+function bkRefresh(what) {
+  bk.date = document.getElementById('bkDate').value || bk.date;
+  if (what === 'sec') { bk.sec = document.getElementById('bkSec').value; bk.svc = ''; }
+  if (what === 'staff') bk.staffId = document.getElementById('bkStaff').value;
+  if (what === 'svc') { bk.svc = document.getElementById('bkSvc').value; const d = ((sec(bk.sec) || { services: [] }).services.find(x => x.n === bk.svc) || { d: 30 }).d; bk.to = bk.from + d; }
+  if (what === 'from') { const old = (bk.to - bk.from) || 30; bk.from = +document.getElementById('bkFrom').value; bk.to = bk.from + old; }
+  if (what === 'to') bk.to = +document.getElementById('bkTo').value;
+  if (what === 'sec' || what === 'date') bk.svc = '';
+  // مدة الخدمة بتتقطع عند آخر ميعاد الشخص
+  const st = staffById(bk.staffId), s = st ? shiftOf(st, bk.date) : null;
+  if (s && !s.off && bk.to > s.to) bk.to = s.to;
+  bkFill();
+}
+// التحقق: الشخص شغال، جوه مواعيده، ومفيش حجز تاني معاه في نفس الوقت
+function bkProblem() {
+  const st = staffById(bk.staffId);
+  if (!st) return 'اختار الدكتور / المتخصص.';
+  const s = shiftOf(st, bk.date);
+  if (!s) return st.name + ' مش بيشتغل يوم ' + DAYS[dow(parseD(bk.date))] + '.';
+  if (s.off) return st.name + ' مش جاي اليوم ده.';
+  if (bk.from == null) return st.name + ' مفيش عنده مواعيد فاضية اليوم ده — اختار حد تاني أو يوم تاني.';
+  if (bk.from < s.from || bk.to > s.to) return 'الميعاد بره مواعيد ' + st.name + ' (' + fmt(s.from) + ' – ' + fmt(s.to) + ').';
+  if (bk.to <= bk.from) return 'وقت النهاية لازم يبقى بعد البداية.';
+  if (active(bk)) { const o = overlap(bk, S.bookings); if (o) return st.name + ' عنده حجز ' + o.client + ' من ' + fmt(o.from) + ' لـ ' + fmt(o.to) + ' — اختار وقت تاني.'; }
+  return '';
+}
+function bkCheck() {
+  const p = bkProblem();
+  const box = document.getElementById('bkMsg');
+  if (p) { box.innerHTML = '<div class="msg err"><i class="fas fa-exclamation-circle"></i> ' + esc(p) + '</div>'; }
+  else { const st = staffById(bk.staffId); box.innerHTML = '<div class="msg ok"><i class="fas fa-check-circle"></i> ' + esc(st.name) + ' فاضي — ' + fmt(bk.from) + ' لـ ' + fmt(bk.to) + ' (' + dur(bk.to - bk.from) + ')</div>'; }
+  document.getElementById('bkSave').disabled = !!p || bkRO;
+  if (bkRO) box.innerHTML = '<div class="msg warn"><i class="fas fa-eye"></i> عرض بس — مفيش صلاحية تعديل الحجوزات.</div>';
+}
+// اختيار عميل موجود بيكمل الموبايل
+function bkClientPicked() {
+  const v = document.getElementById('bkClient').value.trim().toLowerCase(), ph = document.getElementById('bkPhone');
+  const c = CLIENTS.find(x => x.name.toLowerCase() === v);
+  if (c && c.phone && !ph.value.trim()) ph.value = c.phone;
+}
+async function saveBooking() {
+  bk.client = document.getElementById('bkClient').value.trim();
+  bk.phone = document.getElementById('bkPhone').value.trim();
+  bk.notes = document.getElementById('bkNotes').value.trim();
+  if (!bk.client) { document.getElementById('bkMsg').innerHTML = '<div class="msg err">اكتب اسم العميل.</div>'; document.getElementById('bkClient').focus(); return; }
+  const p = bkProblem();
+  if (p || bkRO) { bkCheck(); return; }
+  const c = sec(bk.sec), sv = c ? c.services.find(x => x.n === bk.svc) : null;
+  const btn = document.getElementById('bkSave'); btn.disabled = true;
+  try {
+    const r = await api({ action: 'bkSave', booking: { id: bk.id || '', date: bk.date, from: bk.from, to: bk.to, staffId: bk.staffId, sec: bk.sec, svc: bk.svc, svcId: sv ? sv.id : '',
+      client: bk.client, phone: bk.phone, notes: bk.notes, status: bk.status } });
+    closeOv('bkModal');
+    if (!CLIENTS.some(x => x.name === bk.client)) { CLIENTS.push({ id: '', name: bk.client, phone: bk.phone }); fillClients(); }
+    ui.day = bk.date; renderBook();
+    toast(r.message);
+  } catch (e) { document.getElementById('bkMsg').innerHTML = '<div class="msg err"><i class="fas fa-exclamation-circle"></i> ' + esc(e.message) + '</div>'; }
+  finally { btn.disabled = false; }
+}
+async function deleteBooking() {
+  if (!confirm('حذف حجز ' + bk.client + ' نهائي؟ (لو العميل لغى استخدم "ملغي" عشان يفضل متسجل)')) return;
+  try { const r = await api({ action: 'bkDelete', id: bk.id }, 'جاري الحذف...'); closeOv('bkModal'); renderBook(); toast(r.message); }
+  catch (e) { toast(e.message, true); }
+}
+
+// ══════════════════ ميعاد يوم معين (استثناء) ══════════════════
+let ex = null;
+function openException(id, mode) {
+  document.getElementById('pop').style.display = 'none';
+  const st = staffById(id), ds = ui.day;
+  const w = weekOf(st, ds);
+  const cur = (S.overrides[ds] || {})[id];
+  ex = { id, ds };
+  document.getElementById('exTitle').innerHTML = '<i class="fas fa-user-clock" style="color:var(--gold)"></i> ' + esc(st.name) + ' — ' + esc(dayLabel(ds));
+  document.getElementById('exNormalTxt').innerHTML = w ? 'مواعيده الثابتة: ' + fmt(toMin(w.from)) + ' – ' + fmt(toMin(w.to)) : '<span style="color:var(--muted)">مش بيشتغل اليوم ده أصلاً (حسب المواعيد الثابتة)</span>';
+  const m = mode || (cur ? (cur.off ? 'off' : 'custom') : 'normal');
+  document.querySelectorAll('input[name=exMode]').forEach(r => { r.checked = r.value === m; });
+  const f = cur && !cur.off ? toMin(cur.from) : w ? toMin(w.from) : 600, t = cur && !cur.off ? toMin(cur.to) : w ? toMin(w.to) : 1080;
+  document.getElementById('exFrom').innerHTML = timeOptions(7 * 60, 23 * 60, f);
+  document.getElementById('exTo').innerHTML = timeOptions(7 * 60 + SLOT, 24 * 60, t);
+  exRefresh();
+  openOv('exModal');
+}
+function exMode() { const r = document.querySelector('input[name=exMode]:checked'); return r ? r.value : 'normal'; }
+// الحجوزات اللي هتبقى بره الميعاد الجديد
+function exConflicts() {
+  const m = exMode(), st = staffById(ex.id);
+  let from = null, to = null;
+  if (m === 'normal') { const w = weekOf(st, ex.ds); if (w) { from = toMin(w.from); to = toMin(w.to); } }
+  else if (m === 'custom') { from = +document.getElementById('exFrom').value; to = +document.getElementById('exTo').value; }
+  return dayBookings(ex.ds).filter(b => b.staffId === ex.id && active(b) && (from === null || b.from < from || b.to > to));
+}
+function exRefresh() {
+  const m = exMode();
+  document.querySelectorAll('#exOpts > label').forEach(l => l.classList.toggle('on', l.querySelector('input').checked));
+  document.getElementById('exTimes').style.display = m === 'custom' ? '' : 'none';
+  const box = document.getElementById('exMsg');
+  if (m === 'custom' && +document.getElementById('exTo').value <= +document.getElementById('exFrom').value) { box.innerHTML = '<div class="msg err">وقت النهاية لازم بعد البداية.</div>'; document.getElementById('exSave').disabled = true; return; }
+  const cf = exConflicts();
+  document.getElementById('exSave').disabled = !!cf.length;
+  box.innerHTML = cf.length ? '<div class="msg err"><i class="fas fa-ban"></i> مينفعش تحفظ — فيه ' + cf.length + ' حجز ' + (m === 'off' ? 'في اليوم ده' : 'بره المواعيد دي') + '. انقلهم لميعاد/دكتور تاني أو خليهم "ملغي" الأول:</div>'
+    + '<div class="conf-list">' + cf.map(b => '<div><span><b>' + fmt(b.from) + '</b> — ' + esc(b.client) + ' · ' + esc(b.svc) + '</span><button class="btn alt sm" onclick="closeOv(\'exModal\');openBooking(\'' + b.id + '\')">فتح الحجز</button></div>').join('') + '</div>'
+    : '<div class="msg ok"><i class="fas fa-check-circle"></i> ' + (m === 'off' ? 'مفيش حجوزات اليوم ده — تقدر تسجله مش جاي.' : 'كل الحجوزات جوه المواعيد.') + '</div>';
+}
+async function saveException() {
+  if (exConflicts().length) return;
+  const m = exMode(), st = staffById(ex.id), w = weekOf(st, ex.ds);
+  const row = m === 'normal' ? { id: ex.id, on: !!w, from: w ? toMin(w.from) : null, to: w ? toMin(w.to) : null }
+    : m === 'off' ? { id: ex.id, on: false } : { id: ex.id, on: true, from: +document.getElementById('exFrom').value, to: +document.getElementById('exTo').value };
+  try { const r = await api({ action: 'bkSaveDay', date: ex.ds, rows: [row] }); closeOv('exModal'); renderBook(); toast(r.message); }
+  catch (e) { errBox(e.message); }
+}
+
+// ══════════════════ مين شغال يوم معين (إضافة / شيل / مواعيد) ══════════════════
+let dsd = null;   // { ds, rows: { id: {on, from, to} } }
+function openDayStaff() {
+  document.getElementById('pop').style.display = 'none';
+  const ds = ui.day;
+  dsd = { ds, rows: {} };
+  S.staff.forEach(st => {
+    const s = shiftOf(st, ds), w = weekOf(st, ds);
+    const on = !!(s && !s.off);
+    dsd.rows[st.id] = { on, from: on ? s.from : w ? toMin(w.from) : 600, to: on ? s.to : w ? toMin(w.to) : 1080 };
+  });
+  document.getElementById('dsTitle').innerHTML = '<i class="fas fa-user-edit" style="color:var(--gold)"></i> مين شغال ' + esc(dayLabel(ds));
+  renderDayStaff();
+  openOv('dsModal');
+}
+function dsConflicts(id) {
+  const r = dsd.rows[id];
+  return dayBookings(dsd.ds).filter(b => b.staffId === id && active(b) && (!r.on || b.from < r.from || b.to > r.to));
+}
+function renderDayStaff() {
+  const ds = dsd.ds;
+  let bad = 0;
+  document.getElementById('dsList').innerHTML = S.staff.map(st => {
+    const r = dsd.rows[st.id], w = weekOf(st, ds);
+    const cf = dsConflicts(st.id); if (cf.length) bad++;
+    const fixed = w ? 'الثابت: ' + fmtH(toMin(w.from)) + ' – ' + fmtH(toMin(w.to)) : 'مش بيشتغل ' + DAYS[dow(parseD(ds))] + ' عادةً';
+    const same = w ? r.on && r.from === toMin(w.from) && r.to === toMin(w.to) : !r.on;
+    const tag = same ? '' : r.on ? (w ? ' · <span style="color:#7A4F00">مواعيد مختلفة اليوم ده</span>' : ' · <span style="color:var(--green)">متضاف اليوم ده بس</span>') : ' · <span style="color:var(--danger)">مش جاي اليوم ده</span>';
+    return '<div class="ds-row' + (r.on ? ' on' : '') + (cf.length ? ' bad' : '') + '"><div class="who"><span class="av" style="background:' + st.color + '">' + initials(st.name) + '</span><div><b>' + esc(st.name) + '</b><small>' + roleAr(st.role) + ' · ' + fixed + tag + '</small></div></div>'
+      + '<label class="switch" title="شغال اليوم ده"><input type="checkbox"' + (r.on ? ' checked' : '') + ' onchange="dsd.rows[\'' + st.id + '\'].on=this.checked;renderDayStaff()"><span></span></label>'
+      + (r.on ? '<div class="tms">من <select onchange="dsd.rows[\'' + st.id + '\'].from=+this.value;renderDayStaff()">' + timeOptions(7 * 60, 23 * 60, r.from) + '</select> إلى <select onchange="dsd.rows[\'' + st.id + '\'].to=+this.value;renderDayStaff()">' + timeOptions(7 * 60 + SLOT, 24 * 60, r.to) + '</select>'
+        + (w && !same ? '<button class="link" style="margin:0" onclick="dsd.rows[\'' + st.id + '\']={on:true,from:' + toMin(w.from) + ',to:' + toMin(w.to) + '};renderDayStaff()"><i class="fas fa-undo"></i> الثابت</button>' : '') + '</div>' : '')
+      + (r.on && r.to <= r.from ? '<div class="warn">النهاية لازم بعد البداية</div>' : '')
+      + (cf.length ? '<div class="warn"><i class="fas fa-ban"></i> عنده ' + cf.length + ' حجز ' + (r.on ? 'بره المواعيد دي' : 'اليوم ده') + ': ' + cf.map(b => '<button onclick="closeOv(\'dsModal\');openBooking(\'' + b.id + '\')">' + fmt(b.from) + ' ' + esc(b.client) + '</button>').join('، ') + ' — انقلهم أو خليهم "ملغي" الأول</div>' : '')
+      + '</div>';
+  }).join('');
+  const badTime = S.staff.some(st => { const r = dsd.rows[st.id]; return r.on && r.to <= r.from; });
+  document.getElementById('dsSave').disabled = !!bad || badTime;
+  document.getElementById('dsMsg').innerHTML = bad ? '<div class="msg err">فيه ' + bad + ' شخص عندهم حجوزات بتتعارض — اتصرف فيها الأول.</div>' : '';
+}
+async function saveDayStaff() {
+  const ds = dsd.ds;
+  const rows = S.staff.map(st => Object.assign({ id: st.id }, dsd.rows[st.id]));
+  try { const r = await api({ action: 'bkSaveDay', date: ds, rows: rows }); closeOv('dsModal'); renderBook(); toast(r.message); }
+  catch (e) { errBox(e.message); }
+}
+
+// ══════════════════ النسخة المبسطة: شريط الأسبوع + كارت لكل شخص ══════════════════
+function freeChips(free, sel) {
+  const groups = [];
+  free.forEach((m, i) => { if (i === 0 || free[i - 1] !== m - SLOT) groups.push([]); groups[groups.length - 1].push(m); });
+  return groups.map(g => '<div class="grp"><small>فاضي ' + fmt(g[0]) + ' – ' + fmt(g[g.length - 1] + SLOT) + '</small><div>'
+    + g.map(m => '<button type="button" class="' + (m === sel ? 'on' : '') + '" onclick="document.getElementById(\'bkFrom\').value=' + m + ';bkRefresh(\'from\')">' + fmt(m).replace(/ [صم]$/, '') + '</button>').join('') + '</div></div>').join('');
+}
+function moveWeek(n) { const d = parseD(ui.day); d.setDate(d.getDate() + 7 * n); ui.day = ymd(d); renderBook(); }
+function goDay(ds) { ui.day = ds; renderBook(); }
+function renderWeek() {
+  const d0 = parseD(ui.day); const start = new Date(d0); start.setDate(d0.getDate() - dow(d0));
+  const end = new Date(start); end.setDate(start.getDate() + 6);
+  const today = ymd(new Date()), wDays = [];
+  let wCount = 0;
+  let h = '<div class="week-nav"><button class="icon-btn" onclick="moveWeek(-1)" title="الأسبوع اللي فات"><i class="fas fa-chevron-right"></i></button>'
+    + '<b>' + start.getDate() + ' ' + MONTHS[start.getMonth()] + ' – ' + end.getDate() + ' ' + MONTHS[end.getMonth()] + ' ' + end.getFullYear() + '</b>'
+    + '<button class="icon-btn" onclick="moveWeek(1)" title="الأسبوع الجاي"><i class="fas fa-chevron-left"></i></button>'
+    + '<input type="date" value="' + ui.day + '" onchange="if(this.value)pickDay(this.value)" title="روح ليوم معين"></div><div class="wk">';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i); const ds = ymd(d);
+    const pool = ui.staff ? [staffById(ui.staff)] : S.staff;
+    const working = pool.some(st => { const s = shiftOf(st, ds); return s && !s.off; });
+    const n = dayBookings(ds).filter(b => active(b) && (!ui.staff || b.staffId === ui.staff)).length;
+    let hrs = '';
+    if (ui.staff) { const s = shiftOf(pool[0], ds); hrs = !s ? '<span class="hrs off">إجازة</span>' : s.off ? '<span class="hrs off">مش جاي</span>' : '<span class="hrs">' + fmtH(s.from).replace(/ [صم]/, '') + '–' + fmtH(s.to) + '</span>'; if (s && !s.off) { wDays.push(DAYS[i]); wCount += n; } }
+    h += '<button class="' + (working ? '' : 'closed ') + (ds === today ? 'today ' : '') + (ds === ui.day ? 'sel' : '') + '" onclick="pickDay(\'' + ds + '\')"><small>' + DAYS[i].replace('ال', '') + '</small><big>' + d.getDate() + '</big>' + hrs
+      + (n ? '<span class="cnt">' + n + '<span class="cntw"> حجز</span></span>' : '<span class="cnt" style="visibility:hidden">0</span>') + '</button>';
+  }
+  h += '</div>';
+  if (ui.staff) { const st = staffById(ui.staff);
+    h += '<div class="wk-sum"><span class="av" style="background:' + st.color + ';width:28px;height:28px;font-size:11px;">' + initials(st.name) + '</span><span>' + esc(dr(st)) + ' الأسبوع ده:</span>'
+      + (wDays.length ? '<span class="pill">شغال ' + wDays.length + ' أيام: ' + wDays.join('، ') + '</span><span class="pill">' + wCount + ' حجز</span>' : '<span class="pill off">مش شغال الأسبوع ده</span>')
+      + '<button class="btn alt sm" style="margin-right:auto" onclick="ui.staff=null;renderBook()">عرض الكل</button></div>'; }
+  document.getElementById('weekBox').innerHTML = h;
+}
+function renderCards() {
+  const ds = ui.day, body = document.getElementById('dayBody');
+  const people = dayStaff(ds, ui.sec).filter(st => !ui.staff || st.id === ui.staff);
+  if (ui.staff && !people.length) {
+    const st = staffById(ui.staff), nx = nextWorkDay(st, ds);
+    body.innerHTML = '<div class="empty"><i class="fas fa-user-clock"></i>' + esc(dr(st)) + ' مش بيشتغل يوم ' + esc(dayLabel(ds)) + '.<br><br>' + (nx ? '<button class="btn sm" onclick="pickDay(\'' + nx + '\')">أقرب يوم شغال: ' + esc(dayLabel(nx)) + '</button> ' : '') + (perm('Schedule', 'edit') ? '<button class="btn alt sm" onclick="openDayStaff()">ضيفه اليوم ده</button>' : '') + '</div>';
+    return;
+  }
+  if (!people.length) { body.innerHTML = '<div class="empty"><i class="fas fa-user-clock"></i>مفيش حد شغال اليوم ده' + (ui.sec !== 'all' ? ' في القسم ده' : '') + '.' + (perm('Schedule', 'edit') ? '<br><br><button class="btn alt sm" onclick="openDayStaff()">إضافة حد لليوم ده</button>' : '') + '</div>'; return; }
+  const isToday = ds === ymd(new Date()), now = Math.ceil(nowMin() / SLOT) * SLOT;
+  body.innerHTML = '<div class="cards">' + people.map(st => {
+    const s = shiftOf(st, ds);
+    const list = dayBookings(ds).filter(b => b.staffId === st.id).sort((a, b) => a.from - b.from);
+    const n = list.filter(active).length;
+    let rows = '';
+    if (s.off) rows = '<div class="pc-off"><i class="fas fa-user-slash"></i> مش جاي اليوم ده</div>';
+    else {
+      let cur = s.from;
+      const canAdd = perm('Book', 'add');
+      const freeRow = (a, b) => { if (isToday) a = Math.max(a, now); return a < b ? '<div class="row-free"' + (canAdd ? ' onclick="openBooking(null,{staffId:\'' + st.id + '\',from:' + a + '})"' : ' style="cursor:default"') + '><span><i class="far fa-clock"></i> فاضي ' + fmt(a) + ' – ' + fmt(b) + ' <small style="color:var(--muted)">(' + dur(b - a) + ')</small></span>' + (canAdd ? '<span class="add">+ احجز</span>' : '') + '</div>' : ''; };
+      list.forEach(b => {
+        if (active(b) && b.from > cur) rows += freeRow(cur, b.from);
+        const c = sec(b.sec) || { color: '#999', name: '' };
+        rows += '<div class="row-bk ' + b.status + '" style="background:' + c.color + '12;border-color:' + c.color + '" onclick="openBooking(\'' + b.id + '\')"><div class="tm" style="color:' + shade(c.color) + '">' + fmt(b.from) + '<small>لـ ' + fmt(b.to) + '</small></div>'
+          + '<div class="who"><b>' + esc(b.client) + '</b><small>' + esc(b.svc) + (b.notes ? ' · ' + esc(b.notes) : '') + '</small></div>'
+          + (b.status !== 'booked' ? '<span class="st-badge st-' + b.status + '">' + STATUS[b.status] + '</span>' : '') + '</div>';
+        if (active(b)) cur = Math.max(cur, b.to);
+      });
+      if (cur < s.to) rows += freeRow(cur, s.to);
+      if (!rows) rows = '<div class="hint" style="padding:12px;text-align:center;">خلص اليوم</div>';
+    }
+    return '<div class="pc"><div class="pc-h"><span class="av" style="background:' + st.color + '">' + initials(st.name) + '</span><div class="nm"><b style="cursor:pointer" title="' + (ui.staff ? 'رجوع للكل' : 'اعرض أيامه وحجوزاته بس') + '" onclick="selectStaff(\'' + st.id + '\')">' + esc(dr(st)) + '</b><small>'
+      + (s.off ? '<span style="color:var(--danger)">مش جاي</span>' : fmt(s.from) + ' – ' + fmt(s.to) + (s.custom ? ' · <span style="color:#7A4F00">اليوم ده بس</span>' : '')) + ' · ' + st.sections.map(x => sec(x) ? sec(x).name : '').join('، ') + '</small></div>'
+      + '<button class="menu-btn" title="مواعيد اليوم ده" onclick="staffMenu(event,\'' + st.id + '\')"><i class="fas fa-ellipsis-v"></i></button></div>'
+      + '<div class="pc-b">' + rows + '</div>' + (s.off ? '' : '<div class="pc-f"><span>' + n + ' حجز</span><span>فاضي ' + dur(freeSlots(st.id, ds).length * SLOT) + '</span></div>') + '</div>';
+  }).join('') + '</div>';
+}
+function dr(st) { return (st.role === 'doctor' ? 'د. ' : '') + st.name; }
+
+// ══════════════════ رسالة اليوم (واتساب) ══════════════════
+function openMsg(staffId) {
+  document.getElementById('pop').style.display = 'none';
+  const ds = ui.day;
+  const people = S.staff.filter(st => shiftOf(st, ds));
+  document.getElementById('msgDay').textContent = dayLabel(ds);
+  document.getElementById('msgWho').innerHTML = '<option value="">كل الناس</option>' + people.map(st => '<option value="' + st.id + '"' + (st.id === staffId ? ' selected' : '') + '>' + esc(dr(st)) + '</option>').join('');
+  document.getElementById('msgSec').innerHTML = '<option value="all">كل الأقسام</option>' + S.sections.map(c => '<option value="' + c.id + '"' + (c.id === ui.sec && !staffId ? ' selected' : '') + '>' + esc(c.name) + '</option>').join('');
+  buildMsg();
+  openOv('msgModal');
+}
+function buildMsg() {
+  const ds = ui.day, who = document.getElementById('msgWho').value, secId = document.getElementById('msgSec').value;
+  const oSvc = document.getElementById('msgSvc').checked, oPh = document.getElementById('msgPhone').checked, oNt = document.getElementById('msgNotes').checked, oFree = document.getElementById('msgFree').checked;
+  const d = parseD(ds);
+  const people = S.staff.filter(st => shiftOf(st, ds) && (!who || st.id === who) && (secId === 'all' || st.sections.indexOf(secId) !== -1));
+  let t = '📅 *مواعيد يوم ' + DAYS[dow(d)] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + '*' + (secId !== 'all' ? ' — ' + sec(secId).name : '') + '\n';
+  let total = 0;
+  people.forEach(st => {
+    const s = shiftOf(st, ds);
+    t += '\n━━━━━━━━━━\n👤 *' + dr(st) + '*\n';
+    if (s.off) { t += '❌ مش جاي اليوم ده\n'; return; }
+    t += '🕐 الحضور: ' + fmt(s.from) + ' لـ ' + fmt(s.to) + '\n';
+    const list = dayBookings(ds).filter(b => b.staffId === st.id && active(b) && (secId === 'all' || b.sec === secId)).sort((a, b) => a.from - b.from);
+    total += list.length;
+    if (!list.length) t += 'مفيش حجوزات\n';
+    list.forEach((b, i) => {
+      t += (i + 1) + ') ' + fmt(b.from) + ' – ' + fmt(b.to) + ' | ' + b.client + (oSvc ? ' | ' + b.svc : '') + (oPh && b.phone ? ' | ' + b.phone : '') + (oNt && b.notes ? ' (' + b.notes + ')' : '') + '\n';
+    });
+    if (oFree) { const r = freeRanges(st.id, ds); t += '🟢 فاضي: ' + (r.length ? r.map(x => fmt(x[0]) + '–' + fmt(x[1])).join('، ') : 'مفيش') + '\n'; }
+    t += 'الإجمالي: ' + list.length + ' حجز\n';
+  });
+  if (!people.length) t += '\nمفيش حد شغال.\n';
+  else if (!who && people.length > 1) t += '\n━━━━━━━━━━\n📊 إجمالي اليوم: ' + total + ' حجز\n';
+  document.getElementById('msgText').value = t.trim();
+}
+function copyMsg() {
+  const ta = document.getElementById('msgText');
+  const done = () => toast('اتنسخت الرسالة — الصقها في واتساب');
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(ta.value).then(done, () => { ta.select(); document.execCommand('copy'); done(); });
+  else { ta.select(); document.execCommand('copy'); done(); }
+}
+function waMsg() { window.open('https://wa.me/?text=' + encodeURIComponent(document.getElementById('msgText').value), '_blank'); }
+
+// ══════════════════ الإعدادات ══════════════════
+let draft = {};   // تعديلات المواعيد الثابتة قبل الحفظ
+function renderSettings() { renderSections(); renderStaff(); }
+const DURS = [15, 20, 30, 45, 60, 75, 90, 105, 120, 150, 180];
+function secClone(c) { const sv = {}; (c.services || []).forEach(x => { sv[x.id] = { d: x.d, show: x.show !== false }; }); return { id: c.id, name: c.name, color: c.color, cats: (c.catsText || []).slice(), services: sv }; }
+function renderSections() {
+  const canE = perm('Schedule', 'edit'), canD = perm('Schedule', 'delete');
+  const list = S.sections.slice();
+  if (secDraft.__new) list.push({ id: '', name: '', color: secDraft.__new.color, catsText: [], services: [] });
+  document.getElementById('secList').innerHTML = list.map(c => {
+    const key = c.id || '__new';
+    const d = secDraft[key] || (secDraft[key] = secClone(c));
+    const dirty = !c.id || JSON.stringify(d) !== JSON.stringify(secClone(c));
+    const dis = (c.id ? !canE : false) ? ' disabled' : '';
+    const used = {};
+    S.sections.forEach(o => { if (o.id !== c.id) (o.catsText || []).forEach(x => { used[x.toLowerCase()] = o.name; }); });
+    return '<div class="sec-card"><div class="hd"><input type="color" value="' + d.color + '"' + dis + ' onchange="secDraft[\'' + key + '\'].color=this.value;renderSections()">'
+      + '<input type="text" value="' + esc(d.name) + '" placeholder="اسم القسم (مثلاً: ليزر)"' + dis + ' oninput="secDraft[\'' + key + '\'].name=this.value" onchange="renderSections()">'
+      + (dirty ? '<button class="btn sm" onclick="saveSection(\'' + key + '\')"><i class="fas fa-save"></i> حفظ</button>' + (c.id ? '<button class="btn alt sm" onclick="delete secDraft[\'' + key + '\'];renderSections()">تراجع</button>' : '<button class="btn alt sm" onclick="delete secDraft.__new;renderSections()">إلغاء</button>') : '')
+      + (c.id && canD ? '<button class="x-btn" title="شيل القسم" onclick="delSection(\'' + c.id + '\')"><i class="fas fa-trash-alt"></i></button>' : '') + '</div>'
+      + '<div class="cat-chips">' + SALES_CATS.map(x => { const on = d.cats.some(y => y.toLowerCase() === x.name.toLowerCase());
+        return '<label class="' + (on ? 'on' : '') + '" title="' + (used[x.name.toLowerCase()] && !on ? 'موجود في قسم ' + esc(used[x.name.toLowerCase()]) : '') + '"><input type="checkbox"' + (on ? ' checked' : '') + dis + ' onchange="secCat(\'' + key + '\',this.dataset.c,this.checked)" data-c="' + esc(x.name) + '">' + esc(x.name) + ' <small>(' + x.count + ')' + (used[x.name.toLowerCase()] && !on ? ' · ' + esc(used[x.name.toLowerCase()]) : '') + '</small></label>'; }).join('') + '</div>'
+      + (c.services && c.services.length ? '<details><summary>' + c.services.length + ' خدمة — المدة واللي يظهر في الحجز</summary><div class="svc-grid">' + c.services.map(x => { const v = d.services[x.id] || { d: 30, show: true };
+        return '<div class="svc-row' + (v.show ? '' : ' hid') + '"><input type="checkbox" title="يظهر في الحجز"' + (v.show ? ' checked' : '') + dis + ' onchange="secSvc(\'' + key + '\',\'' + x.id + '\',\'show\',this.checked)"><span title="' + esc(x.n + ' — ' + x.cat) + '">' + esc(x.n) + '</span>'
+          + '<select' + dis + ' onchange="secSvc(\'' + key + '\',\'' + x.id + '\',\'d\',+this.value)">' + DURS.concat(DURS.indexOf(v.d) === -1 ? [v.d] : []).map(m => '<option value="' + m + '"' + (m === v.d ? ' selected' : '') + '>' + dur(m) + '</option>').join('') + '</select></div>'; }).join('') + '</div></details>'
+        : '<div class="hint">' + (c.id ? 'مفيش خدمات — اختار تصنيفات المبيعات فوق واحفظ.' : 'اختار تصنيفات المبيعات واحفظ — الخدمات هتظهر هنا.') + '</div>')
+      + '</div>';
+  }).join('') || '<div class="empty">مفيش أقسام</div>';
+}
+function secCat(key, cat, on) { const d = secDraft[key]; d.cats = d.cats.filter(x => x.toLowerCase() !== cat.toLowerCase()); if (on) d.cats.push(cat); renderSections(); }
+function secSvc(key, id, k, v) { const d = secDraft[key]; d.services[id] = Object.assign({ d: 30, show: true }, d.services[id], { [k]: v }); renderSections(); }
+function addSection() { secDraft.__new = { id: '', name: '', color: COLORS[S.sections.length % COLORS.length], cats: [], services: {} }; renderSections(); }
+async function saveSection(key) {
+  const d = secDraft[key];
+  if (!d.name.trim()) { toast('اكتب اسم القسم', true); return; }
+  try { const r = await api({ action: 'bkSaveSection', section: d }); delete secDraft[key]; secDraft = {}; draft = {}; renderSettings(); toast(r.message); }
+  catch (e) { errBox(e.message); }
+}
+async function delSection(id) {
+  const c = sec(id);
+  if (!confirm('شيل قسم ' + c.name + ' من الحجوزات؟ (الحجوزات القديمة بتفضل)')) return;
+  try { const r = await api({ action: 'bkDeleteSection', id: id }); secDraft = {}; draft = {}; renderSettings(); toast(r.message); }
+  catch (e) { errBox(e.message); }
+}
+function renderStaff() {
+  const free = EMPLOYEES.filter(e => !S.staff.some(s => s.id === e.id));
+  document.getElementById('addStaffSel').innerHTML = free.length ? '<option value="">+ موظف تاني...</option>' + free.map(e => '<option value="' + e.id + '">' + esc(e.name) + ' — ' + esc(e.job) + '</option>').join('') : '<option value="">كل الموظفين متضافين</option>';
+  const canE = perm('Schedule', 'edit'), canD = perm('Schedule', 'delete'), dis = canE ? '' : ' disabled';
+  document.getElementById('staffList').innerHTML = S.staff.map(st => {
+    const d = draft[st.id] || stClone(st);
+    draft[st.id] = d;
+    const dirty = JSON.stringify(d) !== JSON.stringify(stClone(st));
+    return '<div class="staff-card" id="sc_' + st.id + '"><div class="hd"><span class="av" style="background:' + d.color + ';width:42px;height:42px;font-size:15px;">' + initials(d.name) + '</span>'
+      + '<div class="nm"><b>' + esc(d.name) + '</b><small>' + st.id + ' · ' + workSummary(d) + (d.sections.length ? '' : ' · <span style="color:var(--danger)">من غير قسم</span>') + '</small></div>'
+      + '<div class="seg"><button' + dis + ' class="' + (d.role === 'doctor' ? 'on' : '') + '" onclick="dSet(\'' + st.id + '\',\'role\',\'doctor\')">دكتور</button><button' + dis + ' class="' + (d.role === 'specialist' ? 'on' : '') + '" onclick="dSet(\'' + st.id + '\',\'role\',\'specialist\')">متخصص</button></div>'
+      + '<input type="color"' + dis + ' value="' + d.color + '" title="لونه في الجدول" onchange="dSet(\'' + st.id + '\',\'color\',this.value)" style="width:34px;height:34px;border:none;background:none;cursor:pointer;"></div>'
+      + '<div class="sec-toggles">' + S.sections.map(c => '<label class="' + (d.sections.indexOf(c.id) !== -1 ? 'on' : '') + '"><input type="checkbox"' + dis + (d.sections.indexOf(c.id) !== -1 ? ' checked' : '') + ' onchange="dSec(\'' + st.id + '\',\'' + c.id + '\',this.checked)"><span class="dot" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:' + c.color + '"></span>' + esc(c.name) + '</label>').join('') + '</div>'
+      + '<div class="week">' + DAYS.map((dn, i) => { const w = d.week[i]; return '<div class="wd' + (w ? ' on' : '') + '"><div class="t">' + dn + '<label class="switch"><input type="checkbox"' + dis + (w ? ' checked' : '') + ' onchange="dDay(\'' + st.id + '\',' + i + ',this.checked)"><span></span></label></div>'
+        + (w ? '<select' + dis + ' onchange="dTime(\'' + st.id + '\',' + i + ',\'from\',this.value)">' + timeOptions(7 * 60, 23 * 60, toMin(w.from)) + '</select><select' + dis + ' onchange="dTime(\'' + st.id + '\',' + i + ',\'to\',this.value)">' + timeOptions(7 * 60 + SLOT, 24 * 60, toMin(w.to)) + '</select>' : '<div class="offt">إجازة</div>') + '</div>'; }).join('') + '</div>'
+      + '<div class="staff-foot">' + (dirty ? '<span class="dirty-note"><i class="fas fa-pen"></i> فيه تعديلات مش محفوظة</span><button class="btn alt sm" onclick="delete draft[\'' + st.id + '\'];renderStaff()">تراجع</button>' : '')
+      + (canD ? '<button class="btn danger sm" onclick="removeStaff(\'' + st.id + '\')"><i class="fas fa-user-minus"></i> شيله من الحجوزات</button>' : '')
+      + (canE ? '<button class="btn sm" ' + (dirty ? '' : 'disabled') + ' onclick="saveStaff(\'' + st.id + '\')"><i class="fas fa-save"></i> حفظ المواعيد</button>' : '') + '</div></div>';
+  }).join('') || '<div class="empty"><i class="fas fa-user-md"></i>ضيف الدكاترة والمتخصصين من فوق</div>';
+}
+function stClone(st) { return JSON.parse(JSON.stringify({ id: st.id, name: st.name, role: st.role, sections: st.sections, color: st.color, week: st.week })); }
+function workSummary(d) { const n = Object.values(d.week).filter(Boolean).length; return roleAr(d.role) + ' · ' + n + ' أيام في الأسبوع'; }
+function dSet(id, k, v) { draft[id][k] = v; renderStaff(); }
+function dSec(id, c, on) { const s = draft[id].sections; if (on && s.indexOf(c) === -1) s.push(c); if (!on) draft[id].sections = s.filter(x => x !== c); renderStaff(); }
+function dDay(id, i, on) { const st = staffById(id); const prev = Object.values(draft[id].week).find(Boolean); draft[id].week[i] = on ? (st.week[i] || prev || { from: '10:00', to: '18:00' }) : null; renderStaff(); }
+function dTime(id, i, k, v) { draft[id].week[i] = Object.assign({}, draft[id].week[i], { [k]: toHM(+v) }); renderStaff(); }
+// الحفظ على السيرفر: بيتطبق من النهارده — الأيام القديمة واللي فيها حجوزات بتفضل على القديم
+async function saveStaff(id) {
+  const d = draft[id];
+  if (!d.sections.length) { toast('اختار قسم واحد على الأقل', true); return; }
+  for (let i = 0; i < 7; i++) { const w = d.week[i]; if (w && toMin(w.to) <= toMin(w.from)) { toast('يوم ' + DAYS[i] + ': النهاية لازم بعد البداية', true); return; } }
+  try { const r = await api({ action: 'bkSaveStaff', staff: { id: id, role: d.role, sections: d.sections, color: d.color, week: d.week } }); delete draft[id]; renderStaff(); toast(r.message); }
+  catch (e) { errBox(e.message); }
+}
+async function addStaff() {
+  const id = document.getElementById('addStaffSel').value; if (!id) return;
+  try { const r = await api({ action: 'bkAddStaff', id: id }); renderStaff(); toast(r.message);
+    setTimeout(() => { const el = document.getElementById('sc_' + id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 50); }
+  catch (e) { errBox(e.message); }
+}
+async function removeStaff(id) {
+  const st = staffById(id);
+  if (!confirm('شيل ' + st.name + ' من الحجوزات؟ (الحجوزات القديمة بتفضل)')) return;
+  try { const r = await api({ action: 'bkRemoveStaff', id: id }); delete draft[id]; renderStaff(); toast(r.message); }
+  catch (e) { errBox(e.message); }
+}
+
+// ── عام
+function openOv(id) { document.getElementById(id).classList.add('open'); }
+function closeOv(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.ov').forEach(o => o.addEventListener('click', e => { if (e.target === o) closeOv(o.id); }));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.ov.open').forEach(o => closeOv(o.id)); });
+let toastT;
+function toast(m, err) { const t = document.getElementById('toast'); t.textContent = m; t.className = 'toast' + (err ? ' err' : ''); t.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => { t.style.display = 'none'; }, 2800); }
+
+window.bkReload = reloadData;
+renderAll();
+loadData(true);
+</script>
+      </template>
     </section>
 
     <!-- ═══ التخصصات ═══ -->
@@ -3457,6 +4783,9 @@
       } else if (pageId === 'pageSpecs') {
         document.getElementById('btnPageSpecs').classList.add('active');
         loadSpecs();
+      } else if (pageId === 'pageBookings') {
+        document.getElementById('btnPageBookings').classList.add('active');
+        bkOpen();
       }
     }
 
@@ -3760,7 +5089,7 @@
     }
 
     let authUser = null;
-    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageClients:'ClientCards', pageItems:'Items', pageSpecs:'Specialities', pageExpenses:'Expenses', pagePayroll:'Payroll', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances', pageServices:'Services', pageCash:'Cash', pagePrices:'PriceList', pageManage:'Catalog', pageUsers:'Users'};
+    const PAGE_TABS = {pageAdd:'Sales', pageCollections:'Collect', pageClients:'ClientCards', pageBookings:'Bookings', pageItems:'Items', pageSpecs:'Specialities', pageExpenses:'Expenses', pagePayroll:'Payroll', pageData:'Transactions', pageLogs:'Logs', pageBalances:'Balances', pageServices:'Services', pageCash:'Cash', pagePrices:'PriceList', pageManage:'Catalog', pageUsers:'Users'};
     function can(tab, action) {
       const p = authUser && authUser.permissions[tab];
       return !!(p && p.view === true && p[action] === true);
@@ -3775,6 +5104,29 @@
       return fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
         body:JSON.stringify({...payload, token:sessionStorage.getItem('yuni_token')})});
     }
+    // قراءة بأكشن (الحجوزات بتستخدمها من جوه الـ iframe)
+    function apiGetAction(params) {
+      const q = new URLSearchParams(Object.assign({ token: sessionStorage.getItem('yuni_token') || '', t: Date.now() }, params || {}));
+      return fetch(SCRIPT_URL + '?' + q.toString());
+    }
+    // ── الحجوزات: الشاشة بتتبني مرة واحدة جوه iframe (عشان تصميمها وكودها ميتداخلوش مع باقي الموقع)
+    function bkFit() {
+      const f = document.getElementById('bkFrame');
+      if (!f || !document.getElementById('pageBookings').classList.contains('active')) return;
+      f.style.height = Math.max(480, window.innerHeight - f.getBoundingClientRect().top - 12) + 'px';
+    }
+    function bkOpen() {
+      const f = document.getElementById('bkFrame');
+      if (!f.dataset.ready) {
+        f.dataset.ready = '1';
+        f.srcdoc = '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">'
+          + '<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">'
+          + '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></head><body class="simple">'
+          + document.getElementById('bkAppTpl').innerHTML + '</body></html>';
+      } else if (f.contentWindow && f.contentWindow.bkReload) f.contentWindow.bkReload();
+      setTimeout(bkFit, 0);
+    }
+    window.addEventListener('resize', bkFit);
     function apiRead(sheet) {
       return fetch(SCRIPT_URL + '?sheet=' + encodeURIComponent(sheet) + '&token=' + encodeURIComponent(sessionStorage.getItem('yuni_token') || '') + '&t=' + Date.now());
     }
@@ -3808,7 +5160,7 @@
       document.getElementById('mainHeader').style.display = 'flex';
       document.getElementById('currentUserDisplay').innerText = user.name;
       document.querySelectorAll('.view-page, .nav-btn').forEach(el => el.classList.remove('active'));
-      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageClients:'btnPageClients',pageItems:'btnPageItems',pageSpecs:'btnPageSpecs',pageExpenses:'btnPageExpenses',pagePayroll:'btnPagePayroll',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances',pageServices:'btnPageServices',pageCash:'btnPageCash',pagePrices:'btnPagePrices',pageManage:'btnPageManage',pageUsers:'btnPageUsers'};
+      const buttons = {pageAdd:'btnPageAdd',pageCollections:'btnPageCollections',pageClients:'btnPageClients',pageBookings:'btnPageBookings',pageItems:'btnPageItems',pageSpecs:'btnPageSpecs',pageExpenses:'btnPageExpenses',pagePayroll:'btnPagePayroll',pageData:'btnPageData',pageLogs:'btnPageLogs',pageBalances:'btnPageBalances',pageServices:'btnPageServices',pageCash:'btnPageCash',pagePrices:'btnPagePrices',pageManage:'btnPageManage',pageUsers:'btnPageUsers'};
       Object.keys(PAGE_TABS).forEach(page => {
         const btn = document.getElementById(buttons[page]);
         if (!btn) return;
@@ -9379,6 +10731,7 @@
     const TAB_LABELS = {
       Sales: ['إضافة حركة جديدة', 'تسجيل الفواتير'], Collect: ['تحصيلات', 'تحصيل وحجز'],
       ClientCards: ['بطاقات العملاء', 'التابات اللي جوه بتاخد نفس الصلاحية إلا لو حددتها — تعديل الجلسات بعد التأكيد والأرصدة والتحويل للمدير بس'],
+      Bookings: ['الحجوزات', 'عرض = الحجوزات ورسالة اليوم · إضافة = حجز جديد · تعديل = تعديل الحجز وحالته · حذف = حذف حجز'],
       Items: ['الأصناف', 'إضافة = صنف جديد · تعديل = تعديل وإيقاف · حذف = حذف صنف ملوش حركات'],
       Specialities: ['التخصصات', 'إضافة = تخصص جديد · تعديل = الموظفين والإيقاف · حذف = تخصص ملوش أصناف ولا فواتير'],
       Transactions: ['استعراض البيانات', 'تعديل = تعديل فاتورة · حذف = حذف فاتورة'], Logs: ['السجل', ''],
@@ -9483,6 +10836,8 @@
       'ClientCards/Visits': 'إضافة = تسجيل جلسة · تعديل · حذف جلسة مستنية', 'ClientCards/Invoices': 'عرض الفواتير والمدفوعات والرصيد المالي في البطاقة',
       'Balances/Clients': 'عرض أرصدة العملاء', 'Balances/Cash': 'إضافة = تقفيل اليوم',
       'Services/Closing': '', 'Services/Clients': '',
+      'Bookings/Book': 'إضافة = حجز جديد · تعديل = تعديل الحجز وحالته · حذف = حذف حجز',
+      'Bookings/Schedule': 'عرض = تاب المواعيد · تعديل = المواعيد الثابتة + مين شغال يوم معين + الأقسام · إضافة = موظف/قسم جديد · حذف = شيل موظف/قسم',
       'Specialities/Specs': 'إضافة/تعديل/حذف التخصصات', 'Specialities/Employees': 'إضافة = موظف جديد · تعديل = بياناته والإيقاف'
     };
     function permActsHtml(p, dis) {
@@ -9723,7 +11078,7 @@
     function usCancelPerms() { US_DIRTY = new Set(); renderUsers(); }
 
     // ── ترتيب التابات في القائمة (للكل)
-    const MENU_ITEMS = { Sales: ['btnPageAdd', 'pageAdd'], Collect: ['btnPageCollections', 'pageCollections'], ClientCards: ['btnPageClients', 'pageClients'],
+    const MENU_ITEMS = { Sales: ['btnPageAdd', 'pageAdd'], Collect: ['btnPageCollections', 'pageCollections'], ClientCards: ['btnPageClients', 'pageClients'], Bookings: ['btnPageBookings', 'pageBookings'],
       Expenses: ['btnPageExpenses', 'pageExpenses'], Payroll: ['btnPagePayroll', 'pagePayroll'], Transactions: ['btnPageData', 'pageData'],
       Balances: ['btnPageBalances', 'pageBalances'], Cash: ['btnPageCash', 'pageCash'], Services: ['btnPageServices', 'pageServices'],
       Logs: ['btnPageLogs', 'pageLogs'], Home: ['btnPageCatalog', 'pageCatalog'], PriceList: ['btnPagePrices', 'pagePrices'], Catalog: ['btnPageManage', 'pageManage'], Items: ['btnPageItems', 'pageItems'], Specialities: ['btnPageSpecs', 'pageSpecs'], Users: ['btnPageUsers', 'pageUsers'] };
