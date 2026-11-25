@@ -960,6 +960,20 @@
     .svx .dc-warn { font-size: 12.5px; color: var(--danger); font-weight: 700; }
     .svx .dc-warn:empty { display: none; }
     .svx .dc-view { font-size: 13.5px; line-height: 1.8; color: #444; }
+    .bd-tag { display: inline-block; background: #FFF7E6; color: #7A4F00; border: 1px solid #E9D3A0; border-radius: 8px; font-size: 11px; font-weight: 700; padding: 1px 7px; margin-right: 6px; }
+    .bd-head-row td { background: #FBF6EA; border-top: 2px solid #E9D3A0; }
+    .bd-item-row td { background: #FFFDF8; }
+    .svx .bd-badge { display: inline-block; background: #FFF7E6; color: #7A4F00; border: 1px solid #E9D3A0; border-radius: 8px; font-size: 11px; font-weight: 800; padding: 1px 7px; }
+    .svx .bd-comp { font-size: 11.5px; color: #7A8279; margin-top: 3px; line-height: 1.6; }
+    .svx .bd-pick { display: flex; gap: 8px; }
+    .svx .bd-pick input { flex: 1; }
+    .svx .bd-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .svx .bd-table th { background: #F6F3EA; color: #7A8279; font-weight: 800; padding: 7px 6px; text-align: center; font-size: 12px; }
+    .svx .bd-table td { padding: 6px; border-bottom: 1px solid #EEE8DA; text-align: center; }
+    .svx .bd-table td.bd-name { text-align: right; font-weight: 700; color: var(--primary-green); }
+    .svx .bd-table tfoot td { font-weight: 800; color: var(--primary-green); background: #EAF2EC; font-size: 14px; }
+    .svx .bd-table tfoot td:first-child { text-align: right; }
+    @media (max-width: 650px) { .svx .bd-table input { width: 60px !important; } .svx .bd-table th:nth-child(6), .svx .bd-table td:nth-child(6) { display: none; } .svx .bd-table tfoot td:first-child { } }
     .row-menu { position: fixed; z-index: 4000; display: none; min-width: 200px; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.15); padding: 6px; }
     .row-menu .rm-title { font-size: 12px; font-weight: 800; color: #9A937D; padding: 6px 10px 4px; border-bottom: 1px dashed var(--border-color); margin-bottom: 4px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .row-menu button { display: flex; align-items: center; gap: 10px; width: 100%; border: none; background: none; padding: 9px 10px; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--primary-green); cursor: pointer; text-align: right; }
@@ -1260,6 +1274,7 @@
           <h2><i class="fas fa-boxes"></i> الأصناف</h2>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn" id="itAddBtn" onclick="openItemModal('')"><i class="fas fa-plus"></i> صنف جديد</button>
+            <button class="btn alt" id="bdAddBtn" onclick="openBundleModal('')"><i class="fas fa-gift"></i> باكدج عرض جديد</button>
             <button class="btn alt" onclick="loadItems()" title="تحديث"><i class="fas fa-sync-alt"></i></button>
           </div>
         </div>
@@ -1268,6 +1283,7 @@
           <div class="f half"><label>التخصص</label><select id="itSpec" onchange="renderItems()"></select></div>
           <div class="f half"><label>التصنيف</label><select id="itCat" onchange="renderItems()"></select></div>
           <div class="f half"><label>الحالة</label><select id="itState" onchange="renderItems()"><option value="">الكل</option><option value="on">شغال</option><option value="off">موقوف</option></select></div>
+          <div class="f half"><label>النوع</label><select id="itType" onchange="renderItems()"><option value="">الكل</option><option value="item">أصناف</option><option value="Bundle">باكدجات عروض</option></select></div>
         </div>
         <div class="cc-sub" id="itCount" style="margin:-4px 0 8px;"></div>
         <div class="table-container">
@@ -3038,6 +3054,45 @@
   </div>
 
   <!-- الأصناف: صنف -->
+  <div class="modal-overlay" id="bdModal">
+    <div class="modal-card" style="max-width:920px;">
+      <h3 id="bdModalTitle"></h3>
+      <div class="fields">
+        <div class="field"><label>اسم الباكدج *</label><input type="text" id="bdName" placeholder="مثال: عرض الصيف — ليزر + بوتوكس" autocomplete="off"><div class="hint" id="bdNameHint">بيظهر كصنف في الفاتورة، ولما يتختار بينزل تحته كل صنف بكميته وسعره.</div></div>
+        <div class="two">
+          <div class="field"><label>التخصص *</label><select id="bdSpec"></select><div class="hint">الزرار اللي الباكدج يظهر تحته في الفاتورة.</div></div>
+          <div class="field"><label>تصنيف المبيعات *</label><select id="bdSalesCat" onchange="salesCatChanged('bdSalesCat')"></select>
+            <input type="text" id="bdSalesCatNew" placeholder="اكتب اسم التصنيف الجديد (مثلاً: عروض)" style="display:none; margin-top:6px;"></div>
+        </div>
+        <div class="field"><label>المجلد (مكانه في موقع العملاء)</label><select id="bdFolder"></select></div>
+        <div class="sales-box">
+          <div class="lbl"><i class="fas fa-layer-group"></i> الأصناف اللي جوه الباكدج</div>
+          <div class="bd-pick">
+            <input type="text" id="bdSearch" list="bdItemsList" placeholder="ابحث عن صنف واختاره..." autocomplete="off" onchange="bdAddFromSearch()" onkeydown="if(event.key==='Enter'){event.preventDefault();bdAddFromSearch();}">
+            <button type="button" class="btn" onclick="bdAddFromSearch()"><i class="fas fa-plus"></i> إضافة</button>
+          </div>
+          <datalist id="bdItemsList"></datalist>
+          <div class="table-container" style="margin-top:8px;">
+            <table class="bd-table">
+              <thead><tr><th></th><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الخصم</th><th>الإضافة</th><th>الإجمالي</th></tr></thead>
+              <tbody id="bdBody"></tbody>
+              <tfoot><tr><td colspan="6">إجمالي الباكدج</td><td id="bdTotal">0.00</td></tr></tfoot>
+            </table>
+          </div>
+          <div class="hint" id="bdOrig" style="margin-top:6px;"></div>
+        </div>
+        <div class="two">
+          <label class="check-row"><input type="checkbox" id="bdActive" checked> شغال (بيظهر في الفاتورة)</label>
+          <label class="check-row"><input type="checkbox" id="bdOnline"> ظاهر للعملاء في الموقع</label>
+        </div>
+        <div class="modal-error" id="bdError"></div>
+        <div class="modal-actions">
+          <button class="btn" id="bdSave" onclick="saveBundle()"><i class="fas fa-save"></i> حفظ الباكدج</button>
+          <button class="btn alt" onclick="closeModal('bdModal')">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="modal-overlay" id="itModal">
     <div class="modal-card" style="max-width:640px;">
       <h3 id="itModalTitle"></h3>
@@ -3913,6 +3968,7 @@
         let name = "";
         let price = 0;
         let offer = '';
+        let bundleItems = null;
 
         Object.keys(item).forEach(k => {
           const ck = k.trim();
@@ -3921,6 +3977,7 @@
           if (ck === 'Item/Service' || ck === 'اسم الخدمة') name = item[k];
           if (ck === 'Item/Service Price' || ck === 'السعر') price = parseFloat(item[k]) || 0;
           if (ck === 'Offer Price') offer = String(item[k] === null || item[k] === undefined ? '' : item[k]).trim();
+          if (ck === 'Bundle Items') bundleItems = item[k] || [];
         });
 
         const target = specLow(targetSpeciality);
@@ -3928,7 +3985,7 @@
         if (itemSpeciality === target) {
           if (name) {
             if (!categories[cat]) categories[cat] = [];
-            categories[cat].push({ name, price, offer, speciality: itemSpecialityRaw, category: cat });
+            categories[cat].push({ name, price, offer, speciality: itemSpecialityRaw, category: cat, bundle: bundleItems });
           }
         }
       });
@@ -3966,8 +4023,8 @@
           contentDiv.innerHTML += `
             <label class="checkbox-item${hasOffer(srv.offer) ? ' has-offer' : ''}">
               <div>
-                <input type="checkbox" class="service-cb" value="${srv.name}" data-price="${srv.price}" data-speciality="${srv.speciality || ''}" data-category="${srv.category || ''}">
-                <span>${srv.name}</span>${hasOffer(srv.offer) ? `<span class="offer-tag" title="سعر العرض — الصنف بينزل في الفاتورة بسعره الأساسي">عرض ${srv.offer}</span>` : ''}
+                <input type="checkbox" class="service-cb" value="${srv.name}" data-price="${srv.price}" data-speciality="${srv.speciality || ''}" data-category="${srv.category || ''}"${srv.bundle ? ' data-bundle="1"' : ''}>
+                <span>${srv.bundle ? '<i class="fas fa-gift" style="color:var(--gold-accent);"></i> ' : ''}${srv.name}</span>${srv.bundle ? `<span class="bd-tag" title="${escCart(srv.bundle.map(c => c.name + ' ×' + c.qty).join(' + '))}">باكدج ${srv.bundle.length} أصناف</span>` : ''}${hasOffer(srv.offer) ? `<span class="offer-tag" title="سعر العرض — الصنف بينزل في الفاتورة بسعره الأساسي">عرض ${srv.offer}</span>` : ''}
               </div>
               <span class="price-tag">${srv.price} ج.م</span>
             </label>
@@ -4000,23 +4057,46 @@
     let allDoctors    = [];
     let allSpecialists = [];
 
+    // الموظف الافتراضي: آخر موظف اتختار في نفس التخصص — أو الوحيد لو التخصص فيه موظف واحد
+    function defaultStaff(speciality) {
+      const st = specStaff(speciality);
+      const pool = st.doctors.concat(st.specialists);
+      let defStaff = SALE_LAST_STAFF[specLow(speciality)] || '';
+      if (defStaff && pool.indexOf(defStaff) === -1) defStaff = '';
+      if (!defStaff && pool.length === 1) defStaff = pool[0];
+      return { staffName: defStaff, staffType: defStaff ? staffTypeFor(speciality, defStaff) : '' };
+    }
+    function bundleItemsOf(name) {
+      const it = (globalData || []).find(r => r['Item/Service'] === name && r['Bundle']);
+      return it ? (it['Bundle Items'] || []) : null;
+    }
+    // باكدج: سطر باسمه (سعر 0) وتحته كل صنف بكميته وسعره — الأصناف مقفولة، والموظف بيتختار لكل صنف
+    function addBundleToCart(name, speciality, category) {
+      const comps = bundleItemsOf(name) || [];
+      cartItems.set(name, { name, price: 0, qty: 1, lineDiscount: 0, lineExtra: 0, staffName: '', staffType: '', speciality, category, isBundle: true, bundle: name });
+      comps.forEach(c => {
+        const key = name + ' › ' + c.name;
+        cartItems.set(key, Object.assign({ name: c.name, price: Number(c.price) || 0, qty: Number(c.qty) || 1, lineDiscount: Number(c.discount) || 0, lineExtra: Number(c.extra) || 0,
+          speciality: c.speciality || speciality, category: c.category || category, bundle: name, inBundle: true }, defaultStaff(c.speciality || speciality)));
+      });
+    }
+    function removeBundleFromCart(name) {
+      [...cartItems.keys()].forEach(k => { const it = cartItems.get(k); if (it && it.bundle === name) cartItems.delete(k); });
+    }
     function updateCart() {
       document.querySelectorAll('.service-cb').forEach(cb => {
         const name       = cb.value;
         const price      = parseFloat(cb.getAttribute('data-price')) || 0;
         const speciality = cb.getAttribute('data-speciality') || '';
         const category   = cb.getAttribute('data-category')   || '';
+        const isBundle   = cb.getAttribute('data-bundle') === '1';
         if (cb.checked) {
           if (!cartItems.has(name)) {
-            // الموظف الافتراضي: آخر موظف اتختار في نفس التخصص — أو الوحيد لو التخصص فيه موظف واحد
-            const st = specStaff(speciality);
-            const pool = st.doctors.concat(st.specialists);
-            let defStaff = SALE_LAST_STAFF[specLow(speciality)] || '';
-            if (defStaff && pool.indexOf(defStaff) === -1) defStaff = '';
-            if (!defStaff && pool.length === 1) defStaff = pool[0];
-            const defType = defStaff ? staffTypeFor(speciality, defStaff) : '';
-            cartItems.set(name, { name, price, qty: 1, lineDiscount: 0, lineExtra: 0, staffName: defStaff, staffType: defType, speciality, category });
+            if (isBundle) addBundleToCart(name, speciality, category);
+            else cartItems.set(name, Object.assign({ name, price, qty: 1, lineDiscount: 0, lineExtra: 0, speciality, category }, defaultStaff(speciality)));
           }
+        } else if (isBundle) {
+          removeBundleFromCart(name);
         } else {
           cartItems.delete(name);
         }
@@ -4045,6 +4125,27 @@
       let html = '';
       cartItems.forEach((item, name) => {
         const lineTotal = (item.price * item.qty) + item.lineExtra - item.lineDiscount;
+        if (item.isBundle) {
+          // سطر الباكدج: إجماليه = مجموع الأصناف اللي تحته
+          let bt = 0; cartItems.forEach(x => { if (x.inBundle && x.bundle === item.bundle) bt += (x.price * x.qty) + x.lineExtra - x.lineDiscount; });
+          html += `<tr data-name="${escCart(name)}" class="bd-head-row">
+            <td style="text-align:center;"><button type="button" class="cart-remove-btn" onclick="removeCartItem('${escCart(name)}')" title="شيل الباكدج كله"><i class="fas fa-times-circle"></i></button></td>
+            <td colspan="6" style="font-weight:800;"><i class="fas fa-gift" style="color:var(--gold-accent);"></i> ${escCart(name)} <span class="bd-tag">باكدج — سعر السطر 0 والأصناف تحته</span></td>
+            <td class="cart-line-total">${bt.toFixed(2)} ج.م</td></tr>`;
+          return;
+        }
+        if (item.inBundle) {
+          html += `<tr data-name="${escCart(name)}" class="bd-item-row">
+            <td></td>
+            <td style="font-weight:600;"><i class="fas fa-level-up-alt fa-rotate-90" style="color:#C9BFA6; margin-left:4px;"></i> ${escCart(item.name)}<span class="cart-spec">${escCart(specLabel(item.speciality))}</span></td>
+            <td><select class="cart-adj-input" style="width:100%;min-width:120px;padding:5px 7px;" onchange="cartPickStaff('${escCart(name)}', this); if(this.value){this.style.border='';this.style.background='';}">${staffOptionsFor(item.speciality, item.staffName)}</select></td>
+            <td style="text-align:center;">${item.qty}</td>
+            <td style="text-align:center; color:#555;">${item.price.toFixed(2)}</td>
+            <td style="text-align:center; color:#888;">${item.lineDiscount ? item.lineDiscount.toFixed(2) : '—'}</td>
+            <td style="text-align:center; color:#888;">${item.lineExtra ? item.lineExtra.toFixed(2) : '—'}</td>
+            <td class="cart-line-total">${lineTotal.toFixed(2)} ج.م</td></tr>`;
+          return;
+        }
         html += `<tr data-name="${escCart(name)}">
           <td style="text-align:center;">
             <button type="button" class="cart-remove-btn" onclick="removeCartItem('${escCart(name)}')" title="حذف">
@@ -4125,6 +4226,13 @@
     }
 
     function removeCartItem(name) {
+      const it0 = cartItems.get(name);
+      if (it0 && it0.isBundle) {
+        removeBundleFromCart(it0.bundle);
+        document.querySelectorAll('.service-cb').forEach(cb => { if (cb.value === name) cb.checked = false; });
+        renderCart(); renderSpecToggle(); calculateAll();
+        return;
+      }
       cartItems.delete(name);
       // إلغاء تحديد الـ checkbox المقابل
       document.querySelectorAll('.service-cb').forEach(cb => {
@@ -4247,7 +4355,9 @@
           staffName:    item.staffName || '',
           staffType:    isDoc ? 'doctor' : isSpec ? 'specialist' : '',
           speciality:   item.speciality || '',
-          category:     item.category   || ''
+          category:     item.category   || '',
+          bundle:       item.bundle || '',
+          bundleHead:   !!item.isBundle
         });
       });
 
@@ -4266,12 +4376,12 @@
       }
 
       // التحقق من أن كل صنف له موظف مختار (إجباري)
-      const missingStaff = selectedServices.filter(s => !s.staffName);
+      const missingStaff = selectedServices.filter(s => !s.staffName && !s.bundleHead);   // سطر اسم الباكدج ملوش موظف
       if (missingStaff.length > 0) {
         // تلوين الـ selects الفاضية باللون الأحمر
         document.querySelectorAll('#cartBody tr').forEach(tr => {
           const nameCell = tr.getAttribute('data-name');
-          const missingItem = missingStaff.find(s => s.name === nameCell);
+          const missingItem = missingStaff.find(s => s.name === nameCell || (s.bundle && s.bundle + ' › ' + s.name === nameCell));
           if (missingItem) {
             const sel = tr.querySelector('select');
             if (sel) {
@@ -7249,12 +7359,14 @@
         const isAdjRow     = svc === 'تعديل';
 
         if (!isPaymentRow && !isAdjRow && svc) {
+          const bdl = (r['Bundle'] || '').toString();
           editServiceRows.push({
             name: svc, qty: qty, price: price,
             lineDiscount: disc, lineExtra: extra,
             staffType: doctor ? 'doctor' : (spec ? 'specialist' : ''),
             staffName: doctor || spec || '',
-            speciality: speciality, category: category
+            speciality: speciality, category: category,
+            bundle: bdl, bundleHead: !!bdl && bdl === svc
           });
         }
 
@@ -10576,18 +10688,22 @@
       const q = itKey(document.getElementById('itSearch').value);
       const sp = document.getElementById('itSpec').value, ct = document.getElementById('itCat').value, stt = document.getElementById('itState').value;
       const rows = ITEMS.items.filter(i => (!q || itKey(i.name).indexOf(q) !== -1 || itArNorm(i.name).indexOf(itArNorm(q)) !== -1)
-        && (!sp || i.speciality === sp) && (!ct || i.salesCategory === ct) && (!stt || (stt === 'on' ? i.active : !i.active)));
+        && (!sp || i.speciality === sp) && (!ct || i.salesCategory === ct) && (!stt || (stt === 'on' ? i.active : !i.active))
+        && (!document.getElementById('itType').value || (document.getElementById('itType').value === 'Bundle' ? i.type === 'Bundle' : i.type !== 'Bundle')));
+      document.getElementById('bdAddBtn').style.display = can('Items', 'add') ? '' : 'none';
       const money = v => v === '' || v === null || v === undefined ? '—' : (isNaN(Number(v)) ? esc(v) : ccNum(v));
       document.getElementById('itCount').textContent = rows.length + ' صنف' + (rows.length !== ITEMS.items.length ? ' من ' + ITEMS.items.length : '') + ' · موقوف: ' + ITEMS.items.filter(i => !i.active).length;
       document.getElementById('itBody').innerHTML = rows.map(i => {
         const mv = i.moves.total ? [i.moves.sales ? ccNum(i.moves.sales) + ' فاتورة' : '', i.moves.cards ? ccNum(i.moves.cards) + ' بطاقة' : ''].filter(Boolean).join(' · ') : '—';
-        const acts = (can('Items', 'edit') ? '<button class="icon-btn" title="تعديل" data-i="' + esc(i.id) + '" onclick="openItemModal(this.dataset.i)"><i class="fas fa-pen"></i></button>'
+        const isB = i.type === 'Bundle';
+        const acts = (can('Items', 'edit') ? '<button class="icon-btn" title="' + (isB ? 'تعديل الباكدج ومكوناته' : 'تعديل') + '" data-i="' + esc(i.id) + '" onclick="' + (isB ? 'openBundleModal' : 'openItemModal') + '(this.dataset.i)"><i class="fas fa-pen"></i></button>'
             + '<button class="icon-btn" title="' + (i.active ? 'إيقاف' : 'تشغيل') + '" data-i="' + esc(i.id) + '" onclick="toggleItem(this.dataset.i)"><i class="fas ' + (i.active ? 'fa-pause' : 'fa-play') + '"></i></button>' : '')
           + (can('Items', 'delete') ? '<button class="icon-btn danger" title="' + (i.moves.total ? 'عليه حركات — وقّفه بدل الحذف' : 'حذف') + '" data-i="' + esc(i.id) + '" onclick="deleteItem(this.dataset.i)"' + (i.moves.total ? ' style="opacity:.4;"' : '') + '><i class="fas fa-trash"></i></button>' : '');
-        return '<tr class="' + (i.active ? '' : 'it-off') + '"><td class="wide"><div class="cc-svc">' + esc(i.name) + '</div><div class="cc-sub">' + esc(i.folder) + (i.online ? ' · <span style="color:var(--primary-green);">ظاهر للعملاء</span>' : '') + '</div></td>'
+        const comp = isB ? '<div class="bd-comp">' + (i.components || []).map(c => esc(c.name) + ' ×' + ccNum(c.qty)).join(' · ') + '</div>' : '';
+        return '<tr class="' + (i.active ? '' : 'it-off') + '"><td class="wide"><div class="cc-svc">' + (isB ? '<span class="bd-badge"><i class="fas fa-gift"></i> باكدج</span> ' : '') + esc(i.name) + '</div><div class="cc-sub">' + esc(i.folder) + (i.online ? ' · <span style="color:var(--primary-green);">ظاهر للعملاء</span>' : '') + (i.inBundles ? ' · جوه ' + i.inBundles + ' باكدج' : '') + '</div>' + comp + '</td>'
           + '<td data-l="التخصص / التصنيف">' + esc(ccSecName(i.speciality)) + '<div class="cc-sub">' + esc(i.salesCategory || '—') + '</div></td>'
           + '<td data-l="السعر">' + money(i.price) + (hasOffer(i.offerPrice) ? '<div><span class="offer-tag" style="margin:0;">عرض ' + money(i.offerPrice) + '</span></div>' : '') + '</td><td data-l="التكلفة">' + money(i.cost) + '</td>'
-          + '<td data-l="المتابعة">' + esc(trackLabel(i, true) || '—') + '</td><td data-l="الحركات">' + mv + '</td>'
+          + '<td data-l="المتابعة">' + (isB ? (i.components || []).length + ' صنف جواه' : esc(trackLabel(i, true) || '—')) + '</td><td data-l="الحركات">' + mv + '</td>'
           + '<td data-l="الحالة"><span class="cc-badge' + (i.active ? '' : ' expired') + '">' + (i.active ? 'شغال' : 'موقوف') + '</span></td>'
           + '<td class="wide"><div class="mg-actions">' + acts + '</div></td></tr>';
       }).join('') || '<tr><td colspan="8" class="empty">مفيش أصناف مطابقة</td></tr>';
@@ -10677,10 +10793,98 @@
       const it = ITEMS.items.find(x => x.id === id);
       if (!it) return;
       if (it.moves.total) { toast('"' + it.name + '" عليه ' + it.moves.total + ' حركة — مينفعش يتحذف. وقّفه بدل الحذف.', true); return; }
+      if (it.inBundles) { toast('"' + it.name + '" جوه ' + it.inBundles + ' باكدج — شيله منهم الأول أو وقّفه.', true); return; }
       if (!confirm('حذف "' + it.name + '" نهائي؟')) return;
       try { const res = await svPost({ action: 'deleteItem', id }); setItems(res); toast(res.message); itAfterChange(); }
       catch (e) { toast(e.message || 'تعذر الحذف', true); }
     }
+    // ── باكدجات العروض: مجموعة أصناف بكمياتها وأسعارها (زي فاتورة) — سعرها = الإجمالي
+    let bdEdit = null;   // { id, rows: [{ itemId, name, qty, price, discount, extra }] }
+    function openBundleModal(id) {
+      const b = id ? ITEMS.items.find(x => x.id === id) : null;
+      bdEdit = { id: b ? b.id : '', rows: b ? (b.components || []).map(c => ({ itemId: c.itemId, name: c.name, qty: c.qty, price: c.price, discount: c.discount, extra: c.extra })) : [] };
+      document.getElementById('bdModalTitle').innerHTML = '<i class="fas fa-gift" style="color:var(--gold-accent);"></i> ' + (b ? 'تعديل باكدج: ' + esc(b.name) : 'باكدج عرض جديد');
+      document.getElementById('bdName').value = b ? b.name : '';
+      document.getElementById('bdNameHint').textContent = b && b.moves.total ? 'اتباع ' + b.moves.sales + ' مرة — لو غيّرت الاسم بيتغير في الفواتير القديمة. وتعديل المكونات بيأثر على البيع الجديد بس.' : 'بيظهر كصنف في الفاتورة، ولما يتختار بينزل تحته كل صنف بكميته وسعره.';
+      document.getElementById('bdSpec').innerHTML = specOptionsHtml(b ? b.speciality : '');
+      fillSalesCatSelect('bdSalesCat', b ? b.salesCategory : (allSalesCats().find(c => /عروض|offers?/i.test(c)) || ''));
+      document.getElementById('bdFolder').innerHTML = '<option value="">بدون مجلد — Products (مخفي عن العملاء)</option>'
+        + ITEMS.folders.map(f => '<option value="' + esc(f.id) + '">' + esc(f.path) + (f.active ? '' : ' (مخفي)') + '</option>').join('');
+      const prodFolder = ITEMS.folders.find(f => /^products$/i.test(f.path));
+      document.getElementById('bdFolder').value = b && !(prodFolder && b.category === prodFolder.id) ? b.category : '';
+      document.getElementById('bdActive').checked = b ? b.active : true;
+      document.getElementById('bdOnline').checked = b ? b.online : false;
+      document.getElementById('bdItemsList').innerHTML = ITEMS.items.filter(i => i.type !== 'Bundle' && i.active && i.id !== bdEdit.id)
+        .map(i => '<option value="' + esc(i.name) + '">' + esc(ccSecName(i.speciality) + ' · ' + (i.price === '' ? 'بدون سعر' : ccNum(i.price))) + '</option>').join('');
+      document.getElementById('bdSearch').value = '';
+      showErr('bdError', '');
+      bdRender();
+      openModal('bdModal');
+      setTimeout(() => document.getElementById(b ? 'bdSearch' : 'bdName').focus(), 50);
+    }
+    function bdAddFromSearch() {
+      const inp = document.getElementById('bdSearch');
+      const v = itKey(inp.value);
+      if (!v) return;
+      const it = ITEMS.items.find(i => i.type !== 'Bundle' && itKey(i.name) === v);
+      if (!it) { showErr('bdError', 'الصنف "' + inp.value + '" مش موجود — اختار من القايمة.'); return; }
+      showErr('bdError', '');
+      const ex = bdEdit.rows.find(r => r.itemId === it.id);
+      if (ex) ex.qty = (Number(ex.qty) || 0) + 1;
+      else bdEdit.rows.push({ itemId: it.id, name: it.name, qty: 1, price: Number(String(it.price).replace(/,/g, '')) || 0, discount: 0, extra: 0 });
+      inp.value = '';
+      bdRender();
+      inp.focus();
+    }
+    const bdNet = r => (Number(r.price) || 0) * (Number(r.qty) || 0) + (Number(r.extra) || 0) - (Number(r.discount) || 0);
+    function bdRender() {
+      const body = document.getElementById('bdBody');
+      body.innerHTML = bdEdit.rows.map((r, i) => {
+        const it = ITEMS.items.find(x => x.id === r.itemId);
+        const base = it ? Number(String(it.price).replace(/,/g, '')) : NaN;
+        const inp = (k, w) => '<input type="number" class="cart-adj-input" style="width:' + w + 'px;" value="' + (r[k] === 0 && k !== 'qty' ? '' : r[k]) + '" placeholder="0" min="0" step="' + (k === 'qty' ? 1 : 'any') + '" oninput="bdSet(' + i + ',\'' + k + '\',this.value)">';
+        return '<tr><td><button type="button" class="cart-remove-btn" title="شيل" onclick="bdEdit.rows.splice(' + i + ',1);bdRender()"><i class="fas fa-times-circle"></i></button></td>'
+          + '<td class="bd-name">' + esc(r.name) + '<span class="cart-spec">' + esc(it ? ccSecName(it.speciality) : '') + (it && !isNaN(base) && base !== Number(r.price) ? ' · سعره ' + ccNum(base) : '') + '</span></td>'
+          + '<td>' + inp('qty', 70) + '</td><td>' + inp('price', 90) + '</td><td>' + inp('discount', 80) + '</td><td>' + inp('extra', 80) + '</td>'
+          + '<td class="cart-line-total" id="bdLine' + i + '">' + bdNet(r).toFixed(2) + '</td></tr>';
+      }).join('') || '<tr><td colspan="7" class="empty" style="padding:18px;">ابحث عن صنف من فوق وضيفه</td></tr>';
+      bdTotals();
+    }
+    function bdSet(i, k, v) {
+      const r = bdEdit.rows[i];
+      r[k] = k === 'qty' ? Math.max(0, Math.round(Number(v) || 0)) : Math.max(0, Number(v) || 0);
+      const cell = document.getElementById('bdLine' + i);
+      if (cell) { cell.textContent = bdNet(r).toFixed(2); cell.style.color = bdNet(r) < 0 ? 'var(--danger)' : ''; }
+      bdTotals();
+    }
+    function bdTotals() {
+      const total = bdEdit.rows.reduce((a, r) => a + bdNet(r), 0);
+      const orig = bdEdit.rows.reduce((a, r) => { const it = ITEMS.items.find(x => x.id === r.itemId); return a + (it ? (Number(String(it.price).replace(/,/g, '')) || 0) * (Number(r.qty) || 0) : 0); }, 0);
+      document.getElementById('bdTotal').textContent = total.toFixed(2) + ' ج.م';
+      document.getElementById('bdOrig').innerHTML = bdEdit.rows.length ? 'لو الأصناف دي اتباعت لوحدها بسعرها: <b>' + ccNum(orig) + '</b>' + (orig > total ? ' — توفير <b style="color:var(--primary-green);">' + ccNum(Math.round((orig - total) * 100) / 100) + '</b>' : '') : '';
+    }
+    async function saveBundle() {
+      const name = document.getElementById('bdName').value.trim();
+      if (!name) { showErr('bdError', 'اكتب اسم الباكدج.'); return; }
+      if (ITEMS.items.some(i => i.id !== bdEdit.id && itKey(i.name) === itKey(name))) { showErr('bdError', 'فيه صنف أو باكدج بنفس الاسم.'); return; }
+      if (!document.getElementById('bdSpec').value) { showErr('bdError', 'اختار التخصص.'); return; }
+      if (!readSalesCat('bdSalesCat')) { showErr('bdError', 'اختار تصنيف المبيعات.'); return; }
+      if (!bdEdit.rows.length) { showErr('bdError', 'ضيف صنف واحد على الأقل.'); return; }
+      const bad = bdEdit.rows.find(r => !(Number(r.qty) >= 1) || bdNet(r) < 0);
+      if (bad) { showErr('bdError', '"' + bad.name + '": الكمية لازم 1 أو أكتر والخصم مايزيدش عن السعر.'); return; }
+      const old = bdEdit.id ? ITEMS.items.find(x => x.id === bdEdit.id) : null;
+      if (old && old.name !== name && old.moves.total && !confirm('تغيير اسم "' + old.name + '" إلى "' + name + '"؟\nهيتغير في الفواتير القديمة كمان.')) return;
+      const data = { id: bdEdit.id, name, speciality: document.getElementById('bdSpec').value, salesCategory: readSalesCat('bdSalesCat'), category: document.getElementById('bdFolder').value,
+        active: document.getElementById('bdActive').checked, online: document.getElementById('bdOnline').checked,
+        components: bdEdit.rows.map(r => ({ itemId: r.itemId, qty: r.qty, price: r.price, discount: r.discount, extra: r.extra })) };
+      const btn = document.getElementById('bdSave'), orig = btn.innerHTML;
+      showErr('bdError', '');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+      try { const res = await svPost({ action: 'saveBundle', data }); closeModal('bdModal'); setItems(res); toast(res.message || 'تم الحفظ'); itAfterChange(); }
+      catch (e) { showErr('bdError', e.message || 'تعذر الحفظ'); }
+      finally { btn.disabled = false; btn.innerHTML = orig; }
+    }
+
     // الأصناف اتغيرت: قايمة الفاتورة والكتالوج يتحدثوا
     function itAfterChange() {
       try { loadCatalog(); } catch (_) {}
