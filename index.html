@@ -4439,10 +4439,11 @@ loadData(true);
         <div class="field"><label>اسم الصنف *</label><input type="text" id="itName" oninput="itCheckName()" placeholder="مثال: كريم واقي شمس / باكدج 5,000" autocomplete="off"><div class="hint" id="itNameHint"></div></div>
         <div class="it-warn" id="itNameWarn" style="display:none;"></div>
         <div class="two">
-          <div class="field"><label>التخصص *</label><select id="itSpecSel"></select><div class="hint">بيحدد الصنف يظهر مع مين في الفاتورة.</div></div>
+          <div class="field"><label>التخصص *</label><select id="itSpecSel" onchange="itFillDefStaff()"></select><div class="hint">بيحدد الصنف يظهر مع مين في الفاتورة.</div></div>
           <div class="field"><label>تصنيف المبيعات *</label><select id="itSalesCat" onchange="salesCatChanged('itSalesCat')"></select>
             <input type="text" id="itSalesCatNew" placeholder="اكتب اسم التصنيف الجديد" style="display:none; margin-top:6px;"></div>
         </div>
+        <div class="field" id="itDefStaffWrap"><label>الدكتور / المتخصص التلقائي</label><select id="itDefStaff"></select><div class="hint">بينزل لوحده مع الصنف في الفاتورة وتقدر تغيره فيها عادي — ولو سبته "من غير" الموظف هو اللي يختار.</div></div>
         <div class="field"><label>المجلد (مكانه في موقع العملاء)</label><select id="itFolder"></select></div>
         <div class="two">
           <div class="field"><label>السعر</label><input type="text" id="itPrice" inputmode="decimal" placeholder="مثال: 350"></div>
@@ -5279,7 +5280,7 @@ loadData(true);
     // ── التخصصات (من تاب التخصصات): كل تخصص زرار، ومين بيظهر قصاد أصنافه (أطباء / متخصصين / الاتنين)
     let SPECS = [];          // [{ id, name, ar, type, docJobs, docNames, specJobs, specNames, sort, active }]
     let SALE_SPEC = '';      // التخصص المفتوح في شاشة الفاتورة
-    const SALE_LAST_STAFF = {};  // آخر موظف اتختار في كل تخصص (بيتحط تلقائي للصنف اللي بعده)
+    const SALE_LAST_STAFF = {};  // آخر موظف اتختار في كل تخصص — في الفاتورة اللي مفتوحة بس (بيتمسح مع كل فاتورة جديدة)
     function setSpecs(list) { if (Array.isArray(list)) SPECS = list; }
     function specLow(v) { return String(v == null ? '' : v).replace(/\s+/g, ' ').trim().toLowerCase(); }
     function jobKey(v) {
@@ -5477,11 +5478,17 @@ loadData(true);
     let allDoctors    = [];
     let allSpecialists = [];
 
-    // الموظف الافتراضي: آخر موظف اتختار في نفس التخصص — أو الوحيد لو التخصص فيه موظف واحد
-    function defaultStaff(speciality) {
+    // الموظف التلقائي للسطر: (1) المتحدد للصنف في إدارة الأصناف (2) آخر موظف اتختار في نفس التخصص في الفاتورة دي بس (3) الوحيد لو التخصص فيه موظف واحد
+    function itemDefaultStaff(name) {
+      const r = (globalData || []).find(x => x['Item/Service'] === name);
+      return r ? String(r['Default Staff'] || '').trim() : '';
+    }
+    function defaultStaff(speciality, itemName) {
       const st = specStaff(speciality);
       const pool = st.doctors.concat(st.specialists);
-      let defStaff = SALE_LAST_STAFF[specLow(speciality)] || '';
+      let defStaff = itemName ? itemDefaultStaff(itemName) : '';
+      if (defStaff && pool.indexOf(defStaff) === -1) defStaff = '';
+      if (!defStaff) defStaff = SALE_LAST_STAFF[specLow(speciality)] || '';
       if (defStaff && pool.indexOf(defStaff) === -1) defStaff = '';
       if (!defStaff && pool.length === 1) defStaff = pool[0];
       return { staffName: defStaff, staffType: defStaff ? staffTypeFor(speciality, defStaff) : '' };
@@ -5505,7 +5512,7 @@ loadData(true);
       comps.forEach(c => {
         const key = name + ' › ' + c.name;
         cartItems.set(key, Object.assign({ name: c.name, price: Number(c.price) || 0, qty: Number(c.qty) || 1, lineDiscount: Number(c.discount) || 0, lineExtra: Number(c.extra) || 0,
-          speciality: c.speciality || speciality, category: c.category || category, bundle: name, inBundle: true }, defaultStaff(c.speciality || speciality)));
+          speciality: c.speciality || speciality, category: c.category || category, bundle: name, inBundle: true }, defaultStaff(c.speciality || speciality, c.name)));
       });
     }
     function removeBundleFromCart(name) {
@@ -5521,7 +5528,7 @@ loadData(true);
         if (cb.checked) {
           if (!cartItems.has(name)) {
             if (isBundle) addBundleToCart(name, speciality, category);
-            else cartItems.set(name, Object.assign({ name, price, qty: 1, lineDiscount: 0, lineExtra: 0, speciality, category }, defaultStaff(speciality)));
+            else cartItems.set(name, Object.assign({ name, price, qty: 1, lineDiscount: 0, lineExtra: 0, speciality, category }, defaultStaff(speciality, name)));
           }
         } else if (isBundle) {
           removeBundleFromCart(name);
@@ -5694,6 +5701,7 @@ loadData(true);
     }
 
     function clearAllForm() {
+      Object.keys(SALE_LAST_STAFF).forEach(k => delete SALE_LAST_STAFF[k]);   // الفاتورة الجديدة متاخدش موظف الفاتورة اللي فاتت
       form.reset();
       setTodayAsDefaultDate();
       handleStaffMutualExclusion('reset');
@@ -12207,6 +12215,7 @@ loadData(true);
       const prodFolder = ITEMS.folders.find(f => /^products$/i.test(f.path));
       document.getElementById('itFolder').value = it && !(prodFolder && it.category === prodFolder.id) ? it.category : '';
       document.getElementById('itSpecSel').innerHTML = specOptionsHtml(it ? it.speciality : '');
+      itFillDefStaff(it ? it.defaultStaff : '');
       fillSalesCatSelect('itSalesCat', it ? it.salesCategory : '');
       const set = (k, v) => { document.getElementById(k).value = v === undefined || v === null ? '' : v; };
       set('itPrice', it ? it.price : ''); set('itCost', it ? it.cost : '');
@@ -12221,6 +12230,16 @@ loadData(true);
       openModal('itModal');
       setTimeout(() => nm.focus(), 50);
     }
+    // الموظف التلقائي: دكاترة/متخصصين التخصص المختار بس
+    function itFillDefStaff(sel) {
+      const el = document.getElementById('itDefStaff');
+      const cur = sel !== undefined ? sel : el.value;
+      const spec = document.getElementById('itSpecSel').value;
+      el.innerHTML = spec ? staffOptionsFor(spec, cur, 'من غير — الموظف يختار في الفاتورة') : '<option value="">اختار التخصص الأول</option>';
+      el.disabled = !spec;
+      const st = specStaff(spec);
+      if (cur && st.doctors.indexOf(cur) === -1 && st.specialists.indexOf(cur) === -1) el.value = cur;   // اسم قديم خارج التخصص: يفضل ظاهر لحد ما يتغير
+    }
     async function saveItem() {
       const name = document.getElementById('itName').value.trim();
       if (!name) { showErr('itError', 'اكتب اسم الصنف.'); return; }
@@ -12230,7 +12249,9 @@ loadData(true);
       const itOld = itEdit.id ? ITEMS.items.find(x => x.id === itEdit.id) : null;
       if (itOld && itOld.name !== name && itOld.moves.total && !confirm('تغيير اسم "' + itOld.name + '" إلى "' + name + '"؟\nالاسم هيتغير كمان في ' + itOld.moves.total + ' حركة قديمة (الفواتير والبطاقات).')) return;
       const g = id => document.getElementById(id).value.trim();
-      const data = { id: itEdit.id, name, category: g('itFolder'), speciality: g('itSpecSel'), salesCategory: readSalesCat('itSalesCat'),
+      const defSt = document.getElementById('itDefStaff').value, stPool = specStaff(g('itSpecSel'));
+      if (defSt && stPool.doctors.indexOf(defSt) === -1 && stPool.specialists.indexOf(defSt) === -1) { showErr('itError', '"' + defSt + '" مش من موظفين التخصص ده — اختار حد تاني أو "من غير".'); return; }
+      const data = { id: itEdit.id, name, category: g('itFolder'), speciality: g('itSpecSel'), defaultStaff: defSt, salesCategory: readSalesCat('itSalesCat'),
         price: g('itPrice'), cost: g('itCost'), teamPrice: g('itTeam'), familyPrice: g('itFamily'), offerPrice: g('itOffer'),
         trackType: g('itTrackType'), trackMode: g('itTrackMode'), trackQty: g('itTrackQty'), validityDays: g('itValidity'),
         active: document.getElementById('itActive').checked, online: document.getElementById('itOnline').checked };
