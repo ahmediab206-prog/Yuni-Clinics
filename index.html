@@ -5404,15 +5404,16 @@ loadData(true);
         if (itemSpeciality === target) {
           if (name) {
             if (!categories[cat]) categories[cat] = [];
-            categories[cat].push({ name, price, offer, speciality: itemSpecialityRaw, category: cat, bundle: bundleItems, rank: Number(item['Rank']) || 999999 });
+            categories[cat].push({ name, price, offer, speciality: itemSpecialityRaw, category: cat, bundle: bundleItems, rank: Number(item['Rank']) || 999999,
+              catRank: item['Category Rank'] === undefined || item['Category Rank'] === '' ? 1e9 : Number(item['Category Rank']) });
           }
         }
       });
 
-      // ترتيب أبجدي للتصنيفات
-      // نفس ترتيب إدارة الخدمات: الأصناف بترتيبها، والتصنيفات بترتيب أول صنف فيها
+      // نفس ترتيب إدارة الخدمات: التصنيف بمكان المجلد اللي بنفس اسمه (أو مجلد أول صنف فيه)، والأصناف بترتيبها
       const minRank = c => Math.min.apply(null, categories[c].map(x => x.rank));
-      const catKeys = Object.keys(categories).sort((a, b) => (minRank(a) - minRank(b)) || a.localeCompare(b, 'ar'));
+      const catRank = c => Math.min.apply(null, categories[c].map(x => x.catRank));
+      const catKeys = Object.keys(categories).sort((a, b) => (catRank(a) - catRank(b)) || (minRank(a) - minRank(b)) || a.localeCompare(b, 'ar'));
       if (catKeys.length === 0) {
         tabsContainer.innerHTML = '<div class="empty-msg">لا توجد خدمات مسجلة لهذا التخصص حالياً</div>';
         return;
@@ -10701,7 +10702,16 @@ loadData(true);
       const all = (DATA.services || []).map(s => s.salesCategory).concat((typeof ITEMS !== 'undefined' ? ITEMS.items : []).map(i => i.salesCategory));
       const seen = {}, out = [];
       all.forEach(c => { c = String(c || '').trim(); if (c && !seen[c.toLowerCase()]) { seen[c.toLowerCase()] = 1; out.push(c); } });
-      return out.sort((a, b) => a.localeCompare(b));
+      return out.sort((a, b) => (salesCatPos(a) - salesCatPos(b)) || a.localeCompare(b));
+    }
+    // مكان التصنيف بترتيب إدارة الخدمات (من الأصناف أو من بيانات الفاتورة)
+    function salesCatPos(c) {
+      const k = String(c || '').trim().toLowerCase();
+      const ord = (typeof ITEMS !== 'undefined' && ITEMS.salesCatOrder) || [];
+      const i = ord.findIndex(x => x.toLowerCase() === k);
+      if (i !== -1) return i;
+      const r = (typeof globalData !== 'undefined' ? globalData : []).find(x => String(x['Item/Service Category'] || '').trim().toLowerCase() === k && x['Category Rank'] !== undefined);
+      return r ? 1000 + Number(r['Category Rank']) : 1e9;
     }
     function fillSalesCatSelect(id, val) {
       const list = allSalesCats();
@@ -12140,13 +12150,13 @@ loadData(true);
       catch (e) { body.innerHTML = '<tr><td colspan="8" class="empty" style="color:var(--danger);">' + esc(e.message) + '</td></tr>'; }
     }
     function setItems(res) {
-      ITEMS = { items: res.items || [], folders: res.folders || [] };
+      ITEMS = { items: res.items || [], folders: res.folders || [], salesCatOrder: res.salesCatOrder || [] };
       const fill = (id, vals, first) => { const el = document.getElementById(id), cur = el.value;
         el.innerHTML = '<option value="">' + first + '</option>' + vals.map(v => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join(''); el.value = vals.indexOf(cur) !== -1 ? cur : ''; };
       const uniq = k => [...new Set(ITEMS.items.map(i => i[k]).filter(Boolean))].sort();
       fill('itSpec', uniq('speciality'), 'كل التخصصات');
       [...document.getElementById('itSpec').options].forEach(o => { if (o.value) o.textContent = specLabel(o.value); });
-      fill('itCat', uniq('salesCategory'), 'كل التصنيفات');
+      fill('itCat', uniq('salesCategory').sort((a, b) => (salesCatPos(a) - salesCatPos(b)) || a.localeCompare(b)), 'كل التصنيفات');
       document.getElementById('itAddBtn').style.display = can('Items', 'add') ? '' : 'none';
       renderItems();
     }
