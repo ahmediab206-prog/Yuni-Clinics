@@ -28,6 +28,14 @@
     * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; margin: 0; padding: 0; }
     body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px 15px; }
     
+    .win-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: #F7F3E8; border: 1px solid #E6DCC3; border-radius: 12px; padding: 8px 12px; margin: 0 0 10px; font-size: 13px; color: #6B6450; }
+    .win-bar b { color: var(--primary-green); }
+    .win-bar button { border: 1.5px solid var(--primary-green); background: #fff; color: var(--primary-green); border-radius: 9px; padding: 5px 12px; font-family: inherit; font-weight: 800; font-size: 12.5px; cursor: pointer; }
+    .win-bar button:hover { background: var(--primary-green); color: #fff; }
+    #reloginOverlay { z-index: 100000; }
+    #reloginOverlay .rl-user { background: #F1EFEA; border-radius: 10px; padding: 10px 12px; font-weight: 800; color: var(--primary-green); margin-bottom: 10px; }
+    .bk-status { background: #F7F3E8; border: 1px solid #E6DCC3; border-radius: 12px; padding: 10px 12px; font-size: 13px; line-height: 1.9; }
+    .bk-status a { color: var(--primary-green); font-weight: 800; }
     .login-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(24, 66, 50, 0.85); backdrop-filter: blur(8px);
@@ -1110,6 +1118,21 @@
     </div>
   </div>
 
+  <!-- الجلسة انتهت: دخول تاني من غير ما الشاشة تتقفل (وبعده بيكمّل اللي كان بيتعمل) -->
+  <div id="reloginOverlay" class="login-overlay" style="display:none;">
+    <div class="login-card">
+      <h2><i class="fas fa-user-clock" style="color:var(--gold-accent);"></i> الجلسة انتهت</h2>
+      <p>عدّى ساعتين من غير استخدام — ادخل الباسورد تاني وهنكمّل اللي كنت بتعمله (البيانات اللي كاتبها مش هتضيع).</p>
+      <form id="reloginForm" class="login-form">
+        <div class="rl-user" id="reloginUser"></div>
+        <input type="password" id="reloginPass" placeholder="كلمة المرور" required autocomplete="current-password">
+        <div id="reloginError" class="login-error"></div>
+        <button type="submit" id="reloginBtn" class="login-btn">دخول وكمّل</button>
+        <button type="button" class="login-btn" style="background:#fff; color:#C5221F; border:1.5px solid #F1C3BF; margin-top:8px;" onclick="reloginCancel()">خروج</button>
+      </form>
+    </div>
+  </div>
+
   <!-- الهيدر العلوي -->
   <div class="top-header" id="mainHeader" style="display: flex;">
     <div class="header-logo">
@@ -1259,6 +1282,7 @@
             <button class="btn" id="usAddBtn" onclick="openUserModal()"><i class="fas fa-user-plus"></i> مستخدم جديد</button>
             <button class="btn alt" id="usOrderBtn" onclick="openOrderModal()"><i class="fas fa-sort"></i> ترتيب القائمة</button>
             <button class="btn alt" id="usMasterBtn" onclick="openMasterModal()"><i class="fas fa-key"></i> الباسورد الخاص</button>
+            <button class="btn alt" id="usBackupBtn" onclick="openBackupModal()"><i class="fas fa-cloud-upload-alt"></i> النسخ الاحتياطي</button>
             <button class="btn alt" onclick="loadUsers()" title="تحديث"><i class="fas fa-sync-alt"></i></button>
           </div>
         </div>
@@ -4324,6 +4348,25 @@ loadData(true);
     </div>
   </div>
 
+  <!-- النسخ الاحتياطي التلقائي -->
+  <div class="modal-overlay" id="backupModal">
+    <div class="modal-card" style="max-width:520px;">
+      <h3><i class="fas fa-cloud-upload-alt" style="color:var(--gold-accent);"></i> النسخ الاحتياطي التلقائي</h3>
+      <div class="fields">
+        <div class="hint" style="font-size:13px; line-height:1.8;">نسخة كاملة من الشيت بتتحفظ لوحدها في الفولدر ده <b>كل ساعتين من 10 الصبح لـ 10 بالليل</b> (7 نسخ في اليوم) باسم زي: <b>Yuni 28-11-2026 14:00</b></div>
+        <div class="field"><label>لينك فولدر Drive</label><input type="text" id="bkpUrl" placeholder="https://drive.google.com/drive/folders/..." dir="ltr"></div>
+        <div class="bk-status" id="bkpStatus"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
+        <div class="modal-error" id="bkpError"></div>
+        <div class="modal-actions">
+          <button class="btn" id="bkpSave" onclick="saveBackup()"><i class="fas fa-save"></i> حفظ وتشغيل</button>
+          <button class="btn alt" id="bkpNow" onclick="backupNowClick()"><i class="fas fa-copy"></i> نسخة دلوقتي</button>
+          <button class="btn alt" id="bkpOff" onclick="saveBackup(true)" style="color:var(--danger);">إيقاف</button>
+          <button class="btn alt" onclick="closeModal('backupModal')">إغلاق</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- بطاقات العملاء: جلسة / زيارة -->
   <div class="modal-overlay" id="ccVisitModal">
     <div class="modal-card" style="max-width:620px;">
@@ -4691,6 +4734,83 @@ loadData(true);
     let globalData = [];
     let clientsData = [];
     let salesMasterData = [];
+    // ── انتهاء الجلسة: أي طلب للسيرفر يرجع "انتهت الجلسة" → نافذة دخول → نفس الطلب يتبعت تاني بالتوكن الجديد
+    const _yuniFetch = window.fetch.bind(window);
+    let reloginWait = null;
+    window.fetch = async function (input, init) {
+      const url = typeof input === 'string' ? input : (input && input.url) || '';
+      if (!SCRIPT_URL || url.indexOf(SCRIPT_URL) !== 0) return _yuniFetch(input, init);
+      const res = await _yuniFetch(input, init);
+      let data = null;
+      try { data = await res.clone().json(); } catch (_) { return res; }
+      if (!data || data.status !== 'error' || !/انتهت الجلسة|تغير الحساب/.test(String(data.message || ''))) return res;
+      if (!authUser || !sessionStorage.getItem('yuni_token')) return res;
+      if (init && typeof init.body === 'string' && /"action":"login"/.test(init.body)) return res;
+      const ok = await reloginPrompt();
+      if (!ok) return res;
+      const tok = sessionStorage.getItem('yuni_token');
+      let u2 = url.replace(/([?&]token=)[^&]*/, '$1' + encodeURIComponent(tok));
+      let init2 = init;
+      if (init && typeof init.body === 'string') {
+        try { const b = JSON.parse(init.body); if (Object.prototype.hasOwnProperty.call(b, 'token')) { b.token = tok; init2 = Object.assign({}, init, { body: JSON.stringify(b) }); } } catch (_) {}
+      }
+      return _yuniFetch(u2, init2);
+    };
+    function reloginPrompt() {
+      if (reloginWait) return reloginWait.promise;
+      let done;
+      const promise = new Promise(r => { done = r; });
+      reloginWait = { promise, done };
+      document.getElementById('reloginUser').innerHTML = '<i class="fas fa-user"></i> ' + esc(authUser.name);
+      document.getElementById('reloginPass').value = '';
+      document.getElementById('reloginError').style.display = 'none';
+      document.getElementById('reloginOverlay').style.display = 'flex';
+      setTimeout(() => document.getElementById('reloginPass').focus(), 60);
+      return promise;
+    }
+    function reloginFinish(ok) {
+      document.getElementById('reloginOverlay').style.display = 'none';
+      const w = reloginWait; reloginWait = null;
+      if (w) w.done(ok);
+    }
+    function reloginCancel() { reloginFinish(false); sessionStorage.removeItem('yuni_token'); location.reload(); }
+    document.getElementById('reloginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById('reloginBtn'), err = document.getElementById('reloginError');
+      err.style.display = 'none'; btn.disabled = true; btn.innerText = 'جاري التحقق...';
+      try {
+        const r = await (await _yuniFetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'login', username: authUser.name, password: document.getElementById('reloginPass').value }) })).json();
+        if (r.status !== 'success') throw new Error(String(r.message || '').replace(/^Error:\s*/, '') || 'الباسورد غلط');
+        sessionStorage.setItem('yuni_token', r.token);
+        if (r.user && r.user.name === authUser.name) authUser = r.user; else { location.reload(); return; }
+        reloginFinish(true);
+      } catch (ex) { err.innerText = ex.message || 'تعذر الاتصال بالسيرفر'; err.style.display = 'block'; }
+      finally { btn.disabled = false; btn.innerText = 'دخول وكمّل'; }
+    });
+
+    // ── عرض البيانات: آخر 3 شهور (والسجل آخر 7 أيام) — وزرار "عرض الكل"
+    const WIN = { Sales: false, Expenses: false, Payroll: false, Log: false, Cash: false };
+    function winYmd(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    function winFrom(key) { const d = new Date(); if (key === 'Log') d.setDate(d.getDate() - 6); else d.setMonth(d.getMonth() - 3); return winYmd(d); }
+    function winParams(key) { return WIN[key] ? {} : { from: winFrom(key) }; }
+    const WIN_RELOAD = { Sales: () => fetchLogsFromSheet(), Expenses: () => fetchExpensesData(), Payroll: () => fetchPayrollData(), Log: () => fetchLogsData(),
+      Cash: () => { document.getElementById('cxFFrom').value = WIN.Cash ? '' : winFrom('Cash'); cxApplyFilters(); } };
+    function winSet(key, all) { WIN[key] = all; WIN_RELOAD[key](); }
+    function winBar(key, tbodyId, meta) {
+      const tb = document.getElementById(tbodyId); if (!tb) return;
+      const anchor = tb.closest('.table-container') || tb.closest('table');
+      let bar = document.getElementById('winBar' + key);
+      if (!bar) { bar = document.createElement('div'); bar.id = 'winBar' + key; bar.className = 'win-bar'; anchor.parentNode.insertBefore(bar, anchor); }
+      const lbl = key === 'Log' ? 'آخر 7 أيام' : 'آخر 3 شهور';
+      const cnt = meta && meta.total ? ' — ' + Number(meta.shown).toLocaleString('en') + ' من ' + Number(meta.total).toLocaleString('en') : '';
+      bar.style.display = '';
+      bar.innerHTML = WIN[key]
+        ? '<span><i class="fas fa-database"></i> معروض <b>كل البيانات</b>' + cnt + '</span><button type="button" onclick="winSet(\'' + key + '\', false)">' + lbl + ' بس</button>'
+        : '<span><i class="fas fa-filter"></i> معروض <b>' + lbl + '</b> (من ' + winFrom(key).split('-').reverse().join('/') + ')' + cnt + '</span><button type="button" onclick="winSet(\'' + key + '\', true)"><i class="fas fa-list"></i> عرض الكل</button>';
+    }
+    // رصيد العميل في شاشة الفاتورة: بيتجاب من السيرفر جاهز (مش المبيعات كلها)
+    let clientBalCache = {};
     
     let activeColumnFilters = {}; 
     let activeConditions = {}; // تخزين الشروط المتقدمة لكل عمود
@@ -4810,7 +4930,6 @@ loadData(true);
       } else if (pageId === 'pageBalances') {
         document.getElementById('btnPageBalances').classList.add('active');
         initBalancesPage();
-        if (BAL_WANT) { switchBalTab(BAL_WANT); BAL_WANT = ''; }
       } else if (pageId === 'pageCash') {
         document.getElementById('btnPageCash').classList.add('active');
         cxLoad();
@@ -4984,10 +5103,9 @@ loadData(true);
         return;
       }
 
-      // حساب الرصيد من salesMasterData لو موجودة
-      if (salesMasterData && salesMasterData.length > 0) {
-        const balance = calcClientBalance(clientName);
-        renderSaleClientBadge(badge, balance);
+      // الرصيد بيتجاب من السيرفر جاهز للعميل ده بس (ومحفوظ لحد ما يتسجل حركة جديدة)
+      if (clientBalCache[clientName] !== undefined) {
+        renderSaleClientBadge(badge, clientBalCache[clientName]);
       } else {
         // لو البيانات لسه ما اتحملتش — نظهر loading صغير ونحمل
         badge.style.display = 'inline-block';
@@ -4995,11 +5113,11 @@ loadData(true);
         badge.style.color = '#888';
         badge.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:10px;"></i> جاري حساب الرصيد...';
 
-        apiRead('Sales').then(r => r.json()).then(res => {
-          if (res.status === 'success' && res.data) {
-            salesMasterData = res.data;
-          }
-          const balance = calcClientBalance(clientName);
+        apiRead('Sales', { summary: 'client', client: clientName }).then(r => r.json()).then(res => {
+          if (res.status !== 'success') throw new Error(res.message);
+          const row = (res.data || [])[0];
+          const balance = row ? (Number(row['Net Total']) || 0) - (Number(row['Paid']) || 0) : 0;
+          clientBalCache[clientName] = balance;
           // تأكد إن العميلة اللي اتحملت بيانات لها هي نفس اللي محددة دلوقتي
           const currentName = document.getElementById('clientNameHidden') ? document.getElementById('clientNameHidden').value.trim() : '';
           if (currentName === clientName) renderSaleClientBadge(badge, balance);
@@ -5180,8 +5298,9 @@ loadData(true);
       setTimeout(bkFit, 0);
     }
     window.addEventListener('resize', bkFit);
-    function apiRead(sheet) {
-      return fetch(SCRIPT_URL + '?sheet=' + encodeURIComponent(sheet) + '&token=' + encodeURIComponent(sessionStorage.getItem('yuni_token') || '') + '&t=' + Date.now());
+    function apiRead(sheet, params) {
+      const extra = Object.keys(params || {}).filter(k => params[k] !== undefined && params[k] !== '').map(k => '&' + k + '=' + encodeURIComponent(params[k])).join('');
+      return fetch(SCRIPT_URL + '?sheet=' + encodeURIComponent(sheet) + extra + '&token=' + encodeURIComponent(sessionStorage.getItem('yuni_token') || '') + '&t=' + Date.now());
     }
     async function checkLoginSession() {
       if (!sessionStorage.getItem('yuni_token')) return;
@@ -5944,7 +6063,7 @@ loadData(true);
         submitBtn.disabled = false;
         submitBtn.innerText = "تسجيل وحفظ العملية";
         if (data.status === "success") {
-          salesMasterData = []; // إعادة تعيين الكاش عشان الرصيد يتحسب من جديد بعد الحفظ
+          salesMasterData = []; clientBalCache = {}; // إعادة تعيين الكاش عشان الرصيد يتحسب من جديد بعد الحفظ
           alert("تم حفظ العملية بنجاح!");
           clearAllForm();
         } else if (data.needsPassword) {
@@ -6210,9 +6329,10 @@ loadData(true);
       const tbody = document.getElementById('expensesTableBody');
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#999;"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</td></tr>';
       try {
-        const response = await apiRead('Expenses');
+        const response = await apiRead('Expenses', winParams('Expenses'));
         const result = await response.json();
         if (result.status !== 'success' || !result.data) throw new Error(result.message || 'تعذر تحميل المصروفات');
+        winBar('Expenses', 'expensesTableBody', result.meta);
         expensesCache = result.data;
         expensesMasterData = result.data;
         applyExpensesFilters();
@@ -6528,11 +6648,12 @@ loadData(true);
 
       tableBody.innerHTML = '<tr><td colspan="18" style="text-align:center;">جاري تحميل سجلات المبيعات...</td></tr>';
 
-      apiRead('Sales')
+      apiRead('Sales', winParams('Sales'))
         .then(res => res.json())
         .then(response => {
           if (response.status === "success" && response.data) {
             salesMasterData = response.data;
+            winBar('Sales', 'tableBody', response.meta);
             applyTableFilters();
           } else {
             tableBody.innerHTML = '<tr><td colspan="18" style="text-align:center;">لا توجد سجلات متاحة حالياً</td></tr>';
@@ -7104,11 +7225,12 @@ loadData(true);
       const tbody = document.getElementById('logsTableBody');
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري تحميل السجلات...</td></tr>';
 
-      apiRead('Log')
+      apiRead('Log', winParams('Log'))
         .then(r => r.json())
         .then(response => {
           if (response.status === 'success' && response.data) {
             logsMasterData = response.data;
+            winBar('Log', 'logsTableBody', response.meta);
             applyLogsFilters();
           } else {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد سجلات</td></tr>';
@@ -7340,7 +7462,7 @@ loadData(true);
       const tbody = document.getElementById('balancesTableBody');
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري تحميل البيانات...</td></tr>';
 
-      apiRead('Sales')
+      apiRead('Sales', { summary: 'client' })
         .then(r => r.json())
         .then(response => {
           if (response.status === 'success' && response.data) {
@@ -7678,7 +7800,8 @@ loadData(true);
       const cOk = canSub('Balances', 'Clients', 'view'), kOk = canSub('Balances', 'Cash', 'view');
       document.getElementById('balTabClients').style.display = cOk ? '' : 'none';
       document.getElementById('balTabCash').style.display = kOk ? '' : 'none';
-      const cur = document.getElementById('balTabCash').classList.contains('active') ? 'cash' : 'clients';
+      const cur = BAL_WANT || (document.getElementById('balTabCash').classList.contains('active') ? 'cash' : 'clients');
+      BAL_WANT = '';
       switchBalTab(cur === 'cash' ? (kOk ? 'cash' : 'clients') : (cOk ? 'clients' : 'cash'));
     }
     function switchBalTab(tab) {
@@ -7861,8 +7984,8 @@ loadData(true);
       try {
         const canSeeExpenses = can('Expenses', 'view');
         const [salesResponse, expensesResponse] = await Promise.all([
-          apiRead('Sales'),
-          canSeeExpenses ? apiRead('Expenses') : Promise.resolve(null)
+          apiRead('Sales', { from: from, to: to }),
+          canSeeExpenses ? apiRead('Expenses', { from: from, to: to }) : Promise.resolve(null)
         ]);
         const salesResult = await salesResponse.json();
         if (salesResult.status !== 'success' || !salesResult.data) throw new Error(salesResult.message || 'تعذر تحميل بيانات النقدية');
@@ -8386,7 +8509,7 @@ loadData(true);
       const orig = btn.innerHTML;
       btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
       try {
-        const [salesRes, expRes] = await Promise.all([apiRead('Sales'), apiRead('Expenses')]);
+        const [salesRes, expRes] = await Promise.all([apiRead('Sales', { from: dateStr, to: dateStr }), apiRead('Expenses', { from: dateStr, to: dateStr })]);
         const salesJson = await salesRes.json();
         if (salesJson.status !== 'success') throw new Error(salesJson.message || 'تعذر تحميل بيانات المبيعات.');
         svcSalesCache = salesJson.data || [];
@@ -8618,7 +8741,7 @@ loadData(true);
       const orig = btn.innerHTML;
       btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
       try {
-        const res = await apiRead('Sales');
+        const res = await apiRead('Sales', { from: dateStr, to: dateStr });
         const json = await res.json();
         if (json.status !== 'success') throw new Error(json.message || 'تعذر تحميل البيانات.');
         const sales = json.data || [];
@@ -9466,9 +9589,10 @@ loadData(true);
     async function fetchPayrollData() {
       if (!can('Payroll', 'view')) return;
       try {
-        const response = await apiRead('Payroll');
+        const response = await apiRead('Payroll', winParams('Payroll'));
         const result = await response.json();
         if (result.status === 'success') {
+          winBar('Payroll', 'payrollTableBody', result.meta);
           payrollData = result.data || [];
           applyPayrollFilters();
         }
@@ -9746,6 +9870,7 @@ loadData(true);
         cxRenderCards();
         cxRenderCustody();
         cxFillCustodianFilter();
+        if (!WIN.Cash && !document.getElementById('cxFFrom').value) document.getElementById('cxFFrom').value = winFrom('Cash');
         cxApplyFilters();
       } catch (e) {
         document.getElementById('cxLedgerBody').innerHTML = '<tr><td colspan="11" class="cx-empty" style="color:#C5221F;">' + cxEsc(e.message || 'تعذر التحميل') + '</td></tr>';
@@ -9842,6 +9967,10 @@ loadData(true);
         return true;
       }).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : (cxNum(b.num) - cxNum(a.num))));
       cxRenderLedger(rows);
+      // شريط "آخر 3 شهور / عرض الكل" (الأرصدة اللي فوق محسوبة من كل الحركات دايماً)
+      const f0 = document.getElementById('cxFFrom').value;
+      if (!f0 || f0 === winFrom('Cash')) { WIN.Cash = !f0; winBar('Cash', 'cxLedgerBody', { total: cxRows.length, shown: rows.length }); }
+      else { const b = document.getElementById('winBarCash'); if (b) b.style.display = 'none'; }
     }
 
     // حذف حركة يدوية (رصيد أول المدة / تحويل / تسوية) — الأقدم من أمس بالباسورد الخاص
@@ -10845,6 +10974,7 @@ loadData(true);
       uf.value = USERS.users.some(u => u.name === ucur) ? ucur : '';
       document.getElementById('usAddBtn').style.display = can('Users', 'add') ? '' : 'none';
       document.getElementById('usMasterBtn').style.display = can('Users', 'edit') ? '' : 'none';
+      document.getElementById('usBackupBtn').style.display = can('Users', 'edit') ? '' : 'none';
       document.getElementById('usOrderBtn').style.display = can('Users', 'edit') ? '' : 'none';
       if (res.tabOrder) { TAB_ORDER = res.tabOrder; applyTabOrder(TAB_ORDER); }
       renderUsers();
@@ -11231,6 +11361,45 @@ loadData(true);
       try { setUsers(await svPost({ action: 'deleteUser', name })); toast('تم حذف المستخدم'); }
       catch (e) { toast(e.message || 'تعذر الحذف', true); }
     }
+    function renderBackupStatus(s) {
+      const el = document.getElementById('bkpStatus');
+      if (s.folderUrl && !document.getElementById('bkpUrl').value) document.getElementById('bkpUrl').value = s.folderUrl;
+      const lines = [];
+      lines.push(s.folderId ? '<i class="fas fa-folder" style="color:var(--gold-accent);"></i> الفولدر: <a href="' + esc(s.folderUrl) + '" target="_blank" rel="noopener">' + esc(s.folderName || 'فتح الفولدر') + '</a>' : '<i class="fas fa-exclamation-circle" style="color:var(--danger);"></i> لسه مفيش فولدر — النسخ التلقائي مش شغال');
+      if (s.folderId) lines.push(s.trigger ? '<i class="fas fa-check-circle" style="color:var(--primary-green);"></i> التشغيل التلقائي شغال: ' + s.hours.map(h => (h > 12 ? h - 12 : h) + (h >= 12 ? ' م' : ' ص')).join('، ')
+        : '<i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> التشغيل التلقائي مش مفعّل — اضغط "حفظ وتشغيل"');
+      lines.push(s.last ? '<i class="fas fa-history"></i> آخر نسخة: <a href="' + esc(s.last.url) + '" target="_blank" rel="noopener">' + esc(s.last.name) + '</a>' : '<i class="fas fa-history"></i> لسه مفيش نسخ');
+      if (s.error) lines.push('<span style="color:var(--danger);"><i class="fas fa-times-circle"></i> آخر مشكلة (' + esc(s.error.at) + '): ' + esc(s.error.message) + '</span>');
+      el.innerHTML = lines.join('<br>');
+      document.getElementById('bkpNow').disabled = !s.folderId;
+      document.getElementById('bkpOff').style.display = s.folderId ? '' : 'none';
+    }
+    async function openBackupModal() {
+      document.getElementById('bkpUrl').value = '';
+      showErr('bkpError', '');
+      document.getElementById('bkpStatus').innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
+      openModal('backupModal');
+      try { renderBackupStatus(await ccGet({ action: 'backupStatus' })); }
+      catch (e) { document.getElementById('bkpStatus').innerHTML = '<span style="color:var(--danger);">' + esc(e.message) + '</span>'; }
+    }
+    async function saveBackup(off) {
+      const url = document.getElementById('bkpUrl').value.trim();
+      if (!off && !/folders\/|[?&]id=/.test(url)) { showErr('bkpError', 'حط لينك فولدر من Drive (بيبقى فيه /folders/).'); return; }
+      if (off && !confirm('إيقاف النسخ الاحتياطي التلقائي؟')) return;
+      const btn = document.getElementById('bkpSave'); btn.disabled = true;
+      showErr('bkpError', '');
+      try { const r = await svPost(off ? { action: 'backupSettings', off: true } : { action: 'backupSettings', folderUrl: url }); if (off) document.getElementById('bkpUrl').value = ''; renderBackupStatus(r); toast(r.message); }
+      catch (e) { showErr('bkpError', e.message); }
+      finally { btn.disabled = false; }
+    }
+    async function backupNowClick() {
+      const btn = document.getElementById('bkpNow'), orig = btn.innerHTML;
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري النسخ...';
+      showErr('bkpError', '');
+      try { const r = await svPost({ action: 'backupNow' }); renderBackupStatus(r); toast(r.message); }
+      catch (e) { showErr('bkpError', e.message); }
+      finally { btn.innerHTML = orig; btn.disabled = false; }
+    }
     function openMasterModal() {
       document.getElementById('masterNew').value = '';
       showErr('masterError', '');
@@ -11256,6 +11425,8 @@ loadData(true);
       btn.disabled = true;
       btn.querySelector('i').classList.add('fa-spin');
       const active = (document.querySelector('.view-page.active') || {}).id || '';
+      if (authUser) { try { await apiPost({ action: 'cacheFlush' }); } catch (_) {} }
+      clientBalCache = {};
       const tasks = [loadCatalog('throw')];
       if (authUser) {
         tasks.push(refreshStaffData(), refreshClients());
