@@ -10811,7 +10811,7 @@ loadData(true);
     // ═══════════════════════════ المستخدمين والصلاحيات ═══════════════════════════
     const TAB_LABELS = {
       Sales: ['إضافة حركة جديدة', 'تسجيل الفواتير'], Collect: ['تحصيلات', 'تحصيل وحجز'],
-      ClientCards: ['بطاقات العملاء', 'التابات اللي جوه بتاخد نفس الصلاحية إلا لو حددتها — تعديل الجلسات بعد التأكيد والأرصدة والتحويل للمدير بس'],
+      ClientCards: ['بطاقات العملاء', 'التابات اللي جوه بتاخد نفس الصلاحية إلا لو حددتها — الأرصدة والتحويل للمدير بس'],
       Bookings: ['الحجوزات', 'عرض = الحجوزات ورسالة اليوم · إضافة = حجز جديد · تعديل = تعديل الحجز وحالته · حذف = حذف حجز'],
       Items: ['الأصناف', 'إضافة = صنف جديد · تعديل = تعديل وإيقاف · حذف = حذف صنف ملوش حركات'],
       Specialities: ['التخصصات', 'إضافة = تخصص جديد · تعديل = الموظفين والإيقاف · حذف = تخصص ملوش أصناف ولا فواتير'],
@@ -10914,7 +10914,7 @@ loadData(true);
     const PERM_ACT_AR = { view: 'عرض', add: 'إضافة', edit: 'تعديل', delete: 'حذف' };
     const SUB_HINTS = {
       'ClientCards/Today': 'تعديل = تكملة وتأكيد الجلسات المستنية', 'ClientCards/Clients': 'تعديل = بيانات العميل · إضافة/تعديل/حذف = الأرصدة والتحويل (للمدير)',
-      'ClientCards/Visits': 'إضافة = تسجيل جلسة · تعديل · حذف جلسة مستنية', 'ClientCards/Invoices': 'عرض الفواتير والمدفوعات والرصيد المالي في البطاقة',
+      'ClientCards/Visits': 'إضافة = تسجيل جلسة · تعديل/حذف = أي جلسة في سجل المتابعة (حتى بعد التأكيد)', 'ClientCards/Invoices': 'عرض الفواتير والمدفوعات والرصيد المالي في البطاقة',
       'Balances/Clients': 'عرض أرصدة العملاء', 'Balances/Cash': 'إضافة = تقفيل اليوم',
       'Services/Closing': '', 'Services/Clients': '',
       'Bookings/Book': 'إضافة = حجز جديد · تعديل = تعديل الحجز وحالته · حذف = حذف حجز',
@@ -11506,7 +11506,7 @@ loadData(true);
       try {
         const res = await ccGet({ action: 'clientCards' });
         if (req !== CC.req) return;
-        CC.overview = res; CC.services = res.services || []; CC.isManager = !!res.isManager;
+        CC.overview = res; CC.services = res.services || []; CC.isManager = !!res.isManager; if (res.today) CC.today = res.today;
         ccRenderHome();
       } catch (e) {
         if (req === CC.req) body.innerHTML = '<div class="empty" style="color:var(--danger);">' + esc(e.message) + '</div>';
@@ -11534,7 +11534,7 @@ loadData(true);
     function ccSetCard(res) {
       CC.card = res; CC.client = res.client.name;
       if (res.services && res.services.length) CC.services = res.services;
-      CC.isManager = !!res.isManager;
+      CC.isManager = !!res.isManager; if (res.today) CC.today = res.today;
       document.getElementById('ccSearch').value = res.client.name;
       ccRenderCard();
     }
@@ -11676,8 +11676,8 @@ loadData(true);
       const tags = (v.source === 'Sale' ? '<span class="cc-tag">فاتورة ' + esc(v.invoice) + '</span>' : '')
         + (v.source === 'Transfer' ? '<span class="cc-tag">تحويل</span>' : '') + (v.override ? '<span class="cc-tag ovr">تجاوز</span>' : '')
         + (v.confirmedBy ? '<div class="cc-sub"><i class="fas fa-check"></i> أكدها ' + esc(v.confirmedBy) + '</div>' : '');
-      // بعد التأكيد: التعديل والحذف للمدير بس
-      const locked = v.source === 'Transfer' || !CC.isManager;
+      // التعديل والحذف حسب صلاحية "سجل المتابعة" (حركة التحويل بس اللي متتعدلش)
+      const locked = v.source === 'Transfer';
       const acts = (!locked && canSub('ClientCards', 'Visits', 'edit') ? '<button class="icon-btn" title="تعديل / ملاحظات" data-v="' + esc(v.id) + '" onclick="ccEditVisit(this.dataset.v)"><i class="fas fa-pen"></i></button>' : '')
         + (!locked && canSub('ClientCards', 'Visits', 'delete') ? '<button class="icon-btn danger" title="حذف" data-v="' + esc(v.id) + '" onclick="ccDeleteVisit(this.dataset.v)"><i class="fas fa-trash"></i></button>' : '');
       return '<tr><td data-l="التاريخ">' + ccDate(v.date) + '</td>'
@@ -12026,7 +12026,7 @@ loadData(true);
     function ccSetToday(res) {
       CC.dayData = res; CC.overview = res;
       if (res.services && res.services.length) CC.services = res.services;
-      CC.isManager = !!res.isManager;
+      CC.isManager = !!res.isManager; if (res.today) CC.today = res.today;
       CC.day = res.day;
       if (CC.view === 'today') ccRenderToday();
     }
@@ -12108,6 +12108,7 @@ loadData(true);
       if (canEd) {
         const instant = p && p.mode === 'Instant';
         h += '<div class="dc-grid">'
+          + '<div class="field"><label>تاريخ الجلسة</label><input type="date" class="dc-date" value="' + esc(v.date) + '" max="' + esc(CC.today || '') + '"></div>'
           + '<div class="field"><label>النوع</label><input type="text" class="dc-type" list="ccTypeList" value="' + esc(v.type) + '"></div>'
           + (p && p.type === 'Pulses'
             ? CC_DEVICES.map(dv => '<div class="field"><label>نبضات ' + dv + '</label><input type="text" class="dc-dev" data-dev="' + dv + '" inputmode="numeric" value="' + esc(v.devices && v.devices[dv] !== '' && v.devices[dv] !== undefined ? v.devices[dv] : '') + '" oninput="ccDayDevSum(this)" placeholder="0"></div>').join('')
@@ -12165,7 +12166,7 @@ loadData(true);
         const f = s => el.querySelector(s);
         const devEls = el.querySelectorAll('.dc-dev');
         const devices = devEls.length ? [...devEls].reduce((o, d) => { o[d.dataset.dev] = d.value.trim(); return o; }, {}) : undefined;
-        out.push({ id: v.id, date: v.date, type: f('.dc-type').value.trim(), qty: f('.dc-qty') ? f('.dc-qty').value.trim() : '', devices,
+        out.push({ id: v.id, date: f('.dc-date') ? f('.dc-date').value : v.date, type: f('.dc-type').value.trim(), qty: f('.dc-qty') ? f('.dc-qty').value.trim() : '', devices,
           staff: f('.dc-staff').value.trim(), notes: f('.dc-notes').value, next: f('.dc-next').value,
           skip: !!(f('.dc-skip') && f('.dc-skip').checked), override: reason, _svc: v.service, _pkg: !!v.pkg });
       });
@@ -12177,7 +12178,11 @@ loadData(true);
       if (mode === 'confirm') {
         const miss = items.filter(i => i._pkg && !i.skip && !i.qty);
         if (miss.length) { showErr('ccdError', 'اكتب الكمية المستخدمة في: ' + miss.map(i => i._svc).join('، ') + ' — أو علّم "مفيش جلسة النهارده".'); return; }
-        if (!confirm('تأكيد ' + items.length + ' جلسة لـ ' + ccDay.client + '؟ بعد التأكيد التعديل للمدير بس.')) return;
+        const today = CC.today || '';
+        const fut = items.find(i => today && i.date > today);
+        if (fut) { showErr('ccdError', '"' + fut._svc + '": التاريخ بعد النهارده.'); return; }
+        if (items.some(i => !i.date)) { showErr('ccdError', 'اختار تاريخ الجلسة.'); return; }
+        if (!confirm('تأكيد ' + items.length + ' جلسة لـ ' + ccDay.client + '؟ بعد التأكيد التعديل والحذف من سجل المتابعة (حسب الصلاحية).')) return;
       }
       if (document.getElementById('ccdOverride').style.display === 'block' && !document.getElementById('ccdReason').value.trim() && document.querySelector('#ccDayBody .dc-warn:not(:empty)')) {
         showErr('ccdError', 'اكتب سبب التجاوز.'); document.getElementById('ccdReason').focus(); return;
