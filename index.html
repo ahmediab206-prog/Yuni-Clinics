@@ -91,6 +91,7 @@
     .main-wrapper { width: 100%; max-width: 1300px; }
     .view-page { display: none; }
     .view-page.active { display: block; }
+    .badge-b { display: inline-flex; gap: 4px; align-items: center; background: #FFF7E6; color: #7A4F00; border: 1px solid #E9D3A0; border-radius: 999px; font-size: 11px; font-weight: 800; padding: 1px 8px; margin-right: 6px; vertical-align: middle; }
     #pageBookings iframe { width: 100%; border: 0; display: block; background: transparent; min-height: 480px; }
 
     .card { background: var(--card-bg); padding: 35px; border-radius: 20px; box-shadow: 0 12px 30px rgba(24, 66, 50, 0.08); border: 1px solid var(--border-color); position: relative; }
@@ -1233,6 +1234,7 @@
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn alt" id="mgAddFolder" onclick="openCategoryModal()"><i class="fas fa-folder-plus"></i> مجلد جديد</button>
             <button class="btn" id="mgAddService" onclick="openServiceModal()"><i class="fas fa-plus"></i> خدمة جديدة</button>
+            <button class="btn alt" id="mgAddBundle" onclick="mgOpenBundle('')"><i class="fas fa-gift"></i> باكدج عرض جديد</button>
             <button class="btn alt" onclick="loadCatalog(true)" title="تحديث"><i class="fas fa-sync-alt"></i></button>
           </div>
         </div>
@@ -1348,6 +1350,13 @@
   .svc-row select { width: 84px; padding: 4px 6px; font-size: 12.5px; }
   .svc-row input { accent-color: var(--green); }
   #cfText { white-space: pre-line; }
+  .mini-link { border: none; background: none; color: var(--gold); font-weight: 800; font-size: 12px; cursor: pointer; margin-right: 6px; padding: 0; }
+  .mini-link:hover { text-decoration: underline; }
+  .newcl { border: 1.5px dashed var(--gold); background: #FFFBF2; border-radius: 12px; padding: 10px 12px; margin: -2px 0 11px; font-size: 13px; }
+  .newcl b { color: #7A4F00; }
+  .newcl .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+  .newcl .row input { flex: 1; min-width: 150px; }
+  .newcl.ok { border-style: solid; border-color: #B9D3C3; background: var(--light); color: var(--green); font-weight: 800; }
 
   /* ── الهيدر */
   .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 12px 18px; margin-bottom: 14px; }
@@ -1729,9 +1738,10 @@
       <div class="f"><label>إلى</label><select id="bkTo" onchange="bkRefresh('to')"></select></div>
     </div>
     <div class="two">
-      <div class="f"><label>اسم العميل *</label><input type="text" id="bkClient" list="clientsList" autocomplete="off" placeholder="اكتب أو اختار" onchange="bkClientPicked()"></div>
-      <div class="f"><label>الموبايل</label><input type="tel" id="bkPhone" placeholder="01xxxxxxxxx" inputmode="tel"></div>
+      <div class="f"><label>اسم العميل * <button type="button" class="mini-link" id="bkNewClBtn" onclick="bkNewClient()">+ عميل جديد</button></label><input type="text" id="bkClient" list="clientsList" autocomplete="off" placeholder="اكتب أو اختار" onchange="bkClientPicked()" oninput="bkClientState()"></div>
+      <div class="f"><label>الموبايل</label><input type="tel" id="bkPhone" placeholder="01xxxxxxxxx" inputmode="tel" oninput="bkClientState()"></div>
     </div>
+    <div id="bkNewCl"></div>
     <div class="f"><label>ملاحظات</label><input type="text" id="bkNotes" placeholder="مثلاً: أول مرة — عايزة تكلم الدكتورة الأول"></div>
     <div class="f" id="bkStatusWrap"><label>الحالة</label><div class="st-pick" id="bkStatus"></div></div>
     <div id="bkMsg"></div>
@@ -2182,6 +2192,8 @@ function openBooking(id, pre) {
   document.getElementById('bkClient').value = bk.client;
   document.getElementById('bkPhone').value = bk.phone;
   document.getElementById('bkNotes').value = bk.notes;
+  newCl = null; bkClientState();
+  document.getElementById('bkNewClBtn').style.display = perm('Book', 'add') ? '' : 'none';
   document.getElementById('bkDel').style.display = b && perm('Book', 'delete') ? '' : 'none';
   bkRO = !!b && !perm('Book', 'edit');
   document.getElementById('bkStatusWrap').style.display = b ? '' : 'none';
@@ -2284,10 +2296,49 @@ function bkCheck() {
   if (bkRO) box.innerHTML = '<div class="msg warn"><i class="fas fa-eye"></i> عرض بس — مفيش صلاحية تعديل الحجوزات.</div>';
 }
 // اختيار عميل موجود بيكمل الموبايل
+// عميل مش متسجل: يتضاف لشيت العملاء من هنا (نفس إضافة العميل في الفاتورة)
+let newCl = null;   // آخر عميل اتضاف من النافذة دي
+function bkNewClient() {
+  document.getElementById('bkClient').value = '';
+  document.getElementById('bkPhone').value = '';
+  newCl = null; bkClientState(true);
+  document.getElementById('bkClient').focus();
+}
+function bkClientState(force) {
+  const box = document.getElementById('bkNewCl');
+  const name = document.getElementById('bkClient').value.trim(), phone = document.getElementById('bkPhone').value.replace(/\D/g, '');
+  if (newCl && newCl.name === name) { box.innerHTML = '<div class="newcl ok"><i class="fas fa-check-circle"></i> ' + esc(name) + ' اتسجلت في العملاء (' + esc(newCl.id) + ')</div>'; return; }
+  const known = name && CLIENTS.some(x => x.name.toLowerCase() === name.toLowerCase() && x.id);
+  if (known || (!name && !force) || !perm('Book', 'add')) { box.innerHTML = ''; return; }
+  box.innerHTML = '<div class="newcl"><i class="fas fa-user-plus" style="color:var(--gold)"></i> ' + (name ? '<b>' + esc(name) + '</b> مش متسجلة في العملاء — سجّلها كعميل جديد:' : 'اكتب اسم العميل الجديد والموبايل (11 رقم):')
+    + '<div class="row"><input type="tel" id="bkPhone2" placeholder="موبايل تاني (اختياري)" inputmode="tel"><button type="button" class="btn gold sm" id="bkAddClBtn" onclick="bkAddClient()"' + (name && phone.length === 11 ? '' : ' disabled') + '><i class="fas fa-user-plus"></i> إضافة للعملاء</button></div>'
+    + (name && phone.length !== 11 ? '<div class="hint" style="margin-top:6px;">الموبايل لازم 11 رقم عشان تتسجل.</div>' : '') + '</div>';
+}
+async function bkAddClient() {
+  const name = document.getElementById('bkClient').value.trim().replace(/\s+/g, ' ');
+  const phone1 = document.getElementById('bkPhone').value.replace(/\D/g, ''), phone2 = (document.getElementById('bkPhone2') || { value: '' }).value.replace(/\D/g, '');
+  const btn = document.getElementById('bkAddClBtn'); btn.disabled = true;
+  busy(true, 'جاري إضافة العميل...');
+  try {
+    const r = await (await P.apiPost({ action: 'addClient', tab: 'Bookings', name: name, phone1: phone1, phone2: phone2, address: '' })).json();
+    if (r.status !== 'success') throw new Error(r.message || 'تعذر إضافة العميل');
+    const c = r.client || {};
+    newCl = { id: c['Client ID'], name: c['Client Name'] || name, phone: c['Client Number'] || phone1 };
+    CLIENTS.push(newCl); fillClients();
+    try { P.bkClientAdded(c); } catch (_) {}
+    document.getElementById('bkClient').value = newCl.name;
+    bkClientState();
+    toast('اتسجلت ' + newCl.name + ' في العملاء (' + newCl.id + ')');
+  } catch (e) {
+    document.getElementById('bkNewCl').querySelector('.newcl').insertAdjacentHTML('beforeend', '<div class="msg err" style="margin:8px 0 0;">' + esc(e.message) + '</div>');
+    btn.disabled = false;
+  } finally { busy(false); }
+}
 function bkClientPicked() {
   const v = document.getElementById('bkClient').value.trim().toLowerCase(), ph = document.getElementById('bkPhone');
   const c = CLIENTS.find(x => x.name.toLowerCase() === v);
   if (c && c.phone && !ph.value.trim()) ph.value = c.phone;
+  bkClientState();
 }
 async function saveBooking() {
   bk.client = document.getElementById('bkClient').value.trim();
@@ -5106,6 +5157,7 @@ loadData(true);
         body:JSON.stringify({...payload, token:sessionStorage.getItem('yuni_token')})});
     }
     // قراءة بأكشن (الحجوزات بتستخدمها من جوه الـ iframe)
+    function bkClientAdded(c) { try { if (c && c['Client ID'] && !clientsData.some(x => x['Client ID'] === c['Client ID'])) clientsData.push(c); } catch (_) {} }
     function apiGetAction(params) {
       const q = new URLSearchParams(Object.assign({ token: sessionStorage.getItem('yuni_token') || '', t: Date.now() }, params || {}));
       return fetch(SCRIPT_URL + '?' + q.toString());
@@ -10236,7 +10288,7 @@ loadData(true);
       if (s.notes) html += '<div class="svc-box notes"><h3><i class="fas fa-info-circle"></i> ملاحظات</h3><p>' + esc(s.notes) + '</p></div>';
       html += '<div class="svc-actions"><button class="btn alt" onclick="go(\'c/' + esc(s.category) + '\')"><i class="fas fa-arrow-right"></i> رجوع</button>'
         + '<button class="btn alt" onclick="shareService(\'' + esc(s.id) + '\')"><i class="fas fa-share-alt"></i> مشاركة</button>'
-        + (isManager() ? '<button class="btn alt" onclick="openServiceModal(\'' + esc(s.id) + '\')"><i class="fas fa-pen"></i> تعديل</button>' : '')
+        + (isManager() ? '<button class="btn alt" onclick="mgEditSvc(\'' + esc(s.id) + '\')"><i class="fas fa-pen"></i> تعديل</button>' : '')
         + '</div></div>';
       body.innerHTML = html;
       renderGallery(s);
@@ -10419,6 +10471,7 @@ loadData(true);
       addSvc.style.display = canAdd ? '' : 'none';
       addSvc.disabled = !catId;
       addSvc.title = catId ? '' : 'افتح مجلد الأول عشان تضيف خدمة جواه';
+      document.getElementById('mgAddBundle').style.display = can('Items', 'add') ? '' : 'none';
       const folders = childCats(catId, true);
       const services = catId ? catServices(catId, true) : [];
       const upDown = (kind, id, i, n) => canEdit
@@ -10445,7 +10498,7 @@ loadData(true);
           : s.online === false ? '<span class="hidden-badge">للمبيعات بس</span>'
           : '<span style="color:#1A7F4B; font-weight:700; font-size:12px;">ظاهرة</span>';
         html += '<tr class="' + (s.enabled === false ? 'is-hidden' : '') + '"><td><div class="mg-row-name"><div class="mg-thumb">' + (m ? imgTag(m, 160) : '<i class="fas fa-spa"></i>') + '</div>'
-          + '<div><div class="mg-name" onclick="openServiceModal(\'' + esc(s.id) + '\')">' + esc(s.name) + '</div><div class="mg-sub">' + esc(s.speciality || '—') + (s.salesCategory ? ' / ' + esc(s.salesCategory) : '') + ' · ' + (s.media || []).length + ' صورة/فيديو' + (trackLabel(s) ? ' · ' + esc(trackLabel(s)) : '') + '</div></div></div></td>'
+          + '<div><div class="mg-name" onclick="mgEditSvc(\'' + esc(s.id) + '\')">' + esc(s.name) + (s.bundle ? ' <span class="badge-b"><i class="fas fa-gift"></i> باكدج</span>' : '') + '</div><div class="mg-sub">' + esc(s.speciality || '—') + (s.salesCategory ? ' / ' + esc(s.salesCategory) : '') + ' · ' + (s.media || []).length + ' صورة/فيديو' + (trackLabel(s) ? ' · ' + esc(trackLabel(s)) : '') + '</div></div></div></td>'
           + '<td class="price-cell">' + esc(priceText(s.price))
           + ((s.teamPrice !== '' && s.teamPrice !== undefined) || (s.familyPrice !== '' && s.familyPrice !== undefined)
               ? '<div class="mg-team">تيم: ' + esc(teamText(s.teamPrice)) + ' · أهل: ' + esc(teamText(s.familyPrice)) + '</div>' : '')
@@ -10454,7 +10507,7 @@ loadData(true);
           + '<td>' + st + '</td>'
           + '<td><div class="mg-actions">'
           + '<button class="icon-btn" title="معاينة" onclick="go(\'s/' + esc(s.id) + '\')"><i class="fas fa-eye"></i></button>'
-          + (canEdit ? '<button class="icon-btn" title="تعديل" onclick="openServiceModal(\'' + esc(s.id) + '\')"><i class="fas fa-pen"></i></button>' : '')
+          + (canEdit ? '<button class="icon-btn" title="' + (s.bundle ? 'تعديل الباكدج ومكوناته' : 'تعديل') + '" onclick="mgEditSvc(\'' + esc(s.id) + '\')"><i class="fas fa-pen"></i></button>' : '')
           + upDown('service', s.id, i, services.length)
           + (canDel ? '<button class="icon-btn danger" title="حذف" onclick="deleteService(\'' + esc(s.id) + '\')"><i class="fas fa-trash"></i></button>' : '')
           + '</div></td></tr>';
@@ -10546,6 +10599,16 @@ loadData(true);
 
     // ── نافذة الخدمة
     let svcEdit = { id: '', media: [], uploading: 0 };
+    // الباكدج بيتعدل من نافذة الباكدج (مكوناته وأسعارها) — والخدمة العادية من نافذة الخدمة
+    function mgEditSvc(id) { const s = IDX.svc[id]; if (s && s.bundle) mgOpenBundle(id); else openServiceModal(id); }
+    async function mgOpenBundle(id) {
+      if (!ITEMS.items.length) {
+        try { toast('جاري تحميل الأصناف...'); setItems(await ccGet({ action: 'items' })); }
+        catch (e) { toast(e.message || 'تعذر تحميل الأصناف', true); return; }
+      }
+      openBundleModal(id);
+      if (!id && mgFolder && ITEMS.folders.some(f => f.id === mgFolder)) document.getElementById('bdFolder').value = mgFolder;
+    }
     function openServiceModal(id) {
       const s = id ? IDX.svc[id] : null;
       svcEdit = { id: s ? s.id : '', media: s ? (s.media || []).map(m => ({ t: m.t, id: m.id })) : [], uploading: 0 };
