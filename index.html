@@ -1455,7 +1455,7 @@
   .tl-hc .menu-btn { border: none; background: none; color: var(--muted); cursor: pointer; width: 28px; height: 28px; border-radius: 8px; flex: none; }
   .tl-hc .menu-btn:hover { background: var(--light); color: var(--green); }
   .tl-time { position: sticky; right: 0; z-index: 3; background: var(--soft); border-left: 1px solid var(--border); }
-  .tl-time .t { height: calc(var(--slot) * 4); font-size: 11px; font-weight: 800; color: var(--muted); padding: 2px 6px 0; border-top: 1px solid #EEE8DA; }
+  .tl-time .t { height: calc(var(--slot) * 6); font-size: 11px; font-weight: 800; color: var(--muted); padding: 2px 6px 0; border-top: 1px solid #EEE8DA; }
   .tl-corner { position: sticky; right: 0; top: 0; z-index: 5; background: var(--soft); border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--muted); font-weight: 800; }
   .col { position: relative; border-left: 1px solid #F0EBDD; cursor: crosshair; user-select: none; touch-action: pan-x pan-y; }
   .col .s { height: var(--slot); border-top: 1px solid #F6F2E7; }
@@ -1700,7 +1700,7 @@
       <div class="chips people" id="staffChips"></div>
       <div id="focusBar"></div>
       <div id="dayBody"></div>
-      <div class="hint" id="tlHint" style="margin-top:10px;"><i class="fas fa-mouse-pointer"></i> دوس على أي مربع فاضي عشان تحجز (أو اسحب بالماوس من ميعاد لميعاد) — كل مربع = 15 دقيقة. ⋮ جنب اسم الدكتور: مش جاي النهارده / مواعيد مختلفة النهارده.</div>
+      <div class="hint" id="tlHint" style="margin-top:10px;"><i class="fas fa-mouse-pointer"></i> دوس على أي مربع فاضي عشان تحجز (أو اسحب بالماوس من ميعاد لميعاد) — كل مربع = 10 دقايق. ⋮ جنب اسم الدكتور: مش جاي النهارده / مواعيد مختلفة النهارده.</div>
     </div>
   </div>
 
@@ -1822,9 +1822,9 @@
 <script>
 // ══════════════════════════════════════════════════════════════
 //  تاب الحجوزات — بيشتغل جوه iframe في الموقع وبيكلم السيرفر من خلال الموقع الأساسي (apiPost / apiGetAction)
-//  الوحدة 15 دقيقة · الأسبوع بيبدأ السبت
+//  الوحدة 10 دقايق · الأسبوع بيبدأ السبت
 // ══════════════════════════════════════════════════════════════
-const SLOT = 15;
+const SLOT = 10;   // المواعيد كل 10 دقايق
 const DAYS = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
 const MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 const STATUS = { booked: 'محجوز', arrived: 'وصل', done: 'خلص', noshow: 'ما جاش', cancelled: 'ملغي' };
@@ -1928,7 +1928,7 @@ function weekOf(st, ds) {
   return wk[dow(parseD(ds))];
 }
 function dayBookings(ds) { return S.bookings.filter(b => b.date === ds); }
-// المربعات الفاضية (15 دقيقة) للشخص في اليوم — exceptId = الحجز اللي بيتعدل نفسه
+// المربعات الفاضية (10 دقايق) للشخص في اليوم — exceptId = الحجز اللي بيتعدل نفسه
 function freeSlots(stId, ds, exceptId) {
   const st = staffById(stId), s = st && shiftOf(st, ds);
   if (!s || s.off) return [];
@@ -2581,7 +2581,7 @@ function waMsg() { window.open('https://wa.me/?text=' + encodeURIComponent(docum
 // ══════════════════ الإعدادات ══════════════════
 let draft = {};   // تعديلات المواعيد الثابتة قبل الحفظ
 function renderSettings() { renderSections(); renderStaff(); }
-const DURS = [15, 20, 30, 45, 60, 75, 90, 105, 120, 150, 180];
+const DURS = [10, 15, 20, 30, 40, 45, 50, 60, 70, 75, 80, 90, 100, 105, 120, 150, 180];
 function secClone(c) { const sv = {}; (c.services || []).forEach(x => { sv[x.id] = { d: x.d, show: x.show !== false }; }); return { id: c.id, name: c.name, color: c.color, cats: (c.catsText || []).slice(), services: sv }; }
 function renderSections() {
   const canE = perm('Schedule', 'edit'), canD = perm('Schedule', 'delete');
@@ -11885,7 +11885,9 @@ loadData(true);
     }
     async function ccDeleteVisit(id) {
       const v = CC.card.visits.find(x => x.id === id);
-      if (!v || !confirm('حذف جلسة "' + v.service + '" بتاريخ ' + ccDate(v.date) + '؟' + (v.pkg ? '\nالكمية (' + v.qty + ') هترجع للرصيد.' : '') + (v.notes ? '\nالملاحظات هتتمسح معاها.' : ''))) return;
+      const credit = !v.pkg && v.source === 'Sale' && v.status !== 'Skipped';
+      if (!v || !confirm('حذف جلسة "' + v.service + '" بتاريخ ' + ccDate(v.date) + '؟' + (v.pkg ? '\n' + (v.qty !== '' ? 'الكمية (' + v.qty + ')' : 'الجلسة') + ' هترجع للرصيد.' : '')
+        + (credit ? '\nالجلسة مدفوعة في فاتورة ' + v.invoice + ' — هترجع للعميل رصيد جلسة يستخدمها بعدين.' : '') + (v.notes ? '\nالملاحظات هتتمسح معاها.' : ''))) return;
       try { const res = await svPost({ action: 'ccDeleteVisit', id }); ccSetCard(res); toast(res.message || 'تم الحذف'); }
       catch (e) { toast(e.message || 'تعذر الحذف', true); }
     }
